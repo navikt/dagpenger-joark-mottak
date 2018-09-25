@@ -1,3 +1,5 @@
+rootProject.name = "dagpenger-joark-mottak"
+
 pluginManagement {
     repositories {
         gradlePluginPortal()

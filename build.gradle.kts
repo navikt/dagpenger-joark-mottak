@@ -1,5 +1,5 @@
 plugins {
-    application
+    id("application")
     kotlin("jvm") version "1.2.51"
     id("com.diffplug.gradle.spotless") version "3.13.0"
     id("com.palantir.docker") version "0.20.1"
@@ -15,6 +15,8 @@ repositories {
     maven(url = "http://packages.confluent.io/maven/")
 }
 
+group = "no.nav.dagpenger"
+
 application {
     applicationName = "dagpenger-joark-mottak"
     mainClassName = "no.nav.dagpenger.joark.mottak.JoarkMottak"
@@ -24,8 +26,8 @@ val kotlinLoggingVersion = "1.4.9"
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("dagpenger:events")
-    implementation("dagpenger:streams")
+    implementation("no.nav.dagpenger:streams:0.0.1")
+    implementation("no.nav.dagpenger:events:0.0.1")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
 
