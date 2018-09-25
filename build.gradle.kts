@@ -15,11 +15,24 @@ repositories {
     maven(url = "http://packages.confluent.io/maven/")
 }
 
+val gitVersion : groovy.lang.Closure<Any> by extra
+version = gitVersion()
 group = "no.nav.dagpenger"
 
 application {
     applicationName = "dagpenger-joark-mottak"
     mainClassName = "no.nav.dagpenger.joark.mottak.JoarkMottak"
+}
+
+docker {
+    name = "navikt/${application.applicationName}"
+    buildArgs(mapOf(
+        "APP_NAME" to application.applicationName,
+        "DIST_TAR" to "${application.applicationName}-${project.version}"
+    ))
+    files(tasks.findByName("distTar")?.outputs)
+    pull(true)
+    tags(project.version.toString())
 }
 
 val kotlinLoggingVersion = "1.4.9"
