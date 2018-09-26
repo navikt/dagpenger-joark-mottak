@@ -1,35 +1,52 @@
 package no.nav.dagpenger.joark.mottak
 
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.lang.RuntimeException
+import com.github.kittinunf.fuel.core.ResponseDeserializable
+import com.github.kittinunf.fuel.core.response
+import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.result.Result
+import java.io.ByteArrayInputStream
+import java.io.InputStream
+import java.io.Reader
 import java.util.UUID
 
 class JournalPostArkivHttpClient(val joarkBaseUrl: String) : JournalpostArkiv {
 
-    companion object {
-        val okHttpClient: OkHttpClient = OkHttpClient()
-    }
-
     override fun hentInngåendeJournalpost(journalpostId: String): JournalPost? {
         val token = UUID.randomUUID().toString() //todo...
-        val request: Request = Request.Builder()
-                .url("$joarkBaseUrl/rest/journalfoerinngaaende/v1/journalposter/$journalpostId")
-                .header("Authorization", BearerToken(token).value())
-                .build()
+        val url = "$joarkBaseUrl/rest/journalfoerinngaaende/v1/journalposter/$journalpostId"
 
-        return okHttpClient.newCall(request).execute().use { response ->
-            if (response.isSuccessful) {
-                JournalPostParser.parse(response.body()!!.byteStream())
-            } else {
-                throw JournalPostArkivException(response.code(), response.message())
+        val (_, response, result) = url.httpGet()
+                .header("Authorization" to token.toBearerToken())
+                .response(journalPostDeserializer())
+        return when (result) {
+            is Result.Failure -> {
+                throw JournalPostArkivException(response.statusCode, response.responseMessage, result.getException())
             }
+            is Result.Success -> {
+                result.get()
+            }
+        }
+    }
+
+    private fun journalPostDeserializer() = object : ResponseDeserializable<JournalPost> {
+        override fun deserialize(reader: Reader): JournalPost? {
+            return JournalPostParser.parse(reader.readText())
+        }
+
+        override fun deserialize(content: String): JournalPost? {
+            return JournalPostParser.parse(content)
+        }
+
+        override fun deserialize(bytes: ByteArray): JournalPost? {
+            return JournalPostParser.parse(ByteArrayInputStream(bytes))
+        }
+
+        override fun deserialize(inputStream: InputStream): JournalPost? {
+            return JournalPostParser.parse(inputStream)
         }
     }
 }
 
-data class BearerToken(val token: String) {
-    fun value(): String = "Bearer $token"
-}
+fun String.toBearerToken() = "Bearer $this"
 
-class JournalPostArkivException(val statusCode: Int, override val message: String) : RuntimeException(message)
+class JournalPostArkivException(val statusCode: Int, override val message: String, override val cause: Throwable) : RuntimeException(message, cause)

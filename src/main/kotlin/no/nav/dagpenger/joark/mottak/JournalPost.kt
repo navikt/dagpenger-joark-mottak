@@ -89,4 +89,7 @@ object JournalPostParser {
 
     fun parse(stream: InputStream): JournalPost? =
             Klaxon().converter(zonedDateTimeConverter).parse<JournalPost>(stream)
+
+    fun parse(content: String): JournalPost? =
+            Klaxon().converter(zonedDateTimeConverter).parse<JournalPost>(content)
 }

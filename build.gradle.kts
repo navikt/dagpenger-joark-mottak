@@ -45,7 +45,7 @@ dependencies {
     implementation("no.nav.dagpenger:events:0.0.1")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
-    implementation("com.squareup.okhttp3:okhttp:3.11.0")
+    implementation("com.github.kittinunf.fuel:fuel:1.15.0")
 
     implementation("com.beust:klaxon:3.0.1")
 
