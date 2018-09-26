@@ -4,10 +4,12 @@ plugins {
     id("com.diffplug.gradle.spotless") version "3.13.0"
     id("com.palantir.docker") version "0.20.1"
     id("com.palantir.git-version") version "0.11.0"
+    id("com.adarshr.test-logger") version "1.5.0"
 }
 
 apply {
     plugin("com.diffplug.gradle.spotless")
+    plugin("com.adarshr.test-logger")
 }
 
 repositories {
@@ -43,12 +45,14 @@ dependencies {
     implementation("no.nav.dagpenger:events:0.0.1")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
+    implementation("com.squareup.okhttp3:okhttp:3.11.0")
 
     implementation("com.beust:klaxon:3.0.1")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
     testImplementation("junit:junit:4.12")
+    testImplementation("au.com.dius:pact-jvm-consumer-java8_2.12:3.6.0-rc.0")
 }
 
 spotless {
