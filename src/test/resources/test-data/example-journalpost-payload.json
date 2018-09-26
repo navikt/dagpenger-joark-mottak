@@ -1,0 +1,45 @@
+{
+  "journalTilstand": "ENDELIG",
+  "avsender": {
+    "avsenderType": "PERSON",
+    "identifikator": "string",
+    "navn": "string"
+  },
+  "brukerListe": [
+    {
+      "brukerType": "PERSON",
+      "identifikator": "string"
+    }
+  ],
+  "arkivSak": {
+    "arkivSakSystem": "string",
+    "arkivSakId": "string"
+  },
+  "tema": "string",
+  "tittel": "string",
+  "kanalReferanseId": "string",
+  "forsendelseMottatt": "2018-09-25T11:21:11.387Z",
+  "mottaksKanal": "string",
+  "journalfEnhet": "string",
+  "dokumentListe": [
+    {
+      "dokumentId": "string",
+      "dokumentTypeId": "string",
+      "navSkjemaId": "string",
+      "tittel": "string",
+      "dokumentKategori": "string",
+      "variant": [
+        {
+          "arkivFilType": "string",
+          "variantFormat": "string"
+        }
+      ],
+      "logiskVedleggListe": [
+        {
+          "logiskVedleggId": "string",
+          "logiskVedleggTittel": "string"
+        }
+      ]
+    }
+  ]
+}

@@ -44,6 +44,8 @@ dependencies {
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
 
+    implementation("com.beust:klaxon:3.0.1")
+
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
     testImplementation("junit:junit:4.12")
