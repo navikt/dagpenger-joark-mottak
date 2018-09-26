@@ -5,8 +5,6 @@ import java.io.ByteArrayInputStream
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-
 
 internal class JournalPostParserTest {
 
@@ -16,7 +14,7 @@ internal class JournalPostParserTest {
         val journalPost = JournalPostParser.parse(ByteArrayInputStream(exampleJournalPostData().toByteArray(Charsets.UTF_8)))
 
         assertEquals(journalPost!!.journalTilstand, JournalTilstand.ENDELIG)
-        assertEquals(journalPost.avsender, Avsender(navn = "string",avsenderType = AvsenderType.PERSON, identifikator = "string"))
+        assertEquals(journalPost.avsender, Avsender(navn = "string", avsenderType = AvsenderType.PERSON, identifikator = "string"))
         assertEquals(journalPost.brukerListe, listOf(Bruker(brukerType = BrukerType.PERSON, identifikator = "string")))
         assertEquals(journalPost.arkivSak, ArkivSak(arkivSakSystem = "string", arkivSakId = "string"))
         assertEquals(journalPost.tema, "string")
@@ -31,7 +29,6 @@ internal class JournalPostParserTest {
                         logiskVedleggListe = listOf(LogiskVedlegg(logiskVedleggId = "string", logiskVedleggTittel = "string")))
                 )
         )
-
     }
 
     private fun exampleJournalPostData() = """

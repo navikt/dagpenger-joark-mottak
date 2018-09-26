@@ -15,7 +15,7 @@ repositories {
     maven(url = "http://packages.confluent.io/maven/")
 }
 
-val gitVersion : groovy.lang.Closure<Any> by extra
+val gitVersion: groovy.lang.Closure<Any> by extra
 version = gitVersion()
 group = "no.nav.dagpenger"
 
