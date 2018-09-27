@@ -38,6 +38,7 @@ docker {
 }
 
 val kotlinLoggingVersion = "1.4.9"
+val fuelVersion = "1.15.0"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -45,14 +46,13 @@ dependencies {
     implementation("no.nav.dagpenger:events:0.0.1")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
-    implementation("com.github.kittinunf.fuel:fuel:1.15.0")
-
-    implementation("com.beust:klaxon:3.0.1")
+    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
+    implementation("com.github.kittinunf.fuel:fuel-gson:$fuelVersion")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
     testImplementation("junit:junit:4.12")
-    testImplementation("au.com.dius:pact-jvm-consumer-java8_2.12:3.6.0-rc.0")
+    testImplementation("com.github.tomakehurst:wiremock:2.18.0")
 }
 
 spotless {
