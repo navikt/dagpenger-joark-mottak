@@ -48,13 +48,13 @@ class JoarkMottak(
         return mapToInngåendeJournalpost(journalpost)
     }
 
-    private fun mapToInngåendeJournalpost(journalpost: String): InngåendeJournalpost =
+    private fun mapToInngåendeJournalpost(journalpost: JournalPost?): InngåendeJournalpost =
         InngåendeJournalpost.newBuilder().apply {
             id = "123"
             avsenderId = "abba-dabba"
             forsendelseMottatt = LocalDate.now().toString()
             tema = "DAG"
             journalTilstand = JournalTilstand.MIDLERTIDIG
-            journalførendeEnhet = journalpost
+            journalførendeEnhet = journalpost?.journalfEnhet
         }.build()
 }

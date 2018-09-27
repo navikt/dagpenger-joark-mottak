@@ -4,10 +4,12 @@ plugins {
     id("com.diffplug.gradle.spotless") version "3.13.0"
     id("com.palantir.docker") version "0.20.1"
     id("com.palantir.git-version") version "0.11.0"
+    id("com.adarshr.test-logger") version "1.5.0"
 }
 
 apply {
     plugin("com.diffplug.gradle.spotless")
+    plugin("com.adarshr.test-logger")
 }
 
 repositories {
@@ -36,6 +38,7 @@ docker {
 }
 
 val kotlinLoggingVersion = "1.4.9"
+val fuelVersion = "1.15.0"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -43,12 +46,13 @@ dependencies {
     implementation("no.nav.dagpenger:events:0.0.1")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
-
-    implementation("com.beust:klaxon:3.0.1")
+    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
+    implementation("com.github.kittinunf.fuel:fuel-gson:$fuelVersion")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
     testImplementation("junit:junit:4.12")
+    testImplementation("com.github.tomakehurst:wiremock:2.18.0")
 }
 
 spotless {
