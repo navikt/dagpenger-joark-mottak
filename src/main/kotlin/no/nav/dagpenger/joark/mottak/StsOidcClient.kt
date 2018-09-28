@@ -7,9 +7,9 @@ import java.time.Duration
 import java.time.LocalDateTime.now
 
 class StsOidcClient(private val stsUrl: String, private val username: String, private val password: String) {
-    private val SECONDS_BEFORE_EXPIRE_TIME_TO_REFRESH: Long = 60
+    private val EXPIRE_TIME_TO_REFRESH: Long = 60
 
-    @Volatile private var tokenExpiryTime = now().minus(Duration.ofSeconds(SECONDS_BEFORE_EXPIRE_TIME_TO_REFRESH))
+    @Volatile private var tokenExpiryTime = now().minus(Duration.ofSeconds(EXPIRE_TIME_TO_REFRESH))
 
     @Volatile private lateinit var oidcToken: OidcToken
 
@@ -18,7 +18,7 @@ class StsOidcClient(private val stsUrl: String, private val username: String, pr
             oidcToken
         } else {
             oidcToken = newOidcToken()
-            tokenExpiryTime = now().plus(Duration.ofSeconds(oidcToken.expires_in - SECONDS_BEFORE_EXPIRE_TIME_TO_REFRESH))
+            tokenExpiryTime = now().plus(Duration.ofSeconds(oidcToken.expires_in - EXPIRE_TIME_TO_REFRESH))
             oidcToken
         }
     }
