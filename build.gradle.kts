@@ -15,6 +15,7 @@ apply {
 repositories {
     jcenter()
     maven(url = "http://packages.confluent.io/maven/")
+    maven(url = "https://repo.adeo.no/repository/maven-releases/")
 }
 
 val gitVersion: groovy.lang.Closure<Any> by extra
