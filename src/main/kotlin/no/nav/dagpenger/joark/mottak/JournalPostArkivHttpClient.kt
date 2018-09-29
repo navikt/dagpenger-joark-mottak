@@ -5,7 +5,7 @@ import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 import java.util.UUID
 
-class JournalPostArkivHttpClient(private val joarkBaseUrl: String, val stsOidcClient: StsOidcClient) : JournalpostArkiv {
+class JournalPostArkivHttpClient(private val joarkBaseUrl: String) : JournalpostArkiv {
 
     override fun hentInngåendeJournalpost(journalpostId: String): JournalPost? {
         val token = UUID.randomUUID().toString() //todo...
