@@ -23,8 +23,12 @@ pipeline {
 
     stage('Publish') {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'nexusUploader', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-            sh "docker login -u ${env.NEXUS_USERNAME} -p ${env.NEXUS_PASSWORD} repo.adeo.no:5443"
+        withCredentials([usernamePassword(
+          credentialsId: 'repo.adeo.no',
+          usernameVariable: 'REPO_USERNAME',
+          passwordVariable: 'REPO_PASSWORD'
+        )]) {
+            sh "docker login -u ${REPO_USERNAME} -p ${REPO_PASSWORD} repo.adeo.no:5443"
         }
 
         script {
@@ -35,8 +39,12 @@ pipeline {
 
     stage("Publish service contract") {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'repo.adeo.no', usernameVariable: 'REPO_CREDENTIAL_USR', passwordVariable: 'REPO_CREDENTIAL_PSW')]) {
-          sh "curl -vvv --user ${REPO_CREDENTIAL_USR}:${REPO_CREDENTIAL_PSW} --upload-file nais.yaml https://repo.adeo.no/repository/raw/nais/${APPLICATION_NAME}/${VERSION}/nais.yaml"
+        withCredentials([usernamePassword(
+          credentialsId: 'repo.adeo.no',
+          usernameVariable: 'REPO_USERNAME',
+          passwordVariable: 'REPO_PASSWORD'
+        )]) {
+          sh "curl -vvv --user ${REPO_USERNAME}:${REPO_PASSWORD} --upload-file nais.yaml https://repo.adeo.no/repository/raw/nais/${APPLICATION_NAME}/${VERSION}/nais.yaml"
         }
       }
     }
