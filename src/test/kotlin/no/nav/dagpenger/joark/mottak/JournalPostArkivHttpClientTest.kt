@@ -1,10 +1,12 @@
 package no.nav.dagpenger.joark.mottak
 
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import com.github.tomakehurst.wiremock.matching.RegexPattern
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -15,12 +17,15 @@ import kotlin.test.assertNotNull
 class JournalPostArkivHttpClientTest {
 
     companion object {
-        val wireMockServer = WireMockServer()
+        val wireMockServer = WireMockServer(
+            options().dynamicPort()
+        )
 
         @BeforeClass
         @JvmStatic
         fun setup() {
             wireMockServer.start()
+            WireMock.configureFor("localhost", wireMockServer.port())
             val body = JournalPostArkivHttpClientTest::class.java.getResource("/test-data/example-journalpost-payload.json").readText()
             stubFor(get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/1"))
                     .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
