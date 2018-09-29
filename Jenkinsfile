@@ -19,6 +19,12 @@ pipeline {
       steps {
         sh "./gradlew check"
       }
+
+      post {
+        always {
+          archiveArtifacts artifacts: 'build/reports/tests/test/**'
+        }
+      }
     }
 
     stage('Publish') {
