@@ -42,8 +42,8 @@ val fuelVersion = "1.15.0"
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("no.nav.dagpenger:streams:0.0.1")
-    implementation("no.nav.dagpenger:events:0.0.1")
+    implementation("no.nav.dagpenger:streams:0.1.1")
+    implementation("no.nav.dagpenger:events:0.1.3")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
