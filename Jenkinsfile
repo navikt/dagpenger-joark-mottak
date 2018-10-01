@@ -38,6 +38,10 @@ pipeline {
 
     stage('Publish') {
       steps {
+        timeout(10) {
+                input 'Keep going?'
+        }
+
         withCredentials([usernamePassword(
           credentialsId: 'repo.adeo.no',
           usernameVariable: 'REPO_USERNAME',
