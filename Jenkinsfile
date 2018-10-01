@@ -22,7 +22,16 @@ pipeline {
 
       post {
         always {
-          archiveArtifacts artifacts: 'build/reports/tests/test/**'
+          publishHTML target: [
+            allowMissing: false,
+            alwaysLinkToLastBuild: false,
+            keepAll: true,
+            reportDir: 'build/reports/tests/test',
+            reportFiles: 'index.html',
+            reportName: 'Test coverage'
+          ]
+
+          junit 'build/test-results/test/*.xml'
         }
       }
     }
