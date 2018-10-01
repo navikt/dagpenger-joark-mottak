@@ -5,13 +5,13 @@ import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 import java.util.UUID
 
-class JournalPostArkivHttpClient(private val joarkBaseUrl: String) : JournalpostArkiv {
+class JournalPostArkivHttpClient(private val joarkBaseUrl: String, private val oidcClient: OidcClient) : JournalpostArkiv {
 
     override fun hentInngåendeJournalpost(journalpostId: String): JournalPost? {
         val token = UUID.randomUUID().toString() //todo...
         val url = "${joarkBaseUrl}rest/journalfoerinngaaende/v1/journalposter/$journalpostId"
         val (_, response, result) = with(url.httpGet()) {
-            header("Authorization" to token.toBearerToken())
+            header("Authorization" to oidcClient.oidcToken().access_token.toBearerToken())
             responseObject<JournalPost>()
         }
         return when (result) {

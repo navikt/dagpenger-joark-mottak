@@ -11,6 +11,7 @@ import com.github.tomakehurst.wiremock.matching.RegexPattern
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
+import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -43,10 +44,14 @@ class JournalPostArkivHttpClientTest {
         }
     }
 
+    class DummyOidcClient : OidcClient {
+        override fun oidcToken(): OidcToken = OidcToken(UUID.randomUUID().toString(), "openid", 3000)
+    }
+
     @Test
     fun `fetch JournalPost on 200 ok`() {
 
-        val joarkClient = JournalPostArkivHttpClient(wireMockServer.url(""))
+        val joarkClient = JournalPostArkivHttpClient(wireMockServer.url(""), DummyOidcClient())
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
 
         assertNotNull(journalPost!!)
@@ -68,7 +73,7 @@ class JournalPostArkivHttpClientTest {
 
     @Test(expected = JournalPostArkivException::class)
     fun `fetch JournalPost on 4xx errors`() {
-        val joarkClient = JournalPostArkivHttpClient(wireMockServer.url(""))
+        val joarkClient = JournalPostArkivHttpClient(wireMockServer.url(""), DummyOidcClient())
         joarkClient.hentInngåendeJournalpost("-1")
     }
 }

@@ -6,14 +6,14 @@ import com.github.kittinunf.result.Result
 import java.time.Duration
 import java.time.LocalDateTime.now
 
-class StsOidcClient(private val stsUrl: String, private val username: String, private val password: String) {
+class StsOidcClient(private val stsUrl: String, private val username: String, private val password: String) : OidcClient {
     private val EXPIRE_TIME_TO_REFRESH: Long = 60
 
     @Volatile private var tokenExpiryTime = now().minus(Duration.ofSeconds(EXPIRE_TIME_TO_REFRESH))
 
     @Volatile private lateinit var oidcToken: OidcToken
 
-    fun oidcToken(): OidcToken {
+    override fun oidcToken(): OidcToken {
         return if (now().isBefore(tokenExpiryTime)) {
             oidcToken
         } else {
