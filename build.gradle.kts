@@ -40,6 +40,8 @@ docker {
 
 val kotlinLoggingVersion = "1.4.9"
 val fuelVersion = "1.15.0"
+val confluentVersion = "4.1.2"
+val kafkaVersion = "2.0.0"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -49,6 +51,10 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
     implementation("com.github.kittinunf.fuel:fuel-gson:$fuelVersion")
+
+    compile("org.apache.kafka:kafka-clients:$kafkaVersion")
+    compile("org.apache.kafka:kafka-streams:$kafkaVersion")
+    compile("io.confluent:kafka-streams-avro-serde:$confluentVersion")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
