@@ -45,8 +45,8 @@ val kafkaVersion = "2.0.0"
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("no.nav.dagpenger:streams:0.1.1")
-    implementation("no.nav.dagpenger:events:0.1.3")
+    implementation("no.nav.dagpenger:streams:0.1.2")
+    implementation("no.nav.dagpenger:events:0.1.4")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
