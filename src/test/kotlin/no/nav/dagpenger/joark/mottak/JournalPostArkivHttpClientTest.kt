@@ -1,15 +1,14 @@
 package no.nav.dagpenger.joark.mottak
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.notFound
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomakehurst.wiremock.matching.RegexPattern
-import org.junit.AfterClass
-import org.junit.BeforeClass
+import org.junit.Rule
 import org.junit.Test
 import java.util.UUID
 import kotlin.test.assertEquals
@@ -17,32 +16,9 @@ import kotlin.test.assertNotNull
 
 class JournalPostArkivHttpClientTest {
 
-    companion object {
-        val wireMockServer = WireMockServer(
-            options().dynamicPort()
-        )
-
-        @BeforeClass
-        @JvmStatic
-        fun setup() {
-            wireMockServer.start()
-            WireMock.configureFor("localhost", wireMockServer.port())
-            val body = JournalPostArkivHttpClientTest::class.java.getResource("/test-data/example-journalpost-payload.json").readText()
-            stubFor(get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/1"))
-                    .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
-                    .willReturn(aResponse()
-                            .withHeader("Content-Type", "application/json")
-                            .withBody(body)
-                    )
-            )
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun after() {
-            wireMockServer.stop()
-        }
-    }
+    @Rule
+    @JvmField
+    var wireMockRule = WireMockRule(WireMockConfiguration.wireMockConfig().dynamicPort())
 
     class DummyOidcClient : OidcClient {
         override fun oidcToken(): OidcToken = OidcToken(UUID.randomUUID().toString(), "openid", 3000)
@@ -51,7 +27,16 @@ class JournalPostArkivHttpClientTest {
     @Test
     fun `fetch JournalPost on 200 ok`() {
 
-        val joarkClient = JournalPostArkivHttpClient(wireMockServer.url(""), DummyOidcClient())
+        val body = JournalPostArkivHttpClientTest::class.java.getResource("/test-data/example-journalpost-payload.json").readText()
+        stubFor(get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/1"))
+                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                )
+        )
+
+        val joarkClient = JournalPostArkivHttpClient(wireMockRule.url(""), DummyOidcClient())
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
 
         assertNotNull(journalPost!!)
@@ -73,7 +58,14 @@ class JournalPostArkivHttpClientTest {
 
     @Test(expected = JournalPostArkivException::class)
     fun `fetch JournalPost on 4xx errors`() {
-        val joarkClient = JournalPostArkivHttpClient(wireMockServer.url(""), DummyOidcClient())
+
+        stubFor(get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/-1"))
+                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .willReturn(notFound()
+                )
+        )
+
+        val joarkClient = JournalPostArkivHttpClient(wireMockRule.url(""), DummyOidcClient())
         joarkClient.hentInngåendeJournalpost("-1")
     }
 }
