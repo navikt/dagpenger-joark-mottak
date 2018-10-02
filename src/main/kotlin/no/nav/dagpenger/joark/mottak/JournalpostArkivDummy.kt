@@ -12,7 +12,7 @@ class JournalpostArkivDummy : JournalpostArkiv {
                 arkivSak = ArkivSak(arkivSakId = "1234", arkivSakSystem = "fag"),
                 mottaksKanal = "Nav",
                 tema = "DAG",
-                dokumentListe =  listOf(
+                dokumentListe = listOf(
                 Dokument(dokumentId = "string", dokumentTypeId = "string", navSkjemaId = "string", tittel = "string", dokumentKategori = "string",
                         variant = listOf(Variant(arkivFilType = "string", variantFormat = "string")),
                         logiskVedleggListe = listOf(LogiskVedlegg(logiskVedleggId = "string", logiskVedleggTittel = "string")))),
