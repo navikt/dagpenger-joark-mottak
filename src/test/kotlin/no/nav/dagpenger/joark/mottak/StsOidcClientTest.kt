@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.exactly
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.verify
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import com.github.tomakehurst.wiremock.matching.RegexPattern
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -14,7 +15,9 @@ import kotlin.test.assertEquals
 
 class StsOidcClientTest {
     companion object {
-        val wireMockServer = WireMockServer()
+        val wireMockServer = WireMockServer(
+                options().dynamicPort()
+        )
 
         @BeforeClass
         @JvmStatic
