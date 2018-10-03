@@ -27,7 +27,8 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
     }
 
     override fun setupStreams(): KafkaStreams {
-        println(SERVICE_APP_ID)
+        LOGGER.info { "Initiating start of $SERVICE_APP_ID" }
+
         val builder = StreamsBuilder()
         val inngåendeJournalposter = builder.consumeGenericTopic(JOARK_EVENTS)
 
