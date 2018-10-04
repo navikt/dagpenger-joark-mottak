@@ -17,7 +17,6 @@ repositories {
     maven(url = "http://packages.confluent.io/maven/")
     maven(url = "https://repo.adeo.no/repository/maven-snapshots/")
     maven(url = "https://repo.adeo.no/repository/maven-releases/")
-    maven(url = "https://dl.bintray.com/kotlin/ktor")
 }
 
 val gitVersion: groovy.lang.Closure<Any> by extra
@@ -44,7 +43,6 @@ val kotlinLoggingVersion = "1.4.9"
 val fuelVersion = "1.15.0"
 val confluentVersion = "4.1.2"
 val kafkaVersion = "2.0.0"
-val ktorVersion = "0.9.5"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -58,8 +56,6 @@ dependencies {
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("org.apache.kafka:kafka-streams:$kafkaVersion")
     compile("io.confluent:kafka-streams-avro-serde:$confluentVersion")
-
-    compile("io.ktor:ktor-server-netty:$ktorVersion")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
