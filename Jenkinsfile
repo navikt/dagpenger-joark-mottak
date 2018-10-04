@@ -51,7 +51,7 @@ pipeline {
         }
 
         script {
-          sh "./gradlew dockerPush"
+          sh "./gradlew dockerPush${VERSION}"
         }
       }
     }
