@@ -1,5 +1,5 @@
 package no.nav.dagpenger.joark.mottak
 
 interface JournalpostArkiv {
-    fun hentInngåendeJournalpost(journalpostId: String): JournalPost?
+    fun hentInngåendeJournalpost(journalpostId: String): Journalpost?
 }

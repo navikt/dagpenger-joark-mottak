@@ -1,6 +1,6 @@
 package no.nav.dagpenger.joark.mottak
 
-data class JournalPost(
+data class Journalpost(
     val journalTilstand: JournalTilstand,
     val avsender: Avsender,
     val brukerListe: List<Bruker>,
