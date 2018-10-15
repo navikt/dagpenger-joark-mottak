@@ -48,7 +48,7 @@ val ktorVersion = "0.9.5"
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("no.nav.dagpenger:streams:0.1.4-SNAPSHOT")
+    implementation("no.nav.dagpenger:streams:0.1.5-SNAPSHOT")
     implementation("no.nav.dagpenger:events:0.1.5-SNAPSHOT")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
