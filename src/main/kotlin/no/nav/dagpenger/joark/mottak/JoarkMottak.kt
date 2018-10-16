@@ -1,16 +1,15 @@
 package no.nav.dagpenger.joark.mottak
 
 import mu.KotlinLogging
-
 import no.nav.dagpenger.events.avro.Behov
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.Topics.INNGÅENDE_JOURNALPOST
 import no.nav.dagpenger.streams.Topics.JOARK_EVENTS
 import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.toTopic
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
-import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.streams.kstream.ValueMapper
 
 private val LOGGER = KotlinLogging.logger {}

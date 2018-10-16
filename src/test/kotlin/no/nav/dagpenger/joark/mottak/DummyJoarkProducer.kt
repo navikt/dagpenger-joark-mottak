@@ -25,20 +25,36 @@ class DummyJoarkProducer {
 
                 val schemaSource = """
 
-                    {"namespace": "example.jp",
-                     "type": "record",
-                     "name": "JournalPost",
-                     "fields": [
-                         {"name": "journalpostId", "type": "long"}
-                     ]
+                  {
+                      "namespace" : "no.nav.joarkinngaaendehendelser.producer",
+                      "type" : "record",
+                      "name" : "InngaaendeHendelseRecord",
+                      "fields" : [
+                        {"name": "hendelsesId", "type": "string"},
+                        {"name": "versjon", "type": "int"},
+                        {"name": "hendelsesType", "type": "string"},
+                        {"name": "journalpostId", "type": "long"},
+                        {"name": "journalpostStatus", "type": "string"},
+                        {"name": "temaGammelt", "type": "string"},
+                        {"name": "temaNytt", "type": "string"},
+                        {"name": "mottaksKanal", "type": "string"},
+                        {"name": "kanalReferanseId", "type": "string"}
+                      ]
                     }
-
 
                 """.trimIndent()
 
                 val avroSchema = Schema.Parser().parse(schemaSource)
                 val joarkJournalpost = GenericData.Record(avroSchema)
+                joarkJournalpost.put("hendelsesId", id)
+                joarkJournalpost.put("versjon", id.toInt())
                 joarkJournalpost.put("journalpostId", id.toLong())
+                joarkJournalpost.put("hendelsesType", listOf("MidlertidigJournalført", "EndeligJournalført", "TemaEndret").shuffled().take(1)[0])
+                joarkJournalpost.put("journalpostStatus", "journalpostStatus")
+                joarkJournalpost.put("temaGammelt", "temaGammelt")
+                joarkJournalpost.put("temaNytt", "temaNy")
+                joarkJournalpost.put("mottaksKanal", "mottaksKanal")
+                joarkJournalpost.put("kanalReferanseId", "kanalReferanseId")
 
                 System.out.println("Creating InngåendeJournalpost $id to topic $JOARK_EVENTS")
                 val record: RecordMetadata = journalpostProducer.send(
