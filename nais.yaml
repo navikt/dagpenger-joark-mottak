@@ -22,3 +22,5 @@ fasitResources:
     propertyMap:
       username: KAFKA_USERNAME
       password: KAFKA_PASSWORD
+  - alias: securityTokenService
+      resourceType: baseurl
