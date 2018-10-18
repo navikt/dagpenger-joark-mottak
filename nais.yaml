@@ -19,5 +19,5 @@ fasitResources:
     resourceType: applicationproperties
   - alias: srvdagpenger-joark-mottak
     resourceType: credential
-  - alias: securityTokenService
+  - alias: security-token-service-oidc
     resourceType: baseurl
