@@ -1,6 +1,5 @@
 pipeline {
   agent any
-
   environment {
     APPLICATION_NAME = 'dagpenger-joark-mottak'
     ZONE = 'fss'
