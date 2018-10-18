@@ -17,8 +17,8 @@ import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
 
-private val username: String? = getenv("SRVDAGPENGER_USERNAME")
-private val password: String? = getenv("SRVDAGPENGER_PASSWORD")
+private val username: String? = getenv("SRVDAGPENGER_JOARK_MOTTAK_USERNAME")
+private val password: String? = getenv("SRVDAGPENGER_JOARK_MOTTAK_PASSWORD")
 
 class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
     override val SERVICE_APP_ID = "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
