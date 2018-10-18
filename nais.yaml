@@ -20,4 +20,4 @@ fasitResources:
   - alias: srvdagpenger-joark-mottak
     resourceType: credential
   - alias: securityTokenService
-      resourceType: baseurl
+    resourceType: baseurl
