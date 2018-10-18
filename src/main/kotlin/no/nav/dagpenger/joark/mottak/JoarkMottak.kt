@@ -17,7 +17,6 @@ import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
 
-
 class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
     override val SERVICE_APP_ID = "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
 
