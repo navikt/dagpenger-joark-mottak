@@ -23,3 +23,5 @@ fasitResources:
     resourceType: baseUrl
     propertyMap:
       url: OIDC_STS_ISSUERURL
+  - alias: JournalfoerInngaaende_v1
+    resourceType: restservice
