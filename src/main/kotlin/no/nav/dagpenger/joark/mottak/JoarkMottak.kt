@@ -17,16 +17,19 @@ import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
 
+private val username: String? = getenv("SRVDAGPENGER_JOARK_MOTTAK_USERNAME")
+private val password: String? = getenv("SRVDAGPENGER_JOARK_MOTTAK_PASSWORD")
+private val oicdStsUrl: String? = getenv("OIDC_STS_ISSUERURL")
+private val journalfoerinngaaendeV1Url: String? = getenv("JOURNALFOERINNGAAENDE_V1_URL")
+
 class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
     override val SERVICE_APP_ID = "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
-
-    private val username: String? = getenv("SRVDAGPENGER_JOARK_MOTTAK_USERNAME")
-    private val password: String? = getenv("SRVDAGPENGER_JOARK_MOTTAK_PASSWORD")
 
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val service = JoarkMottak(JournalpostArkivDummy())
+            val journalpostArkiv: JournalpostArkiv = oicdStsUrl?.let { stsUrl -> journalfoerinngaaendeV1Url?.let { journalPostUrl -> JournalPostArkivHttpClient(journalPostUrl, StsOidcClient(stsUrl, username!!, password!!)) } } ?: JournalpostArkivDummy()
+            val service = JoarkMottak(journalpostArkiv)
             service.start()
         }
     }
