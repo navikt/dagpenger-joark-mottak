@@ -38,6 +38,7 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
         LOGGER.info { "Initiating start of $SERVICE_APP_ID" }
         val builder = StreamsBuilder()
         val inngåendeJournalposter = builder.consumeGenericTopic(JOARK_EVENTS)
+
         inngåendeJournalposter
                 .peek { key, value -> LOGGER.info("Processing ${value.javaClass} with key $key") }
                 .mapValues(ValueMapper<GenericRecord, Behov> {
