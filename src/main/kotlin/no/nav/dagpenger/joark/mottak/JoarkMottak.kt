@@ -6,17 +6,22 @@ import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.Topics.INNGÅENDE_JOURNALPOST
 import no.nav.dagpenger.streams.Topics.JOARK_EVENTS
 import no.nav.dagpenger.streams.consumeGenericTopic
+import no.nav.dagpenger.streams.streamConfig
 import no.nav.dagpenger.streams.toTopic
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.ValueMapper
+import java.lang.System.getenv
+import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
 
+private val username: String? = getenv("SRVDAGPENGER_USERNAME")
+private val password: String? = getenv("SRVDAGPENGER_PASSWORD")
+
 class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
     override val SERVICE_APP_ID = "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
-    override val HTTP_PORT: Int = 8080
 
     companion object {
         @JvmStatic
@@ -41,6 +46,10 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
                 .toTopic(INNGÅENDE_JOURNALPOST)
 
         return KafkaStreams(builder.build(), this.getConfig())
+    }
+
+    override fun getConfig(): Properties {
+        return streamConfig(SERVICE_APP_ID, username, password)
     }
 
     private fun hentInngåendeJournalpost(inngåendeJournalpostId: String): Behov {
