@@ -25,3 +25,5 @@ fasitResources:
       url: OIDC_STS_ISSUERURL
   - alias: JournalfoerInngaaende_v1
     resourceType: restservice
+  - alias:  kafka-schema-registry
+    resourceType: baseUrl
