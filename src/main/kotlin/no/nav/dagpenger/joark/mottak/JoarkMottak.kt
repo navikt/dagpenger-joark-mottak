@@ -37,9 +37,6 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
 
     override fun setupStreams(): KafkaStreams {
         LOGGER.info { "Initiating start of $SERVICE_APP_ID" }
-        if (password != null) {
-            LOGGER.info { "Using username $username and password ${password.substring(0, password.length - 5) + "*****"}" }
-        }
         val builder = StreamsBuilder()
         val inngåendeJournalposter = builder.consumeGenericTopic(JOARK_EVENTS.copy(name = "aapen-dok-journalfoering-v1-t6"))
 
