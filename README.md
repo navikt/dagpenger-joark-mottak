@@ -4,7 +4,7 @@ Tar i mot tynne kafka meldinger fra Joark og produserer tykke kafka meldinger fo
 
 # Komme i gang
 
-Gradle brukes som byggverktøy og er bundlet inn.
+Gradle brukes som byggverktøy og er bundlet inn. 
 
 `./gradlew build`
 
@@ -18,4 +18,3 @@ Spørsmål knyttet til koden eller prosjektet kan rettes mot:
 ## For NAV-ansatte
 
 Interne henvendelser kan sendes via Slack i kanalen #dagpenger.
-
