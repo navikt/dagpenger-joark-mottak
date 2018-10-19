@@ -1,6 +1,6 @@
 # Dagpenger-joark-mottak
 
-Tar i mot tynne meldinger fra Joark og produserer tykke meldinger for videre behandling
+Tar i mot tynne kafka meldinger fra Joark og produserer tykke kafka meldinger for videre behandling
 
 # Komme i gang
 
