@@ -2,6 +2,7 @@ package no.nav.dagpenger.joark.mottak
 
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Behov
+import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.Topics.INNGÅENDE_JOURNALPOST
 import no.nav.dagpenger.streams.Topics.JOARK_EVENTS
