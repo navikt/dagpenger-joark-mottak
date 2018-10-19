@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
+import no.nav.dagpenger.oidc.OidcClient
 
 class JournalPostArkivHttpClient(private val joarkBaseUrl: String, private val oidcClient: OidcClient) : JournalpostArkiv {
 
