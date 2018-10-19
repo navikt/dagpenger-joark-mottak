@@ -59,21 +59,20 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
         return mapToInngåendeJournalpost(journalpost)
     }
 
-    private fun mapToInngåendeJournalpost(inngåendeJournalpost: Journalpost?): Behov =
+    private fun mapToInngåendeJournalpost(inngåendeJournalpost: Journalpost): Behov =
             Behov.newBuilder().apply {
                 journalpost = no.nav.dagpenger.events.avro.Journalpost.newBuilder().apply {
-                    tema = journalpost?.getTema() ?: "" //@todo : journalpost should not be optional?
-
+                    tema = inngåendeJournalpost.tema
                     dokumentListe = mapToDokumentList(inngåendeJournalpost)
                 }.build()
             }.build()
 
-    private fun mapToDokumentList(inngåendeJournalpost: Journalpost?): List<no.nav.dagpenger.events.avro.Dokument>? {
-        return inngåendeJournalpost?.dokumentListe?.map {
+    private fun mapToDokumentList(inngåendeJournalpost: Journalpost): List<no.nav.dagpenger.events.avro.Dokument>? {
+        return inngåendeJournalpost.dokumentListe.asSequence().map {
             no.nav.dagpenger.events.avro.Dokument.newBuilder().apply {
                 dokumentId = it.dokumentId
                 navSkjemaId = it.navSkjemaId
             }.build()
-        }?.toList()
+        }.toList()
     }
 }

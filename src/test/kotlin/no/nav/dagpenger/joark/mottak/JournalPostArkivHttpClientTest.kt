@@ -12,7 +12,6 @@ import org.junit.Rule
 import org.junit.Test
 import java.util.UUID
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class JournalPostArkivHttpClientTest {
 
@@ -39,7 +38,6 @@ class JournalPostArkivHttpClientTest {
         val joarkClient = JournalPostArkivHttpClient(wireMockRule.url(""), DummyOidcClient())
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
 
-        assertNotNull(journalPost!!)
         assertEquals(journalPost.journalTilstand, JournalTilstand.ENDELIG)
         assertEquals(journalPost.avsender, Avsender(navn = "string", avsenderType = AvsenderType.PERSON, identifikator = "string"))
         assertEquals(journalPost.brukerListe, listOf(Bruker(brukerType = BrukerType.PERSON, identifikator = "string")))
@@ -54,6 +52,22 @@ class JournalPostArkivHttpClientTest {
                 Dokument(dokumentId = "string", dokumentTypeId = "string", navSkjemaId = "string", tittel = "string", dokumentKategori = "string",
                         variant = listOf(Variant(arkivFilType = "string", variantFormat = "string")),
                         logiskVedleggListe = listOf(LogiskVedlegg(logiskVedleggId = "string", logiskVedleggTittel = "string")))))
+    }
+
+    @Test(expected = JournalPostArkivException::class)
+    fun `fetch JournalPost on 200 ok but no content`() {
+
+        val body = ""
+        stubFor(get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/2"))
+                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                )
+        )
+
+        val joarkClient = JournalPostArkivHttpClient(wireMockRule.url(""), DummyOidcClient())
+        joarkClient.hentInngåendeJournalpost("2")
     }
 
     @Test(expected = JournalPostArkivException::class)

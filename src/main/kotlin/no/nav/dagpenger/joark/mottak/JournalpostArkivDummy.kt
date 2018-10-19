@@ -1,7 +1,7 @@
 package no.nav.dagpenger.joark.mottak
 
 class JournalpostArkivDummy : JournalpostArkiv {
-    override fun hentInngåendeJournalpost(journalpostId: String): Journalpost? {
+    override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {
         return Journalpost(
                 tittel = "tittel",
                 journalTilstand = JournalTilstand.MIDLERTIDIG,
