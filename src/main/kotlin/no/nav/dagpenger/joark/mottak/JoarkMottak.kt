@@ -1,5 +1,6 @@
 package no.nav.dagpenger.joark.mottak
 
+import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Behov
 import no.nav.dagpenger.oidc.StsOidcClient
@@ -25,6 +26,11 @@ private val journalfoerinngaaendeV1Url: String? = getenv("JOURNALFOERINNGAAENDE_
 
 class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
     override val SERVICE_APP_ID = "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
+
+    private val jpCounter: Counter = Counter.build()
+            .name("journalpost_mottatt")
+            .labelNames("tema")
+            .help("Antall journalposter mottatt - med tema").register()
 
     companion object {
         @JvmStatic
@@ -57,6 +63,7 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
 
     private fun hentInngåendeJournalpost(inngåendeJournalpostId: String): Behov {
         val journalpost = journalpostArkiv.hentInngåendeJournalpost(inngåendeJournalpostId)
+        jpCounter.labels(journalpost.tema).inc()
         return mapToInngåendeJournalpost(journalpost)
     }
 
