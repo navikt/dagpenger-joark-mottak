@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Behov
+import no.nav.dagpenger.events.avro.BrukerType
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.Topics.INNGÅENDE_JOURNALPOST
@@ -72,6 +73,7 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
                 journalpost = no.nav.dagpenger.events.avro.Journalpost.newBuilder().apply {
                     tema = inngåendeJournalpost.tema
                     dokumentListe = mapToDokumentList(inngåendeJournalpost)
+                    brukerListe = mapToBrukerList(inngåendeJournalpost)
                 }.build()
             }.build()
 
@@ -80,6 +82,15 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
             no.nav.dagpenger.events.avro.Dokument.newBuilder().apply {
                 dokumentId = it.dokumentId
                 navSkjemaId = it.navSkjemaId
+            }.build()
+        }.toList()
+    }
+
+    private fun mapToBrukerList(inngåendeJournalpost: Journalpost): List<no.nav.dagpenger.events.avro.Bruker>? {
+        return inngåendeJournalpost.brukerListe.asSequence().map {
+            no.nav.dagpenger.events.avro.Bruker.newBuilder().apply {
+                brukerType = BrukerType.valueOf(it.brukerType.toString())
+                identifikator = it.identifikator
             }.build()
         }.toList()
     }
