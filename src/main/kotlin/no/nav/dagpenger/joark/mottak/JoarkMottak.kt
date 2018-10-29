@@ -4,6 +4,7 @@ import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Behov
 import no.nav.dagpenger.events.avro.BrukerType
+import no.nav.dagpenger.events.avro.Søker
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.Topics.INNGÅENDE_JOURNALPOST
@@ -15,6 +16,7 @@ import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.ValueMapper
+import java.lang.IllegalArgumentException
 import java.lang.System.getenv
 import java.util.Properties
 
@@ -73,7 +75,7 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
                 journalpost = no.nav.dagpenger.events.avro.Journalpost.newBuilder().apply {
                     tema = inngåendeJournalpost.tema
                     dokumentListe = mapToDokumentList(inngåendeJournalpost)
-                    brukerListe = mapToBrukerList(inngåendeJournalpost)
+                    søker = mapToSøker(inngåendeJournalpost.brukerListe)
                 }.build()
             }.build()
 
@@ -86,12 +88,11 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
         }.toList()
     }
 
-    private fun mapToBrukerList(inngåendeJournalpost: Journalpost): List<no.nav.dagpenger.events.avro.Bruker>? {
-        return inngåendeJournalpost.brukerListe.asSequence().map {
-            no.nav.dagpenger.events.avro.Bruker.newBuilder().apply {
-                brukerType = BrukerType.valueOf(it.brukerType.toString())
-                identifikator = it.identifikator
-            }.build()
-        }.toList()
+    private fun mapToSøker(brukerListe: List<Bruker>): Søker? {
+        return when {
+            brukerListe.size > 1 -> throw IllegalArgumentException("BrukerListe has more than one element")
+            brukerListe[0].brukerType == BrukerType.PERSON -> Søker(brukerListe[0].identifikator)
+            else -> null
+        }
     }
 }
