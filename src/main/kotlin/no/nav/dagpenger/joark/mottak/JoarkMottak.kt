@@ -55,7 +55,7 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
                     hentInngåendeJournalpost(it.get("journalpostId").toString())
                 })
                 .peek { key, value -> LOGGER.info("Producing ${value.javaClass} with key $key") }
-                .toTopic(INNGÅENDE_JOURNALPOST)
+                .toTopic(INNGÅENDE_JOURNALPOST.copy(name = "privat-dagpenger-journalpost-mottatt-alpha"))
 
         return KafkaStreams(builder.build(), this.getConfig())
     }
