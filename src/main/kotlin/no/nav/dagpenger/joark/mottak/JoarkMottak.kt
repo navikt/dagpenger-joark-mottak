@@ -47,7 +47,7 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
     override fun setupStreams(): KafkaStreams {
         LOGGER.info { "Initiating start of $SERVICE_APP_ID" }
         val builder = StreamsBuilder()
-        val inngåendeJournalposter = builder.consumeGenericTopic(JOARK_EVENTS.copy(name = "aapen-dok-journalfoering-v1-t6"))
+        val inngåendeJournalposter = builder.consumeGenericTopic(JOARK_EVENTS.copy(name = "aapen-dok-journalfoering-v1-q1"))
 
         inngåendeJournalposter
                 .peek { key, value -> LOGGER.info("Processing ${value.javaClass} with key $key") }
