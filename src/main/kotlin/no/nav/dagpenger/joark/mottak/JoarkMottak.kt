@@ -1,14 +1,19 @@
 package no.nav.dagpenger.joark.mottak
 
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Behov
 import no.nav.dagpenger.events.avro.BrukerType
 import no.nav.dagpenger.events.avro.Søker
 import no.nav.dagpenger.oidc.StsOidcClient
+import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.Topics.INNGÅENDE_JOURNALPOST
 import no.nav.dagpenger.streams.Topics.JOARK_EVENTS
+import no.nav.dagpenger.streams.configureAvroSerde
+import no.nav.dagpenger.streams.configureGenericAvroSerde
 import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.streamConfig
 import no.nav.dagpenger.streams.toTopic
@@ -16,18 +21,14 @@ import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.ValueMapper
+
 import java.lang.IllegalArgumentException
-import java.lang.System.getenv
+
 import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
 
-private val username: String? = getenv("SRVDAGPENGER_JOARK_MOTTAK_USERNAME")
-private val password: String? = getenv("SRVDAGPENGER_JOARK_MOTTAK_PASSWORD")
-private val oicdStsUrl: String? = getenv("OIDC_STS_ISSUERURL")
-private val journalfoerinngaaendeV1Url: String? = getenv("JOURNALFOERINNGAAENDE_V1_URL")
-
-class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
+class JoarkMottak(val env: Environment, private val journalpostArkiv: JournalpostArkiv) : Service() {
     override val SERVICE_APP_ID = "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
 
     private val jpCounter: Counter = Counter.build()
@@ -38,8 +39,9 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val journalpostArkiv: JournalpostArkiv = oicdStsUrl?.let { stsUrl -> journalfoerinngaaendeV1Url?.let { journalPostUrl -> JournalPostArkivHttpClient(journalPostUrl, StsOidcClient(stsUrl, username!!, password!!)) } } ?: JournalpostArkivDummy()
-            val service = JoarkMottak(journalpostArkiv)
+            val env = Environment()
+            val journalpostArkiv: JournalpostArkiv = JournalPostArkivHttpClient(env.journalfoerinngaaendeV1Url, StsOidcClient(env.oicdStsUrl, env.username, env.password))
+            val service = JoarkMottak(env, journalpostArkiv)
             service.start()
         }
     }
@@ -47,7 +49,13 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
     override fun setupStreams(): KafkaStreams {
         LOGGER.info { "Initiating start of $SERVICE_APP_ID" }
         val builder = StreamsBuilder()
-        val inngåendeJournalposter = builder.consumeGenericTopic(JOARK_EVENTS.copy(name = "aapen-dok-journalfoering-v1-q1"))
+
+        val inngåendeJournalposter = builder.consumeGenericTopic(
+                JOARK_EVENTS.copy(
+                        valueSerde = configureGenericAvroSerde(
+                                mapOf(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG to env.schemaRegistryUrl)
+                        )
+                ))
 
         inngåendeJournalposter
                 .peek { key, value -> LOGGER.info("Processing ${value.javaClass} with key $key") }
@@ -55,13 +63,21 @@ class JoarkMottak(private val journalpostArkiv: JournalpostArkiv) : Service() {
                     hentInngåendeJournalpost(it.get("journalpostId").toString())
                 })
                 .peek { key, value -> LOGGER.info("Producing ${value.javaClass} with key $key") }
-                .toTopic(INNGÅENDE_JOURNALPOST.copy(name = "privat-dagpenger-journalpost-mottatt-alpha"))
+                .toTopic(INNGÅENDE_JOURNALPOST.copy(
+                        valueSerde = configureAvroSerde<Behov>(
+                                mapOf(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to env.schemaRegistryUrl,
+                                        KafkaAvroDeserializerConfig.AUTO_REGISTER_SCHEMAS to true,
+                                        KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to true
+                                        )
+                                )
+                        )
+                )
 
         return KafkaStreams(builder.build(), this.getConfig())
     }
 
     override fun getConfig(): Properties {
-        return streamConfig(appId = SERVICE_APP_ID, username = username, password = password)
+        return streamConfig(appId = SERVICE_APP_ID, bootStapServerUrl = env.bootstrapServersUrl, credential = KafkaCredential(env.username, env.password))
     }
 
     private fun hentInngåendeJournalpost(inngåendeJournalpostId: String): Behov {
