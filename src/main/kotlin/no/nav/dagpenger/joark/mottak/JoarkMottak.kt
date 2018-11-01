@@ -21,10 +21,8 @@ import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.ValueMapper
-import java.io.IOException
 
 import java.lang.IllegalArgumentException
-import java.net.ServerSocket
 
 import java.util.Properties
 
