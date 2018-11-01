@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
+import no.nav.common.embeddedutils.getAvailablePort
 import no.nav.dagpenger.events.avro.Behov
 import no.nav.dagpenger.streams.Topics
 import no.nav.dagpenger.streams.Topics.INNGÅENDE_JOURNALPOST
@@ -62,7 +63,8 @@ class JoarkMottakComponentTest {
                 bootstrapServersUrl = embeddedEnvironment.brokersURL,
                 schemaRegistryUrl = embeddedEnvironment.schemaRegistry!!.url,
                 oicdStsUrl = "localhost",
-                journalfoerinngaaendeV1Url = "localhost"
+                journalfoerinngaaendeV1Url = "localhost",
+                httpPort = getAvailablePort()
         )
 
         // when

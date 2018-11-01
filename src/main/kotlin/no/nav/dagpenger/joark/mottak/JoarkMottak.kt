@@ -21,8 +21,10 @@ import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.ValueMapper
+import java.io.IOException
 
 import java.lang.IllegalArgumentException
+import java.net.ServerSocket
 
 import java.util.Properties
 
@@ -30,6 +32,8 @@ private val LOGGER = KotlinLogging.logger {}
 
 class JoarkMottak(val env: Environment, private val journalpostArkiv: JournalpostArkiv) : Service() {
     override val SERVICE_APP_ID = "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
+
+    override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
     private val jpCounter: Counter = Counter.build()
             .name("journalpost_mottatt")
