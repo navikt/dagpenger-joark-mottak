@@ -24,7 +24,6 @@ repositories {
     maven("https://dl.bintray.com/kittinunf/maven")
     maven("https://repo.adeo.no/repository/maven-snapshots/")
     maven("https://repo.adeo.no/repository/maven-releases/")
-    mavenLocal()
 }
 
 val gitVersion: groovy.lang.Closure<Any> by extra
@@ -78,7 +77,7 @@ dependencies {
     testImplementation("junit:junit:4.12")
     testImplementation("com.github.tomakehurst:wiremock:2.18.0")
 
-    testImplementation("no.nav:kafka-embedded-env:2.0.1-SNAPSHOT")
+    testImplementation("no.nav:kafka-embedded-env:2.0.1")
 }
 
 spotless {
