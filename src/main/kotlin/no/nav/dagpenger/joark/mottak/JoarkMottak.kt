@@ -54,7 +54,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
         val inngåendeJournalposter = builder.consumeGenericTopic(
                 JOARK_EVENTS.copy(
-                        name = if (env.fasitEnvironmentName == "p") JOARK_EVENTS.name else JOARK_EVENTS.name + "-" + env.fasitEnvironmentName,
+                        name = if (env.fasitEnvironmentName.isBlank()) JOARK_EVENTS.name else JOARK_EVENTS.name + "-" + env.fasitEnvironmentName,
                         valueSerde = configureGenericAvroSerde(
                                 mapOf(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG to env.schemaRegistryUrl)
                         )
