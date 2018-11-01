@@ -1,6 +1,6 @@
 plugins {
     id("application")
-    kotlin("jvm") version "1.2.70"
+    kotlin("jvm") version "1.3.0"
     id("com.diffplug.gradle.spotless") version "3.13.0"
     id("com.palantir.docker") version "0.20.1"
     id("com.palantir.git-version") version "0.11.0"
@@ -48,14 +48,15 @@ docker {
 
 val kotlinLoggingVersion = "1.4.9"
 val fuelVersion = "1.15.0"
-val confluentVersion = "4.1.2"
+val confluentVersion = "5.0.0"
 val kafkaVersion = "2.0.0"
 val prometheusVersion = "0.5.0"
 val ktorVersion = "0.9.5"
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("no.nav.dagpenger:streams:0.1.9-SNAPSHOT")
+
+    implementation("no.nav.dagpenger:streams:0.1.10-SNAPSHOT")
     implementation("no.nav.dagpenger:events:0.1.6-SNAPSHOT")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
@@ -75,6 +76,8 @@ dependencies {
     testImplementation(kotlin("test-junit"))
     testImplementation("junit:junit:4.12")
     testImplementation("com.github.tomakehurst:wiremock:2.18.0")
+
+    testImplementation("no.nav:kafka-embedded-env:2.0.1")
 }
 
 spotless {
