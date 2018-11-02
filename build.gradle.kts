@@ -4,6 +4,7 @@ plugins {
     id("com.diffplug.gradle.spotless") version "3.13.0"
     id("com.palantir.docker") version "0.20.1"
     id("com.palantir.git-version") version "0.11.0"
+    id("info.solidsoft.pitest") version "1.3.0"
 }
 
 buildscript {
@@ -56,7 +57,7 @@ val ktorVersion = "0.9.5"
 dependencies {
     implementation(kotlin("stdlib"))
 
-    implementation("no.nav.dagpenger:streams:0.1.10-SNAPSHOT")
+    implementation("no.nav.dagpenger:streams:0.2.0-SNAPSHOT")
     implementation("no.nav.dagpenger:events:0.1.6-SNAPSHOT")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
