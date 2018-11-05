@@ -35,8 +35,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
     private val jpCounter: Counter = Counter.build()
             .name("journalpost_mottatt")
-            .labelNames("tema")
-            .help("Antall journalposter mottatt - med tema").register()
+            .help("Antall journalposter mottatt med tema DAG (dagpenger)").register()
 
     companion object {
         @JvmStatic
@@ -86,7 +85,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
     private fun hentInngåendeJournalpost(inngåendeJournalpostId: String): Behov {
         val journalpost = journalpostArkiv.hentInngåendeJournalpost(inngåendeJournalpostId)
-        jpCounter.labels(journalpost.tema).inc()
+        jpCounter.inc()
         return mapToInngåendeJournalpost(journalpost)
     }
 
