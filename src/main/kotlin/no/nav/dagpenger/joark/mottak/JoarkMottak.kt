@@ -62,6 +62,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
         inngåendeJournalposter
                 .peek { key, value -> LOGGER.info("Processing ${value.javaClass} with key $key") }
+                .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
                 .mapValues(ValueMapper<GenericRecord, Behov> {
                     hentInngåendeJournalpost(it.get("journalpostId").toString())
                 })
