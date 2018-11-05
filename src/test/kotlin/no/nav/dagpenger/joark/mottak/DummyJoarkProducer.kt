@@ -50,15 +50,16 @@ class DummyJoarkProducer(journalpostProducerProperties: Properties) {
     fun produceEvent(journalpostId: Long, tema: String) {
         val avroSchema = Schema.Parser().parse(schemaSource)
         val joarkJournalpost = GenericData.Record(avroSchema)
-        joarkJournalpost.put("hendelsesId", journalpostId.toString())
-        joarkJournalpost.put("versjon", journalpostId)
-        joarkJournalpost.put("journalpostId", journalpostId)
-        joarkJournalpost.put("hendelsesType", listOf("MidlertidigJournalført", "EndeligJournalført", "TemaEndret").shuffled().take(1)[0])
-        joarkJournalpost.put("journalpostStatus", "journalpostStatus")
-        joarkJournalpost.put("temaGammelt", tema)
-        joarkJournalpost.put("temaNytt", tema)
-        joarkJournalpost.put("mottaksKanal", "mottaksKanal")
-        joarkJournalpost.put("kanalReferanseId", "kanalReferanseId")
+        joarkJournalpost.apply {
+            "hendelsesId" to journalpostId.toString()
+            "versjon" to journalpostId
+            "hendelseType" to listOf("MidlertidigJournalført", "EndeligJournalført", "TemaEndret").shuffled().take(1)[0]
+            "journalpostStatus" to "journalpostStatus"
+            "temaGammelt" to tema
+            "temaNytt" to tema
+            "mottaksKanal" to "mottaksKanal"
+            "kanalReferanseId" to "kanalReferanseId"
+        }
 
         LOGGER.info { "Creating InngåendeJournalpost $journalpostId to topic ${JOARK_EVENTS.name}" }
         val record: RecordMetadata = journalpostProducer.send(
