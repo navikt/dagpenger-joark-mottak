@@ -18,8 +18,8 @@ import org.junit.BeforeClass
 import org.junit.Test
 import java.time.Duration
 import java.util.Properties
+import java.util.Random
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class JoarkMottakComponentTest {
 
@@ -56,6 +56,19 @@ class JoarkMottakComponentTest {
     @Test
     fun ` Component test of JoarkMottak `() {
 
+        val kjoarkEvents = mapOf(
+                Random().nextLong() to "DAG",
+                Random().nextLong() to "SOMETHING",
+                Random().nextLong() to "DAG",
+                Random().nextLong() to "DAG",
+                Random().nextLong() to "DAG",
+                Random().nextLong() to "DAG",
+                Random().nextLong() to "DAG",
+                Random().nextLong() to "JP",
+                Random().nextLong() to "DAG",
+                Random().nextLong() to "DAG"
+        )
+
         //given an environment
         val env = Environment(
                 username = username,
@@ -72,7 +85,10 @@ class JoarkMottakComponentTest {
         joarkMottak.start()
 
         val dummyJoarkProducer = dummyJoarkProducer(env)
-        dummyJoarkProducer.produceDummyMessage()
+
+        kjoarkEvents.forEach { id, tema ->
+            dummyJoarkProducer.produceEvent(journalpostId = id, tema = tema)
+        }
 
         val behovConsumer: KafkaConsumer<String, Behov> = behovConsumer(env)
         val behov = behovConsumer.poll(Duration.ofSeconds(5)).toList()
@@ -80,7 +96,7 @@ class JoarkMottakComponentTest {
         joarkMottak.stop()
 
         // then
-        assertTrue { behov.size == 1 }
+        assertEquals(kjoarkEvents.filterValues { it == "DAG" }.size, behov.size)
         assertEquals("DAG", behov.get(0).value().getJournalpost().getTema())
     }
 

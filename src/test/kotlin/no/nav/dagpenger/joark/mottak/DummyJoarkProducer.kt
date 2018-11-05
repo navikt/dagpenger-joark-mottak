@@ -47,23 +47,23 @@ class DummyJoarkProducer(journalpostProducerProperties: Properties) {
 
                 """.trimIndent()
 
-    fun produceDummyMessage() {
-        val id = Random().nextInt(2000).toString()
+    fun produceEvent(journalpostId: Long, tema: String) {
         val avroSchema = Schema.Parser().parse(schemaSource)
-        val joarkJournalpost = GenericData.Record(avroSchema)
-        joarkJournalpost.put("hendelsesId", id)
-        joarkJournalpost.put("versjon", id.toInt())
-        joarkJournalpost.put("journalpostId", id.toLong())
-        joarkJournalpost.put("hendelsesType", listOf("MidlertidigJournalført", "EndeligJournalført", "TemaEndret").shuffled().take(1)[0])
-        joarkJournalpost.put("journalpostStatus", "journalpostStatus")
-        joarkJournalpost.put("temaGammelt", "temaGammelt")
-        joarkJournalpost.put("temaNytt", "temaNy")
-        joarkJournalpost.put("mottaksKanal", "mottaksKanal")
-        joarkJournalpost.put("kanalReferanseId", "kanalReferanseId")
+        val joarkJournalpost: GenericData.Record = GenericData.Record(avroSchema).apply {
+            put("journalpostId", journalpostId)
+            put("hendelsesId", journalpostId.toString())
+            put("versjon", journalpostId)
+            put("hendelsesType", listOf("MidlertidigJournalført", "EndeligJournalført", "TemaEndret").shuffled().take(1)[0])
+            put("journalpostStatus", "journalpostStatus")
+            put("temaGammelt", tema)
+            put("temaNytt", tema)
+            put("mottaksKanal", "mottaksKanal")
+            put("kanalReferanseId", "kanalReferanseId")
+        }
 
-        LOGGER.info { "Creating InngåendeJournalpost $id to topic ${JOARK_EVENTS.name}" }
+        LOGGER.info { "Creating InngåendeJournalpost $journalpostId to topic ${JOARK_EVENTS.name}" }
         val record: RecordMetadata = journalpostProducer.send(
-                ProducerRecord(JOARK_EVENTS.name, id, joarkJournalpost)
+                ProducerRecord(JOARK_EVENTS.name, journalpostId.toString(), joarkJournalpost)
         ).get()
         LOGGER.info { "Produced -> ${record.topic()}  to offset ${record.offset()}" }
     }
@@ -81,7 +81,7 @@ class DummyJoarkProducer(journalpostProducerProperties: Properties) {
             }
             val dummyJoarkProducer = DummyJoarkProducer(props)
             while (true) {
-                dummyJoarkProducer.produceDummyMessage()
+                dummyJoarkProducer.produceEvent(journalpostId = Random().nextLong(), tema = "DAG")
                 TimeUnit.SECONDS.sleep(5)
             }
         }
