@@ -97,7 +97,6 @@ class JoarkMottakComponentTest {
 
         // then
         assertEquals(kjoarkEvents.filterValues { it == "DAG" }.size, behov.size)
-        assertEquals("DAG", behov.get(0).value().getJournalpost().getTema())
     }
 
     private fun behovConsumer(env: Environment): KafkaConsumer<String, Behov> {

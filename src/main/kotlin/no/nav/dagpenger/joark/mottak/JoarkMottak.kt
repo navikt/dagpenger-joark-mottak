@@ -92,7 +92,6 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     private fun mapToInngåendeJournalpost(inngåendeJournalpost: Journalpost): Behov =
             Behov.newBuilder().apply {
                 journalpost = no.nav.dagpenger.events.avro.Journalpost.newBuilder().apply {
-                    tema = inngåendeJournalpost.tema
                     dokumentListe = mapToDokumentList(inngåendeJournalpost)
                     søker = mapToSøker(inngåendeJournalpost.brukerListe)
                 }.build()
