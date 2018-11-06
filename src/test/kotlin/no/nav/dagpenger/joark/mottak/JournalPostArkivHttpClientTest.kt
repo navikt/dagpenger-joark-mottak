@@ -28,10 +28,13 @@ class JournalPostArkivHttpClientTest {
     @Test
     fun `fetch JournalPost on 200 ok`() {
 
-        val body = JournalPostArkivHttpClientTest::class.java.getResource("/test-data/example-journalpost-payload.json").readText()
-        stubFor(get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/1"))
+        val body = JournalPostArkivHttpClientTest::class.java.getResource("/test-data/example-journalpost-payload.json")
+            .readText()
+        stubFor(
+            get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/1"))
                 .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
-                .willReturn(aResponse()
+                .willReturn(
+                    aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)
                 )
@@ -41,7 +44,10 @@ class JournalPostArkivHttpClientTest {
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
 
         assertEquals(journalPost.journalTilstand, JournalTilstand.ENDELIG)
-        assertEquals(journalPost.avsender, Avsender(navn = "string", avsenderType = AvsenderType.PERSON, identifikator = "string"))
+        assertEquals(
+            journalPost.avsender,
+            Avsender(navn = "string", avsenderType = AvsenderType.PERSON, identifikator = "string")
+        )
         assertEquals(journalPost.brukerListe, listOf(Bruker(brukerType = BrukerType.PERSON, identifikator = "string")))
         assertEquals(journalPost.arkivSak, ArkivSak(arkivSakSystem = "string", arkivSakId = "string"))
         assertEquals(journalPost.tema, "string")
@@ -50,19 +56,35 @@ class JournalPostArkivHttpClientTest {
         assertEquals(journalPost.forsendelseMottatt, "2018-09-25T11:21:11.387Z")
         assertEquals(journalPost.mottaksKanal, "string")
         assertEquals(journalPost.journalfEnhet, "string")
-        assertEquals(journalPost.dokumentListe, listOf(
-                Dokument(dokumentId = "string", dokumentTypeId = "string", navSkjemaId = "string", tittel = "string", dokumentKategori = "string",
-                        variant = listOf(Variant(arkivFilType = "string", variantFormat = "string")),
-                        logiskVedleggListe = listOf(LogiskVedlegg(logiskVedleggId = "string", logiskVedleggTittel = "string")))))
+        assertEquals(
+            journalPost.dokumentListe, listOf(
+                Dokument(
+                    dokumentId = "string",
+                    dokumentTypeId = "string",
+                    navSkjemaId = "string",
+                    tittel = "string",
+                    dokumentKategori = "string",
+                    variant = listOf(Variant(arkivFilType = "string", variantFormat = "string")),
+                    logiskVedleggListe = listOf(
+                        LogiskVedlegg(
+                            logiskVedleggId = "string",
+                            logiskVedleggTittel = "string"
+                        )
+                    )
+                )
+            )
+        )
     }
 
     @Test(expected = JournalPostArkivException::class)
     fun `fetch JournalPost on 200 ok but no content`() {
 
         val body = ""
-        stubFor(get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/2"))
+        stubFor(
+            get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/2"))
                 .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
-                .willReturn(aResponse()
+                .willReturn(
+                    aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)
                 )
@@ -75,9 +97,11 @@ class JournalPostArkivHttpClientTest {
     @Test(expected = JournalPostArkivException::class)
     fun `fetch JournalPost on 4xx errors`() {
 
-        stubFor(get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/-1"))
+        stubFor(
+            get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/-1"))
                 .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
-                .willReturn(notFound()
+                .willReturn(
+                    notFound()
                 )
         )
 

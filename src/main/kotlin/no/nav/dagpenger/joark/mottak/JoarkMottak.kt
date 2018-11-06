@@ -21,27 +21,28 @@ import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.ValueMapper
-
-import java.lang.IllegalArgumentException
-
 import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
 
 class JoarkMottak(val env: Environment, private val journalpostArkiv: JournalpostArkiv) : Service() {
-    override val SERVICE_APP_ID = "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
+    override val SERVICE_APP_ID =
+        "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
 
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
     private val jpCounter: Counter = Counter.build()
-            .name("journalpost_mottatt")
-            .help("Antall journalposter mottatt med tema DAG (dagpenger)").register()
+        .name("journalpost_mottatt")
+        .help("Antall journalposter mottatt med tema DAG (dagpenger)").register()
 
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
             val env = Environment()
-            val journalpostArkiv: JournalpostArkiv = JournalPostArkivHttpClient(env.journalfoerinngaaendeV1Url, StsOidcClient(env.oicdStsUrl, env.username, env.password))
+            val journalpostArkiv: JournalpostArkiv = JournalPostArkivHttpClient(
+                env.journalfoerinngaaendeV1Url,
+                StsOidcClient(env.oicdStsUrl, env.username, env.password)
+            )
             val service = JoarkMottak(env, journalpostArkiv)
             service.start()
         }
@@ -52,35 +53,42 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         val builder = StreamsBuilder()
 
         val inngåendeJournalposter = builder.consumeGenericTopic(
-                JOARK_EVENTS.copy(
-                        name = if (env.fasitEnvironmentName.isBlank()) JOARK_EVENTS.name else JOARK_EVENTS.name + "-" + env.fasitEnvironmentName,
-                        valueSerde = configureGenericAvroSerde(
-                                mapOf(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG to env.schemaRegistryUrl)
-                        )
-                ))
+            JOARK_EVENTS.copy(
+                name = if (env.fasitEnvironmentName.isBlank()) JOARK_EVENTS.name else JOARK_EVENTS.name + "-" + env.fasitEnvironmentName,
+                valueSerde = configureGenericAvroSerde(
+                    mapOf(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG to env.schemaRegistryUrl)
+                )
+            )
+        )
 
         inngåendeJournalposter
-                .peek { key, value -> LOGGER.info("Processing ${value.javaClass} with key $key") }
-                .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
-                .mapValues(ValueMapper<GenericRecord, Behov> {
-                    hentInngåendeJournalpost(it.get("journalpostId").toString())
-                })
-                .peek { key, value -> LOGGER.info("Producing ${value.javaClass} with key $key") }
-                .toTopic(INNGÅENDE_JOURNALPOST.copy(
-                        valueSerde = configureAvroSerde<Behov>(
-                                mapOf(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to env.schemaRegistryUrl,
-                                        KafkaAvroDeserializerConfig.AUTO_REGISTER_SCHEMAS to true,
-                                        KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to true
-                                        )
-                                )
+            .peek { key, value -> LOGGER.info("Processing ${value.javaClass} with key $key") }
+            .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
+            .mapValues(ValueMapper<GenericRecord, Behov> {
+                hentInngåendeJournalpost(it.get("journalpostId").toString())
+            })
+            .peek { key, value -> LOGGER.info("Producing ${value.javaClass} with key $key") }
+            .toTopic(
+                INNGÅENDE_JOURNALPOST.copy(
+                    valueSerde = configureAvroSerde<Behov>(
+                        mapOf(
+                            KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to env.schemaRegistryUrl,
+                            KafkaAvroDeserializerConfig.AUTO_REGISTER_SCHEMAS to true,
+                            KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to true
                         )
+                    )
                 )
+            )
 
         return KafkaStreams(builder.build(), this.getConfig())
     }
 
     override fun getConfig(): Properties {
-        return streamConfig(appId = SERVICE_APP_ID, bootStapServerUrl = env.bootstrapServersUrl, credential = KafkaCredential(env.username, env.password))
+        return streamConfig(
+            appId = SERVICE_APP_ID,
+            bootStapServerUrl = env.bootstrapServersUrl,
+            credential = KafkaCredential(env.username, env.password)
+        )
     }
 
     private fun hentInngåendeJournalpost(inngåendeJournalpostId: String): Behov {
@@ -90,12 +98,12 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     }
 
     private fun mapToInngåendeJournalpost(inngåendeJournalpost: Journalpost): Behov =
-            Behov.newBuilder().apply {
-                journalpost = no.nav.dagpenger.events.avro.Journalpost.newBuilder().apply {
-                    dokumentListe = mapToDokumentList(inngåendeJournalpost)
-                    søker = mapToSøker(inngåendeJournalpost.brukerListe)
-                }.build()
+        Behov.newBuilder().apply {
+            journalpost = no.nav.dagpenger.events.avro.Journalpost.newBuilder().apply {
+                dokumentListe = mapToDokumentList(inngåendeJournalpost)
+                søker = mapToSøker(inngåendeJournalpost.brukerListe)
             }.build()
+        }.build()
 
     private fun mapToDokumentList(inngåendeJournalpost: Journalpost): List<no.nav.dagpenger.events.avro.Dokument>? {
         return inngåendeJournalpost.dokumentListe.asSequence().map {

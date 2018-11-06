@@ -28,11 +28,11 @@ class JoarkMottakComponentTest {
         private const val password = "kafkaclient"
 
         val embeddedEnvironment = KafkaEnvironment(
-                users = listOf(JAASCredential(username, password)),
-                autoStart = false,
-                withSchemaRegistry = true,
-                withSecurity = true,
-                topics = listOf(Topics.JOARK_EVENTS.name, Topics.INNGÅENDE_JOURNALPOST.name)
+            users = listOf(JAASCredential(username, password)),
+            autoStart = false,
+            withSchemaRegistry = true,
+            withSecurity = true,
+            topics = listOf(Topics.JOARK_EVENTS.name, Topics.INNGÅENDE_JOURNALPOST.name)
         )
 
         @BeforeClass
@@ -57,27 +57,27 @@ class JoarkMottakComponentTest {
     fun ` Component test of JoarkMottak `() {
 
         val kjoarkEvents = mapOf(
-                Random().nextLong() to "DAG",
-                Random().nextLong() to "SOMETHING",
-                Random().nextLong() to "DAG",
-                Random().nextLong() to "DAG",
-                Random().nextLong() to "DAG",
-                Random().nextLong() to "DAG",
-                Random().nextLong() to "DAG",
-                Random().nextLong() to "JP",
-                Random().nextLong() to "DAG",
-                Random().nextLong() to "DAG"
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "SOMETHING",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "JP",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "DAG"
         )
 
-        //given an environment
+        // given an environment
         val env = Environment(
-                username = username,
-                password = password,
-                bootstrapServersUrl = embeddedEnvironment.brokersURL,
-                schemaRegistryUrl = embeddedEnvironment.schemaRegistry!!.url,
-                oicdStsUrl = "localhost",
-                journalfoerinngaaendeV1Url = "localhost",
-                httpPort = getAvailablePort()
+            username = username,
+            password = password,
+            bootstrapServersUrl = embeddedEnvironment.brokersURL,
+            schemaRegistryUrl = embeddedEnvironment.schemaRegistry!!.url,
+            oicdStsUrl = "localhost",
+            journalfoerinngaaendeV1Url = "localhost",
+            httpPort = getAvailablePort()
         )
 
         // when
@@ -105,11 +105,20 @@ class JoarkMottakComponentTest {
             put(ConsumerConfig.GROUP_ID_CONFIG, "dummy-dagpenger-innkomne-jp")
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServersUrl)
             put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
-            put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, INNGÅENDE_JOURNALPOST.keySerde.deserializer().javaClass.name)
-            put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, INNGÅENDE_JOURNALPOST.valueSerde.deserializer().javaClass.name)
+            put(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                INNGÅENDE_JOURNALPOST.keySerde.deserializer().javaClass.name
+            )
+            put(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                INNGÅENDE_JOURNALPOST.valueSerde.deserializer().javaClass.name
+            )
             put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
             put(SaslConfigs.SASL_MECHANISM, "PLAIN")
-            put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${env.username}\" password=\"${env.password}\";")
+            put(
+                SaslConfigs.SASL_JAAS_CONFIG,
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${env.username}\" password=\"${env.password}\";"
+            )
         })
 
         consumer.subscribe(listOf(INNGÅENDE_JOURNALPOST.name))
@@ -124,7 +133,10 @@ class JoarkMottakComponentTest {
             put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true)
             put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
             put(SaslConfigs.SASL_MECHANISM, "PLAIN")
-            put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${env.username}\" password=\"${env.password}\";")
+            put(
+                SaslConfigs.SASL_JAAS_CONFIG,
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${env.username}\" password=\"${env.password}\";"
+            )
         }
 
         val dummyJoarkProducer = DummyJoarkProducer(props)

@@ -38,10 +38,12 @@ application {
 
 docker {
     name = "repo.adeo.no:5443/${application.applicationName}"
-    buildArgs(mapOf(
-        "APP_NAME" to application.applicationName,
-        "DIST_TAR" to "${application.applicationName}-${project.version}"
-    ))
+    buildArgs(
+        mapOf(
+            "APP_NAME" to application.applicationName,
+            "DIST_TAR" to "${application.applicationName}-${project.version}"
+        )
+    )
     files(tasks.findByName("distTar")?.outputs)
     pull(true)
     tags(project.version.toString())

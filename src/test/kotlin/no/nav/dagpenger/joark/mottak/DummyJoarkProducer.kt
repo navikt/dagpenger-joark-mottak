@@ -11,19 +11,25 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.apache.kafka.streams.StreamsConfig
-import java.util.Random
 import java.util.Properties
-
+import java.util.Random
 import java.util.concurrent.TimeUnit
 
 class DummyJoarkProducer(journalpostProducerProperties: Properties) {
 
     private val LOGGER = KotlinLogging.logger {}
     private val journalpostProducer = KafkaProducer(
-            journalpostProducerProperties,
-            JOARK_EVENTS.keySerde.serializer(),
-            JOARK_EVENTS.copy(valueSerde = configureGenericAvroSerde(mapOf(
-                    AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG to journalpostProducerProperties.getProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG)))).valueSerde.serializer()
+        journalpostProducerProperties,
+        JOARK_EVENTS.keySerde.serializer(),
+        JOARK_EVENTS.copy(
+            valueSerde = configureGenericAvroSerde(
+                mapOf(
+                    AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG to journalpostProducerProperties.getProperty(
+                        AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG
+                    )
+                )
+            )
+        ).valueSerde.serializer()
     )
 
     private val schemaSource = """
@@ -53,7 +59,10 @@ class DummyJoarkProducer(journalpostProducerProperties: Properties) {
             put("journalpostId", journalpostId)
             put("hendelsesId", journalpostId.toString())
             put("versjon", journalpostId)
-            put("hendelsesType", listOf("MidlertidigJournalført", "EndeligJournalført", "TemaEndret").shuffled().take(1)[0])
+            put(
+                "hendelsesType",
+                listOf("MidlertidigJournalført", "EndeligJournalført", "TemaEndret").shuffled().take(1)[0]
+            )
             put("journalpostStatus", "journalpostStatus")
             put("temaGammelt", tema)
             put("temaNytt", tema)
@@ -63,7 +72,7 @@ class DummyJoarkProducer(journalpostProducerProperties: Properties) {
 
         LOGGER.info { "Creating InngåendeJournalpost $journalpostId to topic ${JOARK_EVENTS.name}" }
         val record: RecordMetadata = journalpostProducer.send(
-                ProducerRecord(JOARK_EVENTS.name, journalpostId.toString(), joarkJournalpost)
+            ProducerRecord(JOARK_EVENTS.name, journalpostId.toString(), joarkJournalpost)
         ).get()
         LOGGER.info { "Produced -> ${record.topic()}  to offset ${record.offset()}" }
     }

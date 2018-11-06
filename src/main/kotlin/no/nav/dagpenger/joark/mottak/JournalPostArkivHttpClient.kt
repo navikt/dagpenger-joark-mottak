@@ -5,9 +5,11 @@ import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 import no.nav.dagpenger.oidc.OidcClient
 
-class JournalPostArkivHttpClient(private val joarkBaseUrl: String, private val oidcClient: OidcClient) : JournalpostArkiv {
+class JournalPostArkivHttpClient(private val joarkBaseUrl: String, private val oidcClient: OidcClient) :
+    JournalpostArkiv {
 
-    val joarkUrl = if (joarkBaseUrl.endsWith("rest/journalfoerinngaaende/v1")) "$joarkBaseUrl/journalposter" else "${joarkBaseUrl}rest/journalfoerinngaaende/v1/journalposter"
+    val joarkUrl =
+        if (joarkBaseUrl.endsWith("rest/journalfoerinngaaende/v1")) "$joarkBaseUrl/journalposter" else "${joarkBaseUrl}rest/journalfoerinngaaende/v1/journalposter"
 
     override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {
         val url = "$joarkUrl/$journalpostId"
@@ -16,7 +18,11 @@ class JournalPostArkivHttpClient(private val joarkBaseUrl: String, private val o
             responseObject<Journalpost>()
         }
         return when (result) {
-            is Result.Failure -> throw JournalPostArkivException(response.statusCode, response.responseMessage, result.getException())
+            is Result.Failure -> throw JournalPostArkivException(
+                response.statusCode,
+                response.responseMessage,
+                result.getException()
+            )
             is Result.Success -> result.get()
         }
     }
@@ -24,4 +30,5 @@ class JournalPostArkivHttpClient(private val joarkBaseUrl: String, private val o
 
 fun String.toBearerToken() = "Bearer $this"
 
-class JournalPostArkivException(val statusCode: Int, override val message: String, override val cause: Throwable) : RuntimeException(message, cause)
+class JournalPostArkivException(val statusCode: Int, override val message: String, override val cause: Throwable) :
+    RuntimeException(message, cause)
