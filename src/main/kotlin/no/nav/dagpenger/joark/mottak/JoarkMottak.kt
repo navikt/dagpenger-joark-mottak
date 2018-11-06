@@ -62,7 +62,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         )
 
         inngåendeJournalposter
-            .peek { key, value ->
+            .peek { _, value ->
                 LOGGER.info(
                     "Received journalpost with journalpost id: ${value.get("journalpostId")} and tema: ${value.get(
                         "temaNytt"
