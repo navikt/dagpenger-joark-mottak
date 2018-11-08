@@ -15,6 +15,7 @@ buildscript {
 
 apply {
     plugin("com.diffplug.gradle.spotless")
+    plugin("info.solidsoft.pitest")
 }
 
 repositories {
@@ -92,3 +93,11 @@ spotless {
         ktlint()
     }
 }
+
+pitest {
+    threads = 4
+    coverageThreshold = 80
+    avoidCallsTo = setOf("kotlin.jvm.internal")
+}
+
+tasks.getByName("check").dependsOn("pitest")
