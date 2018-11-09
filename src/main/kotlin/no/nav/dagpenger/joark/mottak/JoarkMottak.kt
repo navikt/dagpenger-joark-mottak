@@ -32,7 +32,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
     private val jpCounter: Counter = Counter.build()
-        .name("journalpost_mottatt")
+        .name("dagpenger_journalpost_mottatt")
         .help("Antall journalposter mottatt med tema DAG (dagpenger)").register()
 
     companion object {
