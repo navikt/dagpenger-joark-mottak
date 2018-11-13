@@ -22,6 +22,7 @@ import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.ValueMapper
 import java.util.Properties
+import java.util.UUID
 
 private val LOGGER = KotlinLogging.logger {}
 
@@ -97,15 +98,17 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         )
     }
 
-    private fun hentInngåendeJournalpost(inngåendeJournalpostId: String): Behov {
-        val journalpost = journalpostArkiv.hentInngåendeJournalpost(inngåendeJournalpostId)
+    private fun hentInngåendeJournalpost(journalPostId: String): Behov {
+        val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalPostId)
         jpCounter.inc()
-        return mapToInngåendeJournalpost(journalpost)
+        return mapToInngåendeJournalpost(journalPostId, journalpost)
     }
 
-    private fun mapToInngåendeJournalpost(inngåendeJournalpost: Journalpost): Behov =
+    private fun mapToInngåendeJournalpost(journalPostId: String, inngåendeJournalpost: Journalpost): Behov =
         Behov.newBuilder().apply {
+            behovId = UUID.randomUUID().toString()
             journalpost = no.nav.dagpenger.events.avro.Journalpost.newBuilder().apply {
+                journalpostId = journalPostId
                 dokumentListe = mapToDokumentList(inngåendeJournalpost)
                 søker = mapToSøker(inngåendeJournalpost.brukerListe)
             }.build()

@@ -19,13 +19,12 @@ apply {
 }
 
 repositories {
-    maven("https://repo.adeo.no/repository/maven-central")
+    mavenCentral()
     maven("http://packages.confluent.io/maven/")
     maven("https://dl.bintray.com/kotlin/ktor")
     maven("https://dl.bintray.com/kotlin/kotlinx")
     maven("https://dl.bintray.com/kittinunf/maven")
-    maven("https://repo.adeo.no/repository/maven-snapshots/")
-    maven("https://repo.adeo.no/repository/maven-releases/")
+    maven("https://oss.sonatype.org/content/repositories/snapshots/")
 }
 
 val gitVersion: groovy.lang.Closure<Any> by extra
@@ -61,7 +60,7 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     implementation("no.nav.dagpenger:streams:0.2.1-SNAPSHOT")
-    implementation("no.nav.dagpenger:events:0.1.7-SNAPSHOT")
+    implementation("no.nav.dagpenger:events:0.1.8-SNAPSHOT")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
