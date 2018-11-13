@@ -96,7 +96,9 @@ pitest {
     threads = 4
     coverageThreshold = 80
     pitestVersion = "1.4.3"
+    outputFormats = setOf("XML")
     avoidCallsTo = setOf("kotlin.jvm.internal")
+    timestampedReports = false
 }
 
 tasks.getByName("check").dependsOn("pitest")
