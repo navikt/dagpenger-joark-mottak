@@ -82,10 +82,12 @@ class DummyJoarkProducer(journalpostProducerProperties: Properties) {
         @JvmStatic
         fun main(args: Array<String>) {
             val bootstrapServersConfig = System.getenv("BOOTSTRAP_SERVERS_CONFIG") ?: "localhost:9092"
+            val schemaRegisterUrl = System.getenv("KAFKA_SCHEMA_REGISTRY_URL") ?: "http://localhost:8081"
             val applicationIdConfig = "joark-dummy-producer"
             val props = Properties().apply {
                 put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServersConfig)
                 put(StreamsConfig.CLIENT_ID_CONFIG, applicationIdConfig)
+                put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegisterUrl)
                 put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true)
             }
             val dummyJoarkProducer = DummyJoarkProducer(props)
