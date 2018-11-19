@@ -26,7 +26,9 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
     private val jpCounter: Counter = Counter.build()
-        .name("dagpenger_journalpost_mottatt")
+        .namespace("dagpenger")
+        .name("journalpost_mottatt")
+        .labelNames("tema", "skjemaId", "mottaksKanal", "journalfEnhet")
         .help("Antall journalposter mottatt med tema DAG (dagpenger)").register()
 
     companion object {
@@ -79,8 +81,15 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     }
 
     private fun hentInngåendeJournalpost(journalpostId: String): Behov {
-        val journalpost: Journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
-        jpCounter.inc()
+        val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
+        jpCounter
+            .labels(
+                journalpost.tema,
+                journalpost.dokumentListe.first().navSkjemaId,
+                journalpost.mottaksKanal,
+                journalpost.journalfEnhet
+            )
+            .inc()
         return journalpost.toBehov(journalpostId)
     }
 }
