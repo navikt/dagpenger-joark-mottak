@@ -101,7 +101,6 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     private fun hentInngåendeJournalpost(journalpostId: String): Behov {
         val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
         jpCounter.inc()
-        LOGGER.info { "Got journalpost \n $journalpost" }
         return mapToInngåendeJournalpost(journalpostId, journalpost)
     }
 
