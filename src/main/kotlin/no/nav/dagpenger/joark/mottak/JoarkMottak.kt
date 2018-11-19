@@ -98,10 +98,10 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         )
     }
 
-    private fun hentInngåendeJournalpost(journalPostId: String): Behov {
-        val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalPostId)
+    private fun hentInngåendeJournalpost(journalpostId: String): Behov {
+        val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
         jpCounter.inc()
-        return mapToInngåendeJournalpost(journalPostId, journalpost)
+        return mapToInngåendeJournalpost(journalpostId, journalpost)
     }
 
     private fun mapToInngåendeJournalpost(journalPostId: String, inngåendeJournalpost: Journalpost): Behov =
