@@ -5,8 +5,6 @@ import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Behov
-import no.nav.dagpenger.events.avro.BrukerType
-import no.nav.dagpenger.events.avro.Søker
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.Service
@@ -22,7 +20,6 @@ import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.ValueMapper
 import java.util.Properties
-import java.util.UUID
 
 private val LOGGER = KotlinLogging.logger {}
 
@@ -99,35 +96,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     }
 
     private fun hentInngåendeJournalpost(journalpostId: String): Behov {
-        val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
+        val journalpost: Journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
         jpCounter.inc()
-        return mapToInngåendeJournalpost(journalpostId, journalpost)
-    }
-
-    private fun mapToInngåendeJournalpost(journalPostId: String, inngåendeJournalpost: Journalpost): Behov =
-        Behov.newBuilder().apply {
-            behovId = UUID.randomUUID().toString()
-            journalpost = no.nav.dagpenger.events.avro.Journalpost.newBuilder().apply {
-                journalpostId = journalPostId
-                dokumentListe = mapToDokumentList(inngåendeJournalpost)
-                søker = mapToSøker(inngåendeJournalpost.brukerListe)
-            }.build()
-        }.build()
-
-    private fun mapToDokumentList(inngåendeJournalpost: Journalpost): List<no.nav.dagpenger.events.avro.Dokument>? {
-        return inngåendeJournalpost.dokumentListe.asSequence().map {
-            no.nav.dagpenger.events.avro.Dokument.newBuilder().apply {
-                dokumentId = it.dokumentId
-                navSkjemaId = it.navSkjemaId
-            }.build()
-        }.toList()
-    }
-
-    private fun mapToSøker(brukerListe: List<Bruker>): Søker? {
-        return when {
-            brukerListe.size > 1 -> throw IllegalArgumentException("BrukerListe has more than one element")
-            brukerListe[0].brukerType == BrukerType.PERSON -> Søker(brukerListe[0].identifikator)
-            else -> null
-        }
+        return journalpost.toBehov(journalpostId)
     }
 }
