@@ -2,8 +2,10 @@ package no.nav.dagpenger.joark.mottak
 
 import no.nav.dagpenger.events.avro.Annet
 import no.nav.dagpenger.events.avro.Behov
+import no.nav.dagpenger.events.avro.Ettersending
 import no.nav.dagpenger.events.avro.HenvendelsesType
 import no.nav.dagpenger.events.avro.Mottaker
+import no.nav.dagpenger.events.avro.Søknad
 import java.util.UUID
 
 data class Journalpost(
@@ -24,9 +26,7 @@ data class Journalpost(
         return Behov.newBuilder().apply {
             behovId = UUID.randomUUID().toString()
             trengerManuellBehandling = false
-            henvendelsesType = HenvendelsesType.newBuilder().apply {
-                annet = Annet()
-            }.build()
+            henvendelsesType = mapJournalpostTilHenvendelsesType().build()
             journalpost = no.nav.dagpenger.events.avro.Journalpost.newBuilder().apply {
                 journalpostId = id
                 dokumentListe = this@Journalpost.dokumentListe.asSequence().map {
@@ -35,16 +35,33 @@ data class Journalpost(
                         navSkjemaId = it.navSkjemaId
                     }.build()
                 }.toList()
-                mottaker = mapToMottaker(this@Journalpost.brukerListe)
+                mottaker = mapToMottaker()
             }.build()
         }.build()
     }
 
-    private fun mapToMottaker(brukerListe: List<Bruker>): Mottaker? {
+    private fun mapToMottaker(): Mottaker? {
+        val brukerListe = this@Journalpost.brukerListe
         if (brukerListe.size > 1) {
             throw IllegalArgumentException("BrukerListe has more than one element")
         }
         return Mottaker(brukerListe.firstOrNull().takeIf { it?.brukerType == BrukerType.PERSON }?.identifikator)
+    }
+
+    private fun mapToHenvendelsesType(): Any {
+        val navSkjemaId = this@Journalpost.dokumentListe.first().navSkjemaId
+        return HenvendelsesTypeMapper.mapper.getHenvendelsesType(navSkjemaId)
+    }
+
+    private fun mapJournalpostTilHenvendelsesType(): HenvendelsesType.Builder {
+        val builder = HenvendelsesType.newBuilder()
+        val type = mapToHenvendelsesType()
+        when (type) {
+            Søknad() -> builder.søknad = type as Søknad?
+            Ettersending() -> builder.ettersending = type as Ettersending?
+            Annet() -> builder.annet = type as Annet?
+        }
+        return builder
     }
 }
 

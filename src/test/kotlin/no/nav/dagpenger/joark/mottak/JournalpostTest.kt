@@ -1,6 +1,8 @@
 package no.nav.dagpenger.joark.mottak
 
 import no.nav.dagpenger.events.avro.Annet
+import no.nav.dagpenger.events.avro.Ettersending
+import no.nav.dagpenger.events.avro.Søknad
 import org.junit.Test
 import java.util.regex.Pattern
 import kotlin.test.assertEquals
@@ -11,7 +13,7 @@ class JournalpostTest {
     val uuidPattern = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 
     @Test
-    fun ` map to Behov from journal post for henvendelsestype 'Annet' `() {
+    fun ` map to Behov from journal post `() {
         val journalpost = Journalpost(
             journalTilstand = JournalTilstand.MIDLERTIDIG,
             avsender = Avsender(navn = "string", avsenderType = AvsenderType.PERSON, identifikator = "string"),
@@ -53,16 +55,25 @@ class JournalpostTest {
     @Test
     fun ` map to Behov from journal post for henvendelsestype 'Søknad' `() {
 
-        TODO()
+        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAV 04-01.03"))
+        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAV 04-01.04"))
+        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAV 04-16.03"))
+        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAV 04-16.04"))
     }
 
     @Test
     fun ` map to Behov from journal post for henvendelsestype 'Ettersending' `() {
-        TODO()
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-01.03"))
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-01.04"))
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-16.03"))
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-16.04"))
     }
 
     @Test
-    fun ` map to Behov where journal post has more than one bruker in brukerliste `() {
-        TODO()
+    fun ` map to Behov from journal post for henvendelsestype 'Annet' `() {
+        assertEquals(Annet(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-01.05"))
+        assertEquals(Annet(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-06.08"))
+        assertEquals(Annet(), HenvendelsesTypeMapper.mapper.getHenvendelsesType(""))
+        assertEquals(Annet(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NULL"))
     }
 }
