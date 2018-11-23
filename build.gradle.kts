@@ -60,7 +60,7 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     implementation("no.nav.dagpenger:streams:0.2.1-SNAPSHOT")
-    implementation("no.nav.dagpenger:events:0.1.8-SNAPSHOT")
+    implementation("no.nav.dagpenger:events:0.1.9-SNAPSHOT")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
@@ -100,4 +100,4 @@ pitest {
     timestampedReports = false
 }
 
-tasks.getByName("check").dependsOn("pitest")
+tasks.getByName("pitest").mustRunAfter("check")
