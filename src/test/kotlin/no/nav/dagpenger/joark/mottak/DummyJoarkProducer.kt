@@ -1,36 +1,26 @@
 package no.nav.dagpenger.joark.mottak
 
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
+import io.confluent.kafka.serializers.KafkaAvroSerializer
 import mu.KotlinLogging
 import no.nav.dagpenger.streams.Topics.JOARK_EVENTS
-import no.nav.dagpenger.streams.configureGenericAvroSerde
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
+import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.streams.StreamsConfig
 import java.util.Properties
 import java.util.Random
 import java.util.concurrent.TimeUnit
 
-class DummyJoarkProducer(journalpostProducerProperties: Properties) {
+class DummyJoarkProducer(properties: Properties) {
 
     private val LOGGER = KotlinLogging.logger {}
-    private val journalpostProducer = KafkaProducer(
-        journalpostProducerProperties,
-        JOARK_EVENTS.keySerde.serializer(),
-        JOARK_EVENTS.copy(
-            valueSerde = configureGenericAvroSerde(
-                mapOf(
-                    AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG to journalpostProducerProperties.getProperty(
-                        AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG
-                    )
-                )
-            )
-        ).valueSerde.serializer()
-    )
+    private val journalpostProducer = KafkaProducer<String, GenericRecord>(properties)
 
     private val schemaSource = """
 
@@ -88,6 +78,8 @@ class DummyJoarkProducer(journalpostProducerProperties: Properties) {
                 put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServersConfig)
                 put(StreamsConfig.CLIENT_ID_CONFIG, applicationIdConfig)
                 put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegisterUrl)
+                put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
+                put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java.name)
                 put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true)
             }
             val dummyJoarkProducer = DummyJoarkProducer(props)

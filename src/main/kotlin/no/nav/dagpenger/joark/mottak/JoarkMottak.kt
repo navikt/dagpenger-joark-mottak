@@ -1,7 +1,5 @@
 package no.nav.dagpenger.joark.mottak
 
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
-import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Behov
@@ -10,8 +8,6 @@ import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.Topics.INNGÅENDE_JOURNALPOST
 import no.nav.dagpenger.streams.Topics.JOARK_EVENTS
-import no.nav.dagpenger.streams.configureAvroSerde
-import no.nav.dagpenger.streams.configureGenericAvroSerde
 import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.streamConfig
 import no.nav.dagpenger.streams.toTopic
@@ -52,11 +48,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
         val inngåendeJournalposter = builder.consumeGenericTopic(
             JOARK_EVENTS.copy(
-                name = if (env.fasitEnvironmentName.isBlank()) JOARK_EVENTS.name else JOARK_EVENTS.name + "-" + env.fasitEnvironmentName,
-                valueSerde = configureGenericAvroSerde(
-                    mapOf(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG to env.schemaRegistryUrl)
-                )
-            )
+                name = if (env.fasitEnvironmentName.isBlank()) JOARK_EVENTS.name else JOARK_EVENTS.name + "-" + env.fasitEnvironmentName
+            ), env.schemaRegistryUrl
         )
 
         inngåendeJournalposter
@@ -72,17 +65,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
                 hentInngåendeJournalpost(it.get("journalpostId").toString())
             })
             .peek { key, value -> LOGGER.info("Producing ${value.javaClass} with key $key") }
-            .toTopic(
-                INNGÅENDE_JOURNALPOST.copy(
-                    valueSerde = configureAvroSerde<Behov>(
-                        mapOf(
-                            KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to env.schemaRegistryUrl,
-                            KafkaAvroDeserializerConfig.AUTO_REGISTER_SCHEMAS to true,
-                            KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to true
-                        )
-                    )
-                )
-            )
+            .toTopic(INNGÅENDE_JOURNALPOST, env.schemaRegistryUrl)
 
         return KafkaStreams(builder.build(), this.getConfig())
     }
