@@ -51,7 +51,7 @@ class JoarkMottakComponentTest {
     }
 
     @Test
-    fun ` embedded kafka cluseter is up and running `() {
+    fun ` embedded kafka cluster is up and running `() {
         assertEquals(embeddedEnvironment.serverPark.status, KafkaEnvironment.ServerParkStatus.Started)
     }
 
