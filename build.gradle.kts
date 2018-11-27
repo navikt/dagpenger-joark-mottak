@@ -7,13 +7,18 @@ plugins {
     id("info.solidsoft.pitest") version "1.3.0"
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
 apply {
     plugin("com.diffplug.gradle.spotless")
     plugin("info.solidsoft.pitest")
 }
 
 repositories {
-    jcenter()
     mavenCentral()
     maven("http://packages.confluent.io/maven/")
     maven("https://dl.bintray.com/kotlin/ktor")
