@@ -28,7 +28,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     private val jpCounter: Counter = Counter.build()
         .namespace("dagpenger")
         .name("journalpost_mottatt")
-        .labelNames("tema", "skjemaId", "mottaksKanal", "journalfEnhet")
+        .labelNames("skjemaId", "mottaksKanal", "journalfEnhet")
         .help("Antall journalposter mottatt med tema DAG (dagpenger)").register()
 
     companion object {
@@ -84,7 +84,6 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
         jpCounter
             .labels(
-                journalpost.tema,
                 journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown",
                 journalpost.mottaksKanal,
                 journalpost.journalfEnhet
