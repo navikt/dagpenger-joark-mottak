@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     id("application")
     kotlin("jvm") version "1.3.10"
@@ -100,4 +103,11 @@ pitest {
     timestampedReports = false
 }
 
-tasks.getByName("check").dependsOn("pitest")
+tasks.getByName("pitest").mustRunAfter("check")
+
+tasks.withType<AbstractTestTask> {
+    testLogging {
+        events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
+        exceptionFormat = TestExceptionFormat.FULL
+    }
+}
