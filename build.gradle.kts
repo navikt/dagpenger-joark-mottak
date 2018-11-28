@@ -105,9 +105,11 @@ pitest {
 
 tasks.getByName("check").dependsOn("pitest")
 
-tasks.withType<AbstractTestTask> {
+tasks.withType<Test> {
     testLogging {
-        events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
+        showExceptions = true
+        showStackTraces = true
         exceptionFormat = TestExceptionFormat.FULL
+        events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
     }
 }
