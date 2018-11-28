@@ -47,7 +47,7 @@ class JournalpostTest {
         assertTrue { uuidPattern.matcher(behov.getBehovId()).matches() }
         assertEquals("12345", behov.getJournalpost().getJournalpostId())
         assertEquals("dokumentId", behov.getJournalpost().getDokumentListe().first().getDokumentId())
-        assertEquals("navSkjemaId", behov.getJournalpost().getDokumentListe().first().getNavSkjemaId())
+        assertEquals("navSjemaId", behov.getJournalpost().getDokumentListe().first().getNavSkjemaId())
         assertEquals("string", behov.getMottaker().getIdentifikator())
         assertEquals(Annet(), behov.getHenvendelsesType().getAnnet())
     }
