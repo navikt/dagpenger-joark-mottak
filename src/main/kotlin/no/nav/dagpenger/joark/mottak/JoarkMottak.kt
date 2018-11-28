@@ -85,8 +85,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         jpCounter
             .labels(
                 journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown",
-                journalpost.mottaksKanal,
-                journalpost.journalfEnhet
+                journalpost.mottaksKanal ?: "unknown",
+                journalpost.journalfEnhet ?: "unknown"
             )
             .inc()
         return journalpost.toBehov(journalpostId)
