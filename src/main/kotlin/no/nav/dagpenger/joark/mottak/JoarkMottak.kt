@@ -66,8 +66,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
             .mapValues(ValueMapper<GenericRecord, Behov> {
                 hentInngåendeJournalpost(it.get("journalpostId").toString())
             })
-            .selectKey { _, behov -> behov.getBehovId() }
-            .peek { key, value -> LOGGER.info("Producing ${value.javaClass} with key $key") }
+            .selectKey { _, behov -> behov.getJournalpost().getJournalpostId() }
+            .peek { key, value -> LOGGER.info("Producing ${value.javaClass.simpleName} with key '$key' ") }
             .toTopic(INNGÅENDE_JOURNALPOST, env.schemaRegistryUrl)
 
         return KafkaStreams(builder.build(), this.getConfig())
