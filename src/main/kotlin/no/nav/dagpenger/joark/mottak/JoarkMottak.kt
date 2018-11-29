@@ -27,7 +27,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
     private val jpCounter = aCounter(
         name = "journalpost_mottatt",
-        labelNames = listOf("skjemaId", "mottaksKanal", "journalfEnhet"),
+        labelNames = listOf("skjemaId", "mottaksKanal", "journalfEnhet", "antallBrukere", "harF/D-Nummer"),
         help = "Antall journalposter mottatt med tema DAG (dagpenger)"
     )
 
@@ -86,7 +86,10 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
             .labels(
                 journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown",
                 journalpost.mottaksKanal,
-                journalpost.journalfEnhet
+                journalpost.journalfEnhet,
+                journalpost.brukerListe.size.toString(),
+                journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "ikke 1 bruker",
+                if (journalpost.brukerListe.firstOrNull()?.identifikator != null) "har" else "mangler"
             )
             .inc()
         return journalpost.toBehov(journalpostId)
