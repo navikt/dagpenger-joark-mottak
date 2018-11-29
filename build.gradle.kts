@@ -48,7 +48,6 @@ val kotlinLoggingVersion = "1.4.9"
 val fuelVersion = "1.15.0"
 val confluentVersion = "5.0.0"
 val kafkaVersion = "2.0.0"
-val prometheusVersion = "0.5.0"
 val ktorVersion = "1.0.0"
 
 dependencies {
@@ -56,13 +55,11 @@ dependencies {
 
     implementation("no.nav.dagpenger:streams:0.2.2-SNAPSHOT")
     implementation("no.nav.dagpenger:events:0.1.9-SNAPSHOT")
+    implementation("no.nav.dagpenger:dagpenger-metrics:0.1.0-SNAPSHOT")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
     implementation("com.github.kittinunf.fuel:fuel-gson:$fuelVersion")
-
-    implementation("io.prometheus:simpleclient_common:$prometheusVersion")
-    implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
 
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("org.apache.kafka:kafka-streams:$kafkaVersion")

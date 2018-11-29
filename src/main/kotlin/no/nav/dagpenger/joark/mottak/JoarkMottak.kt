@@ -1,8 +1,8 @@
 package no.nav.dagpenger.joark.mottak
 
-import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Behov
+import no.nav.dagpenger.metrics.aCounter
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.Service
@@ -25,11 +25,11 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
-    private val jpCounter: Counter = Counter.build()
-        .namespace("dagpenger")
-        .name("journalpost_mottatt")
-        .labelNames("skjemaId", "mottaksKanal", "journalfEnhet")
-        .help("Antall journalposter mottatt med tema DAG (dagpenger)").register()
+    private val jpCounter = aCounter(
+        name = "journalpost_mottatt",
+        labelNames = listOf("skjemaId", "mottaksKanal", "journalfEnhet"),
+        help = "Antall journalposter mottatt med tema DAG (dagpenger)"
+    )
 
     companion object {
         @JvmStatic
