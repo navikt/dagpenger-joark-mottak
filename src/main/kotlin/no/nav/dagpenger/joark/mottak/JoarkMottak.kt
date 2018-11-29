@@ -27,7 +27,14 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
     private val jpCounter = aCounter(
         name = "journalpost_received",
-        labelNames = listOf("skjemaId", "mottaksKanal", "journalfEnhet", "numberOfBrukere", "brukerType", "hasIdentifikator"),
+        labelNames = listOf(
+            "skjemaId",
+            "mottaksKanal",
+            "journalfEnhet",
+            "numberOfBrukere",
+            "brukerType",
+            "hasIdentifikator"
+        ),
         help = "Number of Journalposts received on tema DAG"
     )
 
@@ -89,7 +96,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
                 journalpost.journalfEnhet,
                 journalpost.brukerListe.size.toString(),
                 journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "not",
-                if (journalpost.brukerListe.firstOrNull()?.identifikator != null) "has identifikator" else "missing identifikator"
+                journalpost.brukerListe.firstOrNull()?.identifikator?.let { "true" } ?: "false"
             )
             .inc()
         return journalpost.toBehov(journalpostId)
