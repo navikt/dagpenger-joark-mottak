@@ -103,7 +103,7 @@ pitest {
     timestampedReports = false
 }
 
-tasks.getByName("pitest").mustRunAfter("check")
+tasks.getByName("test").finalizedBy("pitest")
 
 tasks.withType<Test> {
     testLogging {
