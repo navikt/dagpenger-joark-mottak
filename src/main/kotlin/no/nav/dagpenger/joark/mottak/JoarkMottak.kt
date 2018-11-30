@@ -35,7 +35,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         @JvmStatic
         fun main(args: Array<String>) {
             val env = Environment()
-            val journalpostArkiv: JournalpostArkiv = JournalPostArkivHttpClient(
+            val journalpostArkiv: JournalpostArkiv = JournalpostArkivJoark(
                 env.journalfoerinngaaendeV1Url,
                 StsOidcClient(env.oicdStsUrl, env.username, env.password)
             )
