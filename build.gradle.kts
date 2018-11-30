@@ -39,6 +39,15 @@ application {
     mainClassName = "no.nav.dagpenger.joark.mottak.JoarkMottak"
 }
 
+configurations {
+    all {
+        resolutionStrategy {
+            force("com.fasterxml.jackson.core:jackson-databind:2.9.7")
+            force("com.fasterxml.jackson.core:jackson-core:2.9.7")
+        }
+    }
+}
+
 docker {
     name = "repo.adeo.no:5443/${application.applicationName}"
     buildArgs(
