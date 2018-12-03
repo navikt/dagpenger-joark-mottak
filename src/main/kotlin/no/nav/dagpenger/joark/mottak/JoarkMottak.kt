@@ -30,12 +30,13 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         labelNames = listOf(
             "skjemaId",
             "mottaksKanal",
-            "journalfEnhet",
+            "hasJournalfEnhet",
+            "numberOfDocuments",
             "numberOfBrukere",
             "brukerType",
             "hasIdentifikator",
             "journalTilstand",
-            "kanalReferanseId"
+            "hasKanalReferanseId"
         ),
         help = "Number of Journalposts received on tema DAG"
     )
@@ -95,12 +96,13 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
             .labels(
                 journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown",
                 journalpost.mottaksKanal,
-                journalpost.journalfEnhet,
+                if (journalpost.journalfEnhet.isBlank()) "true" else "false",
+                journalpost.dokumentListe.size.toString(),
                 journalpost.brukerListe.size.toString(),
                 journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "notSingleBruker",
                 journalpost.brukerListe.firstOrNull()?.identifikator?.let { "true" } ?: "false",
                 journalpost.journalTilstand.toString(),
-                journalpost.kanalReferanseId
+                if (journalpost.kanalReferanseId.isBlank()) "true" else "false"
             )
             .inc()
         return journalpost.toBehov(journalpostId)
