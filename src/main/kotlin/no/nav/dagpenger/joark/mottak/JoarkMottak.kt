@@ -33,7 +33,9 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
             "journalfEnhet",
             "numberOfBrukere",
             "brukerType",
-            "hasIdentifikator"
+            "hasIdentifikator",
+            "journalTilstand",
+            "kanalReferanseId"
         ),
         help = "Number of Journalposts received on tema DAG"
     )
@@ -95,8 +97,10 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
                 journalpost.mottaksKanal,
                 journalpost.journalfEnhet,
                 journalpost.brukerListe.size.toString(),
-                journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "not",
-                journalpost.brukerListe.firstOrNull()?.identifikator?.let { "true" } ?: "false"
+                journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "notSingleBruker",
+                journalpost.brukerListe.firstOrNull()?.identifikator?.let { "true" } ?: "false",
+                journalpost.journalTilstand.toString(),
+                journalpost.kanalReferanseId
             )
             .inc()
         return journalpost.toBehov(journalpostId)
