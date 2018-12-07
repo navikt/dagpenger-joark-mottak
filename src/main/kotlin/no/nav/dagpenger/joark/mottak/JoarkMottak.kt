@@ -46,7 +46,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         @JvmStatic
         fun main(args: Array<String>) {
             val env = Environment()
-            val journalpostArkiv: JournalpostArkiv = JournalPostArkivHttpClient(
+            val journalpostArkiv: JournalpostArkiv = JournalpostArkivJoark(
                 env.journalfoerinngaaendeV1Url,
                 StsOidcClient(env.oicdStsUrl, env.username, env.password)
             )
@@ -77,7 +77,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
             .mapValues(ValueMapper<GenericRecord, Behov> {
                 hentInngåendeJournalpost(it.get("journalpostId").toString())
             })
-            .peek { key, value -> LOGGER.info("Producing ${value.javaClass} with key $key") }
+            .selectKey { _, behov -> behov.getJournalpost().getJournalpostId() }
+            .peek { key, value -> LOGGER.info("Producing ${value.javaClass.simpleName} with key '$key' ") }
             .toTopic(INNGÅENDE_JOURNALPOST, env.schemaRegistryUrl)
 
         return KafkaStreams(builder.build(), this.getConfig())

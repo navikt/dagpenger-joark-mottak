@@ -15,7 +15,7 @@ import org.junit.Test
 import java.util.UUID
 import kotlin.test.assertEquals
 
-class JournalPostArkivHttpClientTest {
+class JournalpostArkivJoarkTest {
 
     @Rule
     @JvmField
@@ -28,7 +28,7 @@ class JournalPostArkivHttpClientTest {
     @Test
     fun `fetch JournalPost on 200 ok`() {
 
-        val body = JournalPostArkivHttpClientTest::class.java.getResource("/test-data/example-journalpost-payload.json")
+        val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-journalpost-payload.json")
             .readText()
         stubFor(
             get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/1"))
@@ -40,7 +40,7 @@ class JournalPostArkivHttpClientTest {
                 )
         )
 
-        val joarkClient = JournalPostArkivHttpClient(wireMockRule.url(""), DummyOidcClient())
+        val joarkClient = JournalpostArkivJoark(wireMockRule.url(""), DummyOidcClient())
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
 
         assertEquals(journalPost.journalTilstand, JournalTilstand.ENDELIG)
@@ -76,7 +76,7 @@ class JournalPostArkivHttpClientTest {
         )
     }
 
-    @Test(expected = JournalPostArkivException::class)
+    @Test(expected = JournalpostArkivException::class)
     fun `fetch JournalPost on 200 ok but no content`() {
 
         val body = ""
@@ -90,11 +90,11 @@ class JournalPostArkivHttpClientTest {
                 )
         )
 
-        val joarkClient = JournalPostArkivHttpClient(wireMockRule.url(""), DummyOidcClient())
+        val joarkClient = JournalpostArkivJoark(wireMockRule.url(""), DummyOidcClient())
         joarkClient.hentInngåendeJournalpost("2")
     }
 
-    @Test(expected = JournalPostArkivException::class)
+    @Test(expected = JournalpostArkivException::class)
     fun `fetch JournalPost on 4xx errors`() {
 
         stubFor(
@@ -105,7 +105,7 @@ class JournalPostArkivHttpClientTest {
                 )
         )
 
-        val joarkClient = JournalPostArkivHttpClient(wireMockRule.url(""), DummyOidcClient())
+        val joarkClient = JournalpostArkivJoark(wireMockRule.url(""), DummyOidcClient())
         joarkClient.hentInngåendeJournalpost("-1")
     }
 }

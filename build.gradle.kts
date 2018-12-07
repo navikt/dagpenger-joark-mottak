@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     id("application")
     kotlin("jvm") version "1.3.10"
@@ -7,13 +10,18 @@ plugins {
     id("info.solidsoft.pitest") version "1.3.0"
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
 apply {
     plugin("com.diffplug.gradle.spotless")
     plugin("info.solidsoft.pitest")
 }
 
 repositories {
-    jcenter()
     mavenCentral()
     mavenLocal()
     maven("http://packages.confluent.io/maven/")
@@ -30,6 +38,15 @@ group = "no.nav.dagpenger"
 application {
     applicationName = "dagpenger-joark-mottak"
     mainClassName = "no.nav.dagpenger.joark.mottak.JoarkMottak"
+}
+
+configurations {
+    all {
+        resolutionStrategy {
+            force("com.fasterxml.jackson.core:jackson-databind:2.9.7")
+            force("com.fasterxml.jackson.core:jackson-core:2.9.7")
+        }
+    }
 }
 
 docker {
@@ -50,6 +67,7 @@ val fuelVersion = "1.15.0"
 val confluentVersion = "5.0.0"
 val kafkaVersion = "2.0.0"
 val ktorVersion = "1.0.0"
+val log4j2Version = "2.11.1"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -61,6 +79,11 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
     implementation("com.github.kittinunf.fuel:fuel-gson:$fuelVersion")
+
+    implementation("org.apache.logging.log4j:log4j-api:$log4j2Version")
+    implementation("org.apache.logging.log4j:log4j-core:$log4j2Version")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
+    implementation("com.vlkan.log4j2:log4j2-logstash-layout-fatjar:0.15")
 
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("org.apache.kafka:kafka-streams:$kafkaVersion")
@@ -93,4 +116,13 @@ pitest {
     timestampedReports = false
 }
 
-tasks.getByName("check").dependsOn("pitest")
+tasks.getByName("test").finalizedBy("pitest")
+
+tasks.withType<Test> {
+    testLogging {
+        showExceptions = true
+        showStackTraces = true
+        exceptionFormat = TestExceptionFormat.FULL
+        events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
+    }
+}

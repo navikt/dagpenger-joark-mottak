@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/navikt/dagpenger-joark-mottak.svg?branch=master)](https://travis-ci.org/navikt/dagpenger-joark-mottak)
+
 # Dagpenger-joark-mottak
 
 Tar i mot tynne kafka meldinger fra Joark og produserer tykke kafka meldinger for videre behandling.
