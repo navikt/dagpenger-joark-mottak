@@ -29,6 +29,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         name = "journalpost_received",
         labelNames = listOf(
             "skjemaId",
+            "henvendelsesType",
             "mottaksKanal",
             "hasJournalfEnhet",
             "numberOfDocuments",
@@ -92,9 +93,17 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
     private fun hentInngåendeJournalpost(journalpostId: String): Behov {
         val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
+        registerMetrics(journalpost)
+        return journalpost.toBehov(journalpostId)
+    }
+
+    private fun registerMetrics(journalpost: Journalpost) {
+        val skjemaId = journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown"
+
         jpCounter
             .labels(
-                journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown",
+                skjemaId,
+                HenvendelsesTypeMapper.mapper.getHenvendelsesType(skjemaId).toString(),
                 journalpost.mottaksKanal,
                 if (journalpost.journalfEnhet.isBlank()) "true" else "false",
                 journalpost.dokumentListe.size.toString(),
@@ -105,6 +114,5 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
                 if (journalpost.kanalReferanseId.isBlank()) "true" else "false"
             )
             .inc()
-        return journalpost.toBehov(journalpostId)
     }
 }
