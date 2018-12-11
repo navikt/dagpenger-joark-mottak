@@ -23,7 +23,6 @@ apply {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven("http://packages.confluent.io/maven/")
     maven("https://dl.bintray.com/kotlin/ktor")
     maven("https://dl.bintray.com/kotlin/kotlinx")
