@@ -2,6 +2,9 @@ package no.nav.dagpenger.joark.mottak
 
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Behov
+import no.nav.dagpenger.events.isAnnet
+import no.nav.dagpenger.events.isEttersending
+import no.nav.dagpenger.events.isSoknad
 import no.nav.dagpenger.metrics.aCounter
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.KafkaCredential
@@ -95,26 +98,39 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
     private fun hentInngåendeJournalpost(journalpostId: String): Behov {
         val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
-        registerMetrics(journalpost)
-        return journalpost.toBehov(journalpostId)
+        val behov = journalpost.toBehov(journalpostId)
+        registerMetrics(journalpost, behov)
+        return behov
     }
 
-    private fun registerMetrics(journalpost: Journalpost) {
+    private fun registerMetrics(journalpost: Journalpost, behov: Behov) {
         val skjemaId = journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown"
+        val skjemaIdIsKnown = HenvendelsesTypeMapper.mapper.isKnownSkjemaId(skjemaId).toString()
+        val henvendelsesType = when {
+            behov.isSoknad() -> "Soknad"
+            behov.isEttersending() -> "Ettersending"
+            behov.isAnnet() -> "Annet"
+            else -> "unknown"
+        }
+        val hasJournalfEnhet = if (journalpost.journalfEnhet.isNotBlank()) "true" else "false"
+        val brukerType =
+            journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "notSingleBruker"
+        val hasIdentifikator = journalpost.brukerListe.firstOrNull()?.identifikator?.let { "true" } ?: "false"
+        val hasKanalreferanseId = if (journalpost.kanalReferanseId.isNotBlank()) "true" else "false"
 
         jpCounter
             .labels(
                 skjemaId,
-                HenvendelsesTypeMapper.mapper.isKnownSkjemaId(skjemaId).toString(),
-                HenvendelsesTypeMapper.mapper.getHenvendelsesType(skjemaId).toString(),
+                skjemaIdIsKnown,
+                henvendelsesType,
                 journalpost.mottaksKanal,
-                if (journalpost.journalfEnhet.isBlank()) "true" else "false",
+                hasJournalfEnhet,
                 journalpost.dokumentListe.size.toString(),
                 journalpost.brukerListe.size.toString(),
-                journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "notSingleBruker",
-                journalpost.brukerListe.firstOrNull()?.identifikator?.let { "true" } ?: "false",
+                brukerType,
+                hasIdentifikator,
                 journalpost.journalTilstand.toString(),
-                if (journalpost.kanalReferanseId.isBlank()) "true" else "false"
+                hasKanalreferanseId
             )
             .inc()
     }
