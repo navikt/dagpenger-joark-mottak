@@ -29,6 +29,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         name = "journalpost_received",
         labelNames = listOf(
             "skjemaId",
+            "skjemaIdIsKnown",
             "henvendelsesType",
             "mottaksKanal",
             "hasJournalfEnhet",
@@ -104,6 +105,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         jpCounter
             .labels(
                 skjemaId,
+                HenvendelsesTypeMapper.mapper.isKnownSkjemaId(skjemaId).toString(),
                 HenvendelsesTypeMapper.mapper.getHenvendelsesType(skjemaId).toString(),
                 journalpost.mottaksKanal,
                 if (journalpost.journalfEnhet.isBlank()) "true" else "false",
