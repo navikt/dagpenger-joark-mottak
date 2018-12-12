@@ -86,7 +86,6 @@ class DummyJoarkProducer(properties: Properties) {
                 put(SaslConfigs.SASL_MECHANISM, "PLAIN")
                 put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
                 put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=igroup password=itest;")
-
             }
             val dummyJoarkProducer = DummyJoarkProducer(props)
             while (true) {
