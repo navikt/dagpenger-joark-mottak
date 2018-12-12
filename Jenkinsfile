@@ -4,13 +4,15 @@ pipeline {
     APPLICATION_NAME = 'dagpenger-joark-mottak'
     ZONE = 'fss'
     NAMESPACE = 'default'
-    VERSION = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
+    VERSION = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+    DOCKER_REPO = 'repo.adeo.no:5443/'
+    DOCKER_IMAGE_VERSION = '${DOCKER_REPO}${APPLICATION_NAME}:${VERSION}'
   }
 
   stages {
     stage('Install dependencies') {
       steps {
-        sh "./gradlew assemble --refresh-dependencies"
+        sh "./gradlew assemble"
       }
     }
 
@@ -50,7 +52,13 @@ pipeline {
         }
 
         script {
-          sh "./gradlew dockerPush${VERSION}"
+          sh "./gradlew build"
+        }
+        script {
+          sh "docker build . --pull -t ${DOCKER_IMAGE_VERSION}"
+        }
+        script {
+          sh "docker push ${DOCKER_IMAGE_VERSION}"
         }
       }
     }
