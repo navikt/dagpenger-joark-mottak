@@ -18,7 +18,7 @@ pipeline {
 
     stage('Build') {
       steps {
-        sh "./gradlew check"
+        sh "./gradlew build"
       }
 
       post {
@@ -51,9 +51,6 @@ pipeline {
             sh "docker login -u ${REPO_USERNAME} -p ${REPO_PASSWORD} repo.adeo.no:5443"
         }
 
-        script {
-          sh "./gradlew build"
-        }
         script {
           sh "docker build . --pull -t ${DOCKER_IMAGE_VERSION}"
         }
