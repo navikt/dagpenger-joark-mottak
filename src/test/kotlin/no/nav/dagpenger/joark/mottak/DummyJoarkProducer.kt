@@ -7,10 +7,12 @@ import no.nav.dagpenger.streams.Topics.JOARK_EVENTS
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
+import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
+import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.streams.StreamsConfig
 import java.util.Properties
@@ -81,6 +83,10 @@ class DummyJoarkProducer(properties: Properties) {
                 put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
                 put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java.name)
                 put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true)
+                put(SaslConfigs.SASL_MECHANISM, "PLAIN")
+                put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
+                put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=igroup password=itest;")
+
             }
             val dummyJoarkProducer = DummyJoarkProducer(props)
             while (true) {
