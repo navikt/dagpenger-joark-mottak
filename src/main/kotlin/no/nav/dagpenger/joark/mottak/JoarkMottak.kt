@@ -1,8 +1,11 @@
 package no.nav.dagpenger.joark.mottak
 
-import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Behov
+import no.nav.dagpenger.events.isAnnet
+import no.nav.dagpenger.events.isEttersending
+import no.nav.dagpenger.events.isSoknad
+import no.nav.dagpenger.metrics.aCounter
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.Service
@@ -25,11 +28,23 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
-    private val jpCounter: Counter = Counter.build()
-        .namespace("dagpenger")
-        .name("journalpost_mottatt")
-        .labelNames("skjemaId", "mottaksKanal", "journalfEnhet")
-        .help("Antall journalposter mottatt med tema DAG (dagpenger)").register()
+    private val jpCounter = aCounter(
+        name = "journalpost_received",
+        labelNames = listOf(
+            "skjemaId",
+            "skjemaIdIsKnown",
+            "henvendelsesType",
+            "mottaksKanal",
+            "hasJournalfEnhet",
+            "numberOfDocuments",
+            "numberOfBrukere",
+            "brukerType",
+            "hasIdentifikator",
+            "journalTilstand",
+            "hasKanalReferanseId"
+        ),
+        help = "Number of Journalposts received on tema DAG"
+    )
 
     companion object {
         @JvmStatic
@@ -83,13 +98,40 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
     private fun hentInngåendeJournalpost(journalpostId: String): Behov {
         val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
+        val behov = journalpost.toBehov(journalpostId)
+        registerMetrics(journalpost, behov)
+        return behov
+    }
+
+    private fun registerMetrics(journalpost: Journalpost, behov: Behov) {
+        val skjemaId = journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown"
+        val skjemaIdIsKnown = HenvendelsesTypeMapper.mapper.isKnownSkjemaId(skjemaId).toString()
+        val henvendelsesType = when {
+            behov.isSoknad() -> "Soknad"
+            behov.isEttersending() -> "Ettersending"
+            behov.isAnnet() -> "Annet"
+            else -> "unknown"
+        }
+        val hasJournalfEnhet = if (journalpost.journalfEnhet.isNotBlank()) "true" else "false"
+        val brukerType =
+            journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "notSingleBruker"
+        val hasIdentifikator = journalpost.brukerListe.firstOrNull()?.identifikator?.let { "true" } ?: "false"
+        val hasKanalreferanseId = if (journalpost.kanalReferanseId.isNotBlank()) "true" else "false"
+
         jpCounter
             .labels(
-                journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown",
-                journalpost.mottaksKanal ?: "unknown",
-                journalpost.journalfEnhet ?: "unknown"
+                skjemaId,
+                skjemaIdIsKnown,
+                henvendelsesType,
+                journalpost.mottaksKanal,
+                hasJournalfEnhet,
+                journalpost.dokumentListe.size.toString(),
+                journalpost.brukerListe.size.toString(),
+                brukerType,
+                hasIdentifikator,
+                journalpost.journalTilstand.toString(),
+                hasKanalreferanseId
             )
             .inc()
-        return journalpost.toBehov(journalpostId)
     }
 }
