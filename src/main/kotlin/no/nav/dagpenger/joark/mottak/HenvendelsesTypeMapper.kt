@@ -63,8 +63,8 @@ class HenvendelsesTypeMapper {
             "NAVe 04-02.02"
         )
 
-        fun getHenvendelsesType(navSkjemaId: String): Any {
-            return supportedTypes.getOrDefault(navSkjemaId, Annet())
+        fun getHenvendelsesType(navSkjemaId: String?): Any {
+            return supportedTypes.getOrDefault(navSkjemaId.orEmpty(), Annet())
         }
 
         fun isKnownSkjemaId(navSkjemaId: String): Boolean {
