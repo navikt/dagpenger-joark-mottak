@@ -15,7 +15,7 @@ data class Journalpost(
     val arkivSak: ArkivSak,
     val tema: String,
     val tittel: String,
-    val kanalReferanseId: String,
+    val kanalReferanseId: String?,
     val forsendelseMottatt: String,
     val mottaksKanal: String,
     val journalfEnhet: String,

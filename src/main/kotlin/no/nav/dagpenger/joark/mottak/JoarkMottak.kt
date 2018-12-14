@@ -116,7 +116,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         val brukerType =
             journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "notSingleBruker"
         val hasIdentifikator = journalpost.brukerListe.firstOrNull()?.identifikator?.let { "true" } ?: "false"
-        val hasKanalreferanseId = if (journalpost.kanalReferanseId.isNotBlank()) "true" else "false"
+        val hasKanalreferanseId = journalpost.kanalReferanseId?.isNotBlank().let { "true" }
 
         jpCounter
             .labels(
