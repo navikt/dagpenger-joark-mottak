@@ -1,6 +1,6 @@
 name: dagpenger-joark-mottak
 image: repo.adeo.no:5443/dagpenger-joark-mottak
-team: dagpenger
+team: teamdagpenger
 replicas:
   min: 2
   max: 4
