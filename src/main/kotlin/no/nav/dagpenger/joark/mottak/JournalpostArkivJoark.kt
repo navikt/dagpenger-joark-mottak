@@ -20,7 +20,7 @@ class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcCl
         return when (result) {
             is Result.Failure -> throw JournalpostArkivException(
                 response.statusCode,
-                response.responseMessage,
+                "Failed to fetch journalpost id: $journalpostId. Response message ${response.responseMessage}",
                 result.getException()
             )
             is Result.Success -> result.get()

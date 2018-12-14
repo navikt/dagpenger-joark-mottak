@@ -18,6 +18,7 @@ import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.ValueMapper
+import org.apache.logging.log4j.ThreadContext
 import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
@@ -97,6 +98,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     }
 
     private fun hentInngåendeJournalpost(journalpostId: String): Behov {
+        ThreadContext.put("journalpostId", journalpostId)
         val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
         val behov = journalpost.toBehov(journalpostId)
         registerMetrics(journalpost, behov)
