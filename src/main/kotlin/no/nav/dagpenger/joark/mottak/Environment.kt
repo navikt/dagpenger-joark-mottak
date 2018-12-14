@@ -10,7 +10,7 @@ data class Environment(
     val fasitEnvironmentName: String = getEnvVar(
         "FASIT_ENVIRONMENT_NAME",
         ""
-    ).filterNot { it in "p" }, // filter out production
+    ),
     val httpPort: Int? = null
 )
 
