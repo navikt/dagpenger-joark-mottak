@@ -45,7 +45,8 @@ data class Journalpost(
         if (brukerListe.size > 1) {
             throw IllegalArgumentException("BrukerListe has more than one element")
         }
-        return Mottaker(brukerListe.firstOrNull().takeIf { it?.brukerType == BrukerType.PERSON }?.identifikator)
+        val identifikator = brukerListe.firstOrNull().takeIf { it?.brukerType == BrukerType.PERSON }?.identifikator
+        return identifikator?.let { Mottaker(it) }
     }
 
     private fun mapToHenvendelsesType(): Any {
@@ -92,7 +93,7 @@ data class ArkivSak(
 
 data class Bruker(
     val brukerType: BrukerType,
-    val identifikator: String
+    val identifikator: String?
 )
 
 enum class BrukerType {
