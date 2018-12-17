@@ -73,9 +73,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         inngåendeJournalposter
             .peek { _, value ->
                 LOGGER.info(
-                    "Received journalpost with journalpost id: ${value.get("journalpostId")} and tema: ${value.get(
-                        "temaNytt"
-                    )}"
+                    "Received journalpost with journalpost id: ${value.get("journalpostId")} and value: $value"
                 )
             }
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
@@ -123,7 +121,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
             behov.isAnnet() -> "Annet"
             else -> "unknown"
         }
-        val hasJournalfEnhet = if (journalpost.journalfEnhet.isNotBlank()) "true" else "false"
+        val hasJournalfEnhet = journalpost.journalfEnhet?.let { it } ?: "ukjent"
         val brukerType =
             journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "notSingleBruker"
         val hasIdentifikator = journalpost.brukerListe.firstOrNull()?.identifikator?.let { "true" } ?: "false"

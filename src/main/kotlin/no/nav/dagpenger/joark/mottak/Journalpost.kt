@@ -18,7 +18,7 @@ data class Journalpost(
     val kanalReferanseId: String?,
     val forsendelseMottatt: String,
     val mottaksKanal: String?,
-    val journalfEnhet: String,
+    val journalfEnhet: String?,
     val dokumentListe: List<Dokument>
 ) {
 
