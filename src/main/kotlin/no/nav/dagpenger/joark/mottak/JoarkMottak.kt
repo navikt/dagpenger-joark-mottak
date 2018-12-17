@@ -73,10 +73,13 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         inngåendeJournalposter
             .peek { _, value ->
                 LOGGER.info(
-                    "Received journalpost with journalpost id: ${value.get("journalpostId")} and value: $value"
+                    "Received journalpost with journalpost id: ${value.get("journalpostId")} and tema: ${value.get(
+                        "temaNytt"
+                    )}, hendelsesType: ${value.get("hendelsesType")}"
                 )
             }
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
+            .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }
             .flatMapValues(ValueMapper<GenericRecord, List<Behov>> {
                 try {
                     listOf(hentInngåendeJournalpost(it.get("journalpostId").toString()))
