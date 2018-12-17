@@ -84,7 +84,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
                     listOf(hentInngåendeJournalpost(it.get("journalpostId").toString()))
                 } catch (e: JournalpostArkivException) {
                     if (e.statusCode == 403) {
-                        LOGGER.warn ( "Could not fetch journalpost", e )
+                        LOGGER.warn("Could not fetch journalpost", e)
                         emptyList<Behov>()
                     } else {
                         throw e
@@ -127,14 +127,14 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         val brukerType =
             journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "notSingleBruker"
         val hasIdentifikator = journalpost.brukerListe.firstOrNull()?.identifikator?.let { "true" } ?: "false"
-        val hasKanalreferanseId = journalpost.kanalReferanseId?.isNotBlank().let { "true" }
+        val hasKanalreferanseId = journalpost.kanalReferanseId?.let { "true" } ?: "false"
 
         jpCounter
             .labels(
                 skjemaId,
                 skjemaIdIsKnown,
                 henvendelsesType,
-                journalpost.mottaksKanal,
+                journalpost.mottaksKanal?.let { it } ?: "ingen",
                 hasJournalfEnhet,
                 journalpost.dokumentListe.size.toString(),
                 journalpost.brukerListe.size.toString(),
