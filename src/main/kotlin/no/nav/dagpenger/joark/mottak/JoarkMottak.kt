@@ -108,7 +108,9 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         ThreadContext.put("journalpostId", journalpostId)
         val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
         val behov = journalpost.toBehov(journalpostId)
+        ThreadContext.put("behovId", behov.getBehovId())
         registerMetrics(journalpost, behov)
+        ThreadContext.clearMap()
         return behov
     }
 
