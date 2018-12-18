@@ -68,7 +68,7 @@ class HenvendelsesTypeMapper {
             return supportedTypes.getOrDefault(navSkjemaId.orEmpty(), Annet())
         }
 
-        fun isKnownSkjemaId(navSkjemaId: String): Boolean {
+        fun isDokumentIdKnown(navSkjemaId: String): Boolean {
             return allKnownTypes.contains(navSkjemaId)
         }
     }
