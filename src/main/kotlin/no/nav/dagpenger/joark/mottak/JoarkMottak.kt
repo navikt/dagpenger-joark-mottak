@@ -32,8 +32,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     private val jpCounter = aCounter(
         name = "journalpost_received",
         labelNames = listOf(
-            "skjemaId",
-            "skjemaIdIsKnown",
+            "dokumentTypeId",
+            "dokumentTypeIsKnown",
             "henvendelsesType",
             "mottaksKanal",
             "hasJournalfEnhet",
@@ -73,10 +73,13 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         inngåendeJournalposter
             .peek { _, value ->
                 LOGGER.info(
-                    "Received journalpost with journalpost id: ${value.get("journalpostId")} and value: $value"
+                    "Received journalpost with journalpost id: ${value.get("journalpostId")} and tema: ${value.get(
+                        "temaNytt"
+                    )}, hendelsesType: ${value.get("hendelsesType")}"
                 )
             }
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
+            .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }
             .flatMapValues(ValueMapper<GenericRecord, List<Behov>> {
                 try {
                     listOf(hentInngåendeJournalpost(it.get("journalpostId").toString()))
@@ -115,8 +118,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     }
 
     private fun registerMetrics(journalpost: Journalpost, behov: Behov) {
-        val skjemaId = journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown"
-        val skjemaIdIsKnown = HenvendelsesTypeMapper.mapper.isKnownSkjemaId(skjemaId).toString()
+        val dokumentTypeId = journalpost.dokumentListe.firstOrNull()?.dokumentTypeId ?: "unknown"
+        val dokumentTypeIdIsKnown = HenvendelsesTypeMapper.mapper.isDokumentIdKnown(dokumentTypeId).toString()
         val henvendelsesType = when {
             behov.isSoknad() -> "Soknad"
             behov.isEttersending() -> "Ettersending"
@@ -131,8 +134,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
         jpCounter
             .labels(
-                skjemaId,
-                skjemaIdIsKnown,
+                dokumentTypeId,
+                dokumentTypeIdIsKnown,
                 henvendelsesType,
                 journalpost.mottaksKanal?.let { it } ?: "ingen",
                 hasJournalfEnhet,

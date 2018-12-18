@@ -107,24 +107,24 @@ class JournalpostTest {
     @Test
     fun ` map to Behov from journal post for henvendelsestype 'Søknad' `() {
 
-        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAV 04-01.03"))
-        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAV 04-01.04"))
-        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAV 04-16.03"))
-        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAV 04-16.04"))
+        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("196002"))
+        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("273034"))
+        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("200899"))
+        assertEquals(Søknad(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("221659"))
     }
 
     @Test
     fun ` map to Behov from journal post for henvendelsestype 'Ettersending' `() {
-        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-01.03"))
-        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-01.04"))
-        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-16.03"))
-        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-16.04"))
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("596002"))
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("673034"))
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("600899"))
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("621659"))
     }
 
     @Test
     fun ` map to Behov from journal post for henvendelsestype 'Annet' `() {
-        assertEquals(Annet(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-01.05"))
-        assertEquals(Annet(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-06.08"))
+        assertEquals(Annet(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NAVe 04-01.03"))
+        assertEquals(Annet(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("12345678"))
         assertEquals(Annet(), HenvendelsesTypeMapper.mapper.getHenvendelsesType(""))
         assertEquals(Annet(), HenvendelsesTypeMapper.mapper.getHenvendelsesType("NULL"))
     }

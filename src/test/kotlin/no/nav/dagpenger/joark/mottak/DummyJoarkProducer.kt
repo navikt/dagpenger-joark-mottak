@@ -45,16 +45,13 @@ class DummyJoarkProducer(properties: Properties) {
 
                 """.trimIndent()
 
-    fun produceEvent(journalpostId: Long, tema: String) {
+    fun produceEvent(journalpostId: Long, tema: String, hendelsesType: String) {
         val avroSchema = Schema.Parser().parse(schemaSource)
         val joarkJournalpost: GenericData.Record = GenericData.Record(avroSchema).apply {
             put("journalpostId", journalpostId)
             put("hendelsesId", journalpostId.toString())
             put("versjon", journalpostId)
-            put(
-                "hendelsesType",
-                listOf("MidlertidigJournalført", "EndeligJournalført", "TemaEndret").shuffled().take(1)[0]
-            )
+            put("hendelsesType", hendelsesType)
             put("journalpostStatus", "journalpostStatus")
             put("temaGammelt", tema)
             put("temaNytt", tema)
@@ -89,7 +86,7 @@ class DummyJoarkProducer(properties: Properties) {
             }
             val dummyJoarkProducer = DummyJoarkProducer(props)
             while (true) {
-                dummyJoarkProducer.produceEvent(journalpostId = Random().nextLong(), tema = "DAG")
+                dummyJoarkProducer.produceEvent(journalpostId = Random().nextLong(), tema = "DAG", hendelsesType = listOf("MidlertidigJournalført", "EndeligJournalført", "TemaEndret").shuffled().take(1)[0])
                 TimeUnit.SECONDS.sleep(5)
             }
         }

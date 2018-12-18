@@ -37,15 +37,29 @@ class JoarkMottakComponentTest {
             topics = listOf(Topics.JOARK_EVENTS.name, Topics.INNGÅENDE_JOURNALPOST.name)
         )
 
+        val env = Environment(
+            username = username,
+            password = password,
+            bootstrapServersUrl = embeddedEnvironment.brokersURL,
+            schemaRegistryUrl = embeddedEnvironment.schemaRegistry!!.url,
+            oicdStsUrl = "localhost",
+            journalfoerinngaaendeV1Url = "localhost",
+            httpPort = getAvailablePort()
+        )
+
+        val joarkMottak = JoarkMottak(env, JournalpostArkivDummy())
+
         @BeforeClass
         @JvmStatic
         fun setup() {
             embeddedEnvironment.start()
+            joarkMottak.start()
         }
 
         @AfterClass
         @JvmStatic
         fun teardown() {
+            joarkMottak.stop()
             embeddedEnvironment.tearDown()
         }
     }
@@ -56,7 +70,7 @@ class JoarkMottakComponentTest {
     }
 
     @Test
-    fun ` Component test of JoarkMottak `() {
+    fun ` Component test of JoarkMottak  where hendelsesType is 'MidlertidigJournalført'`() {
 
         val kjoarkEvents = mapOf(
             Random().nextLong() to "DAG",
@@ -71,34 +85,47 @@ class JoarkMottakComponentTest {
             Random().nextLong() to "DAG"
         )
 
-        // given an environment
-        val env = Environment(
-            username = username,
-            password = password,
-            bootstrapServersUrl = embeddedEnvironment.brokersURL,
-            schemaRegistryUrl = embeddedEnvironment.schemaRegistry!!.url,
-            oicdStsUrl = "localhost",
-            journalfoerinngaaendeV1Url = "localhost",
-            httpPort = getAvailablePort()
-        )
-
-        // when
-        val joarkMottak = JoarkMottak(env, JournalpostArkivDummy())
-        joarkMottak.start()
-
         val dummyJoarkProducer = dummyJoarkProducer(env)
 
         kjoarkEvents.forEach { id, tema ->
-            dummyJoarkProducer.produceEvent(journalpostId = id, tema = tema)
+            dummyJoarkProducer.produceEvent(journalpostId = id, tema = tema, hendelsesType = "MidlertidigJournalført")
         }
 
         val behovConsumer: KafkaConsumer<String, Behov> = behovConsumer(env)
         val behov = behovConsumer.poll(Duration.ofSeconds(5)).toList()
 
-        joarkMottak.stop()
-
-        // then
         assertEquals(kjoarkEvents.filterValues { it == "DAG" }.size, behov.size)
+    }
+
+    @Test
+    fun ` Component test of JoarkMottak where hendelsesType is not 'MidlertidigJournalført' `() {
+
+        val kjoarkEvents = mapOf(
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "SOMETHING",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "JP",
+            Random().nextLong() to "DAG",
+            Random().nextLong() to "DAG"
+        )
+
+        val dummyJoarkProducer = dummyJoarkProducer(env)
+
+        kjoarkEvents.forEach { id, tema ->
+            dummyJoarkProducer.produceEvent(journalpostId = id, tema = tema, hendelsesType = "ett eller annet annet")
+        }
+
+        val behovConsumer: KafkaConsumer<String, Behov> = behovConsumer(env)
+        val behovList = behovConsumer.poll(Duration.ofSeconds(5)).toList()
+
+        assertEquals(
+            0,
+            behovList.filterNot { kjoarkEvents.keys.contains(it.value().getJournalpost().getJournalpostId().toLong()) }.size
+        )
     }
 
     private fun behovConsumer(env: Environment): KafkaConsumer<String, Behov> {
