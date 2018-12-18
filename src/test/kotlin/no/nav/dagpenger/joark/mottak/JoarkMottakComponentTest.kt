@@ -59,8 +59,8 @@ class JoarkMottakComponentTest {
         @AfterClass
         @JvmStatic
         fun teardown() {
-            embeddedEnvironment.tearDown()
             joarkMottak.stop()
+            embeddedEnvironment.tearDown()
         }
     }
 
