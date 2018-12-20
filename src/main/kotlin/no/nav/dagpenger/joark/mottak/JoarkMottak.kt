@@ -80,8 +80,17 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
             }
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
             .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }
-            .mapValues(ValueMapper<GenericRecord, Behov> {
-                hentInngåendeJournalpost(it.get("journalpostId").toString())
+            .flatMapValues(ValueMapper<GenericRecord, List<Behov>> {
+                try {
+                    listOf(hentInngåendeJournalpost(it.get("journalpostId").toString()))
+                } catch (e: JournalpostArkivException) {
+                    if (e.statusCode == 403) {
+                        LOGGER.warn("Could not fetch journalpost", e)
+                        emptyList<Behov>()
+                    } else {
+                        throw e
+                    }
+                }
             })
             .selectKey { _, behov -> behov.getJournalpost().getJournalpostId() }
             .peek { key, value -> LOGGER.info("Producing ${value.javaClass.simpleName} with key '$key' ") }
