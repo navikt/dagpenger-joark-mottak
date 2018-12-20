@@ -96,7 +96,7 @@ spotless {
 
 pitest {
     threads = 4
-    coverageThreshold = 77
+    coverageThreshold = 80
     pitestVersion = "1.4.3"
     avoidCallsTo = setOf("kotlin.jvm.internal")
     timestampedReports = false

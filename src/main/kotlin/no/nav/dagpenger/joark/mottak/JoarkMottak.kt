@@ -32,8 +32,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     private val jpCounter = aCounter(
         name = "journalpost_received",
         labelNames = listOf(
-            "dokumentTypeId",
-            "dokumentTypeIsKnown",
+            "skjemaId",
+            "skjemaIdIsKnown",
             "henvendelsesType",
             "mottaksKanal",
             "hasJournalfEnhet",
@@ -109,8 +109,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     }
 
     private fun registerMetrics(journalpost: Journalpost, behov: Behov) {
-        val dokumentTypeId = journalpost.dokumentListe.firstOrNull()?.dokumentTypeId ?: "unknown"
-        val dokumentTypeIdIsKnown = HenvendelsesTypeMapper.mapper.isDokumentIdKnown(dokumentTypeId).toString()
+        val skjemaId = journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown"
+        val skjemaIdIsKnown = HenvendelsesTypeMapper.mapper.isKnownSkjemaId(skjemaId).toString()
         val henvendelsesType = when {
             behov.isSoknad() -> "Soknad"
             behov.isEttersending() -> "Ettersending"
@@ -125,8 +125,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
         jpCounter
             .labels(
-                dokumentTypeId,
-                dokumentTypeIdIsKnown,
+                skjemaId,
+                skjemaIdIsKnown,
                 henvendelsesType,
                 journalpost.mottaksKanal?.let { it } ?: "ingen",
                 hasJournalfEnhet,
