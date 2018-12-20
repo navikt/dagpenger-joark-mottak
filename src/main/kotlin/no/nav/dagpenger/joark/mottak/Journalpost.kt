@@ -51,7 +51,7 @@ data class Journalpost(
 
     private fun mapToHenvendelsesType(): Any {
         val navSkjemaId = this@Journalpost.dokumentListe.first().navSkjemaId
-        return HenvendelsesTypeMapper.mapper.getHenvendelsesType(navSkjemaId)
+        return HenvendelsesTypeMapper.getHenvendelsesType(navSkjemaId)
     }
 
     private fun mapJournalpostTilHenvendelsesType(): HenvendelsesType.Builder {

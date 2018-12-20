@@ -119,7 +119,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
 
     private fun registerMetrics(journalpost: Journalpost, behov: Behov) {
         val skjemaId = journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown"
-        val skjemaIdIsKnown = HenvendelsesTypeMapper.mapper.isKnownSkjemaId(skjemaId).toString()
+        val skjemaIdIsKnown = HenvendelsesTypeMapper.isKnownSkjemaId(skjemaId).toString()
         val henvendelsesType = when {
             behov.isSoknad() -> "Soknad"
             behov.isEttersending() -> "Ettersending"
