@@ -1,9 +1,5 @@
 package no.nav.dagpenger.joark.mottak
 
-import no.nav.dagpenger.events.avro.Annet
-import no.nav.dagpenger.events.avro.Ettersending
-import no.nav.dagpenger.events.avro.Søknad
-
 class NavSkjemaIdMapper {
 
     object mapper {
