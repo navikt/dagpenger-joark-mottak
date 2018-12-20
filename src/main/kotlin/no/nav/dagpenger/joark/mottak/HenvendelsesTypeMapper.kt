@@ -69,3 +69,5 @@ object HenvendelsesTypeMapper {
         return allKnownTypes.contains(navSkjemaId)
     }
 }
+
+data class Henvendelse(val netsId: String, val skjemaId: String, val navn: String, val type: Søknad)

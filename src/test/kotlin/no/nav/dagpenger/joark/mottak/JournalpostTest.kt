@@ -58,7 +58,7 @@ class JournalpostTest {
         assertEquals("dokumentId", behov.getJournalpost().getDokumentListe().first().getDokumentId())
         assertEquals("navSkjemaId", behov.getJournalpost().getDokumentListe().first().getNavSkjemaId())
         assertEquals("string", behov.getMottaker().getIdentifikator())
-        assertEquals(Annet(), behov.getHenvendelsesType().getAnnet())
+        assertEquals(Annet(), behov.getHenvendelsesType())
 
         writer.write(behov, encoder)
     }
@@ -99,7 +99,7 @@ class JournalpostTest {
         assertEquals("12345", behov.getJournalpost().getJournalpostId())
         assertEquals("dokumentId", behov.getJournalpost().getDokumentListe().first().getDokumentId())
         assertEquals("navSkjemaId", behov.getJournalpost().getDokumentListe().first().getNavSkjemaId())
-        assertEquals(Annet(), behov.getHenvendelsesType().getAnnet())
+        assertEquals(Annet(), behov.getHenvendelsesType())
 
         writer.write(behov, encoder)
     }
