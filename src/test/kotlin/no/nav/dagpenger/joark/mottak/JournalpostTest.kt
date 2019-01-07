@@ -38,7 +38,7 @@ class JournalpostTest {
                 Dokument(
                     dokumentId = "dokumentId",
                     dokumentTypeId = "string",
-                    navSkjemaId = "navSkjemaId",
+                    navSkjemaId = "000000",
                     tittel = "string",
                     dokumentKategori = "string",
                     variant = listOf(Variant(arkivFilType = "string", variantFormat = "string")),
@@ -56,7 +56,7 @@ class JournalpostTest {
         assertTrue { uuidPattern.matcher(behov.getBehovId()).matches() }
         assertEquals("12345", behov.getJournalpost().getJournalpostId())
         assertEquals("dokumentId", behov.getJournalpost().getDokumentListe().first().getDokumentId())
-        assertEquals("navSkjemaId", behov.getJournalpost().getDokumentListe().first().getNavSkjemaId())
+        assertEquals("Unknown", behov.getJournalpost().getDokumentListe().first().getNavSkjemaId())
         assertEquals("string", behov.getMottaker().getIdentifikator())
         assertEquals(Annet(), behov.getHenvendelsesType())
 
@@ -80,7 +80,7 @@ class JournalpostTest {
                 Dokument(
                     dokumentId = "dokumentId",
                     dokumentTypeId = "string",
-                    navSkjemaId = "navSkjemaId",
+                    navSkjemaId = "000000",
                     tittel = "string",
                     dokumentKategori = "string",
                     variant = listOf(Variant(arkivFilType = "string", variantFormat = "string")),
@@ -98,7 +98,7 @@ class JournalpostTest {
         assertTrue { uuidPattern.matcher(behov.getBehovId()).matches() }
         assertEquals("12345", behov.getJournalpost().getJournalpostId())
         assertEquals("dokumentId", behov.getJournalpost().getDokumentListe().first().getDokumentId())
-        assertEquals("navSkjemaId", behov.getJournalpost().getDokumentListe().first().getNavSkjemaId())
+        assertEquals("Unknown", behov.getJournalpost().getDokumentListe().first().getNavSkjemaId())
         assertEquals(Annet(), behov.getHenvendelsesType())
 
         writer.write(behov, encoder)
@@ -107,23 +107,23 @@ class JournalpostTest {
     @Test
     fun ` map to Behov from journal post for henvendelsestype 'Søknad' `() {
 
-        assertEquals(Søknad(), HenvendelsesTypeMapper.getHenvendelsesType("196002"))
-        assertEquals(Søknad(), HenvendelsesTypeMapper.getHenvendelsesType("273034"))
-        assertEquals(Søknad(), HenvendelsesTypeMapper.getHenvendelsesType("200899"))
-        assertEquals(Søknad(), HenvendelsesTypeMapper.getHenvendelsesType("221659"))
+        assertEquals(Søknad(), HenvendelsesTypeMapper.getHenvendelsesType("NAV 04-01.03"))
+        assertEquals(Søknad(), HenvendelsesTypeMapper.getHenvendelsesType("NAV 04-01.04"))
+        assertEquals(Søknad(), HenvendelsesTypeMapper.getHenvendelsesType("NAV 04-16.03"))
+        assertEquals(Søknad(), HenvendelsesTypeMapper.getHenvendelsesType("NAV 04-16.04"))
     }
 
     @Test
     fun ` map to Behov from journal post for henvendelsestype 'Ettersending' `() {
-        assertEquals(Ettersending(), HenvendelsesTypeMapper.getHenvendelsesType("596002"))
-        assertEquals(Ettersending(), HenvendelsesTypeMapper.getHenvendelsesType("673034"))
-        assertEquals(Ettersending(), HenvendelsesTypeMapper.getHenvendelsesType("600899"))
-        assertEquals(Ettersending(), HenvendelsesTypeMapper.getHenvendelsesType("621659"))
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.getHenvendelsesType("NAVe 04-01.03"))
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.getHenvendelsesType("NAVe 04-01.04"))
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.getHenvendelsesType("NAVe 04-16.03"))
+        assertEquals(Ettersending(), HenvendelsesTypeMapper.getHenvendelsesType("NAVe 04-16.04"))
     }
 
     @Test
     fun ` map to Behov from journal post for henvendelsestype 'Annet' `() {
-        assertEquals(Annet(), HenvendelsesTypeMapper.getHenvendelsesType("NAVe 04-01.03"))
+        assertEquals(Annet(), HenvendelsesTypeMapper.getHenvendelsesType("196002"))
         assertEquals(Annet(), HenvendelsesTypeMapper.getHenvendelsesType("12345678"))
         assertEquals(Annet(), HenvendelsesTypeMapper.getHenvendelsesType(""))
         assertEquals(Annet(), HenvendelsesTypeMapper.getHenvendelsesType("NULL"))

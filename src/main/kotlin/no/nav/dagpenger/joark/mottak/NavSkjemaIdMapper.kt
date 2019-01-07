@@ -2,7 +2,7 @@ package no.nav.dagpenger.joark.mottak
 
 object NavSkjemaIdMapper {
 
-    private val dokumentIdtoNavSkjemaIdMapper = mapOf(
+    private val navSkjemaIdMapper = mapOf(
         "196002" to "NAV 04-01.03",
         "273034" to "NAV 04-01.04",
         "200899" to "NAV 04-16.03",
@@ -49,6 +49,6 @@ object NavSkjemaIdMapper {
     )
 
     fun getNavSkjemaId(navSkjemaId: String?): String {
-        return dokumentIdtoNavSkjemaIdMapper.getOrDefault(navSkjemaId.orEmpty(), "Unknown")
+        return navSkjemaIdMapper.getOrDefault(navSkjemaId.orEmpty(), "Unknown")
     }
 }

@@ -31,7 +31,7 @@ data class Journalpost(
                 dokumentListe = this@Journalpost.dokumentListe.asSequence().map {
                     no.nav.dagpenger.events.avro.Dokument.newBuilder().apply {
                         dokumentId = it.dokumentId
-                        navSkjemaId = it.navSkjemaId
+                        navSkjemaId = NavSkjemaIdMapper.getNavSkjemaId(it.navSkjemaId)
                     }.build()
                 }.toList()
                 mottaker = mapToMottaker()
@@ -49,7 +49,7 @@ data class Journalpost(
     }
 
     private fun mapToHenvendelsesType(): Any {
-        val navSkjemaId = this@Journalpost.dokumentListe.first().navSkjemaId
+        val navSkjemaId = NavSkjemaIdMapper.getNavSkjemaId(this@Journalpost.dokumentListe.first().navSkjemaId)
         return HenvendelsesTypeMapper.getHenvendelsesType(navSkjemaId)
     }
 

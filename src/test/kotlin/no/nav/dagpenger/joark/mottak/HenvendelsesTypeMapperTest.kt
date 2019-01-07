@@ -10,7 +10,7 @@ import org.junit.Test
 class HenvendelsesTypeMapperTest {
     @Test
     fun ` known skjemaId gets mapped to correct type`() {
-        val type = HenvendelsesTypeMapper.getHenvendelsesType("196002")
+        val type = HenvendelsesTypeMapper.getHenvendelsesType("NAV 04-01.03")
 
         assertEquals(type, Søknad())
     }
@@ -31,7 +31,7 @@ class HenvendelsesTypeMapperTest {
 
     @Test
     fun ` known skjemaId returns true`() {
-        assertTrue(HenvendelsesTypeMapper.isKnownSkjemaId("196002"))
+        assertTrue(HenvendelsesTypeMapper.isKnownSkjemaId("NAV 04-01.03"))
     }
 
     @Test
