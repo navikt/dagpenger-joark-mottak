@@ -54,6 +54,7 @@ val confluentVersion = "5.0.0"
 val kafkaVersion = "2.0.0"
 val ktorVersion = "1.0.0"
 val log4j2Version = "2.11.1"
+val jupiterVersion = "5.3.2"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -79,7 +80,8 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
-    testImplementation("junit:junit:4.12")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
     testImplementation("com.github.tomakehurst:wiremock:2.19.0")
     testImplementation("no.nav:kafka-embedded-env:2.0.1")
 }
@@ -106,6 +108,7 @@ pitest {
 tasks.getByName("test").finalizedBy("pitest")
 
 tasks.withType<Test> {
+    useJUnitPlatform()
     testLogging {
         showExceptions = true
         showStackTraces = true
