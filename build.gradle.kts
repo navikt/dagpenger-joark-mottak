@@ -59,7 +59,7 @@ val jupiterVersion = "5.3.2"
 dependencies {
     implementation(kotlin("stdlib"))
 
-    implementation("no.nav.dagpenger:streams:0.2.2-SNAPSHOT")
+    implementation("no.nav.dagpenger:streams:0.2.4-SNAPSHOT")
     implementation("no.nav.dagpenger:events:0.1.9-SNAPSHOT")
     implementation("no.nav.dagpenger:dagpenger-metrics:0.1.0-SNAPSHOT")
 
