@@ -3,10 +3,10 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     id("application")
-    kotlin("jvm") version "1.3.11"
-    id("com.diffplug.gradle.spotless") version "3.13.0"
-    id("info.solidsoft.pitest") version "1.3.0"
-    id("com.github.johnrengelman.shadow") version "4.0.3"
+    kotlin("jvm") version Versions.kotlin
+    id("com.diffplug.gradle.spotless") version Versions.spotless
+    id("info.solidsoft.pitest") version Versions.pitest
+    id("com.github.johnrengelman.shadow") version Versions.shadow
 }
 
 buildscript {
@@ -48,42 +48,34 @@ configurations {
     }
 }
 
-val kotlinLoggingVersion = "1.6.22"
-val fuelVersion = "1.15.0"
-val confluentVersion = "5.0.0"
-val kafkaVersion = "2.0.0"
-val ktorVersion = "1.0.0"
-val log4j2Version = "2.11.1"
-val jupiterVersion = "5.3.2"
-
 dependencies {
     implementation(kotlin("stdlib"))
 
-    implementation("no.nav.dagpenger:streams:0.2.4-SNAPSHOT")
-    implementation("no.nav.dagpenger:events:0.1.9-SNAPSHOT")
-    implementation("no.nav.dagpenger:dagpenger-metrics:0.1.0-SNAPSHOT")
+    implementation(DagpengerLibs.events)
+    implementation(DagpengerLibs.streams)
+    implementation(DagpengerLibs.metrics)
 
-    implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
-    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
-    implementation("com.github.kittinunf.fuel:fuel-gson:$fuelVersion")
+    implementation(Libs.fuel)
+    implementation(Libs.fuelGson)
 
-    implementation("org.apache.logging.log4j:log4j-api:$log4j2Version")
-    implementation("org.apache.logging.log4j:log4j-core:$log4j2Version")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
-    implementation("com.vlkan.log4j2:log4j2-logstash-layout-fatjar:0.15")
+    implementation(Libs.kotlinLogging)
+    implementation(Libs.log4jApi)
+    implementation(Libs.log4jCore)
+    implementation(Libs.log4jOverSlf4j)
+    implementation(Libs.logStashLogging)
 
-    compile("org.apache.kafka:kafka-clients:$kafkaVersion")
-    compile("org.apache.kafka:kafka-streams:$kafkaVersion")
-    compile("io.confluent:kafka-streams-avro-serde:$confluentVersion")
+    compile(Libs.kafkaClients)
+    compile(Libs.kafkaStreams)
+    compile(Libs.streamSerDes)
 
-    compile("io.ktor:ktor-server-netty:$ktorVersion")
+    compile(Libs.ktorNetty)
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-    testImplementation("com.github.tomakehurst:wiremock:2.19.0")
-    testImplementation("no.nav:kafka-embedded-env:2.0.1")
+    testImplementation(TestLibs.junit5Api)
+    testRuntimeOnly(TestLibs.junit5Engine)
+    testImplementation(TestLibs.wiremock)
+    testImplementation(TestLibs.kafkaEmbedded)
 }
 
 spotless {
