@@ -82,6 +82,7 @@ dependencies {
     testImplementation(kotlin("test-junit"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:$jupiterVersion")
     testImplementation("com.github.tomakehurst:wiremock:2.19.0")
     testImplementation("no.nav:kafka-embedded-env:2.0.1")
 }
