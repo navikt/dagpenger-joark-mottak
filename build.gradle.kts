@@ -48,7 +48,7 @@ configurations {
     }
 }
 
-val kotlinLoggingVersion = "1.4.9"
+val kotlinLoggingVersion = "1.6.22"
 val fuelVersion = "1.15.0"
 val confluentVersion = "5.0.0"
 val kafkaVersion = "2.0.0"
