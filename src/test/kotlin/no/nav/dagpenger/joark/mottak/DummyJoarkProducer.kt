@@ -59,6 +59,7 @@ class DummyJoarkProducer(properties: Properties) {
             put("temaNytt", tema)
             put("mottaksKanal", "mottaksKanal")
             put("kanalReferanseId", "kanalReferanseId")
+            put("behandlingstema", tema)
         }
 
         LOGGER.info { "Creating InngåendeJournalpost $journalpostId to topic ${JOARK_EVENTS.name}" }
