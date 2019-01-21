@@ -40,7 +40,7 @@ pipeline {
     stage('Publish') {
       steps {
         timeout(10) {
-                input 'Keep going?'
+          input 'Keep going?'
         }
 
         withCredentials([usernamePassword(
@@ -53,8 +53,6 @@ pipeline {
 
         script {
           sh "docker build . --pull -t ${DOCKER_IMAGE_VERSION}"
-        }
-        script {
           sh "docker push ${DOCKER_IMAGE_VERSION}"
         }
       }
