@@ -24,24 +24,26 @@ class DummyJoarkProducer(properties: Properties) {
     private val LOGGER = KotlinLogging.logger {}
     private val journalpostProducer = KafkaProducer<String, GenericRecord>(properties)
 
+    // From http://stash.devillo.no/projects/BOAF/repos/dok-avro/browse/dok-journalfoering-hendelse-v1/src/main/avro/schema/v1
     private val schemaSource = """
 
-                  {
-                      "namespace" : "no.nav.joarkinngaaendehendelser.producer",
-                      "type" : "record",
-                      "name" : "InngaaendeHendelseRecord",
-                      "fields" : [
-                        {"name": "hendelsesId", "type": "string"},
-                        {"name": "versjon", "type": "int"},
-                        {"name": "hendelsesType", "type": "string"},
-                        {"name": "journalpostId", "type": "long"},
-                        {"name": "journalpostStatus", "type": "string"},
-                        {"name": "temaGammelt", "type": "string"},
-                        {"name": "temaNytt", "type": "string"},
-                        {"name": "mottaksKanal", "type": "string"},
-                        {"name": "kanalReferanseId", "type": "string"}
-                      ]
-                    }
+                {
+                  "namespace" : "no.nav.joarkjournalfoeringhendelser",
+                  "type" : "record",
+                  "name" : "JournalfoeringHendelseRecord",
+                  "fields" : [
+                    {"name": "hendelsesId", "type": "string"},
+                    {"name": "versjon", "type": "int"},
+                    {"name": "hendelsesType", "type": "string"},
+                    {"name": "journalpostId", "type": "long"},
+                    {"name": "journalpostStatus", "type": "string"},
+                    {"name": "temaGammelt", "type": "string"},
+                    {"name": "temaNytt", "type": "string"},
+                    {"name": "mottaksKanal", "type": "string"},
+                    {"name": "kanalReferanseId", "type": "string"},
+                    {"name": "behandlingstema", "type": "string", "default": ""}
+                  ]
+                }
 
                 """.trimIndent()
 
@@ -61,7 +63,7 @@ class DummyJoarkProducer(properties: Properties) {
 
         LOGGER.info { "Creating InngåendeJournalpost $journalpostId to topic ${JOARK_EVENTS.name}" }
         val record: RecordMetadata = journalpostProducer.send(
-            ProducerRecord(JOARK_EVENTS.name, journalpostId.toString(), joarkJournalpost)
+                ProducerRecord(JOARK_EVENTS.name, journalpostId.toString(), joarkJournalpost)
         ).get()
         LOGGER.info { "Produced -> ${record.topic()}  to offset ${record.offset()}" }
     }
