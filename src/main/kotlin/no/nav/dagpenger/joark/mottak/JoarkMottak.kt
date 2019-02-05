@@ -75,7 +75,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
                 LOGGER.info(
                     "Received journalpost with journalpost id: ${value.get("journalpostId")} and tema: ${value.get(
                         "temaNytt"
-                    )}, hendelsesType: ${value.get("hendelsesType")} and behandlingstema ${value.get("behandlingstema")}"
+                    )}, hendelsesType: ${value.get("hendelsesType")}"
                 )
             }
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
