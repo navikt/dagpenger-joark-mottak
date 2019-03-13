@@ -50,7 +50,7 @@ configurations {
 
 val kotlinLoggingVersion = "1.6.22"
 val fuelVersion = "1.15.0"
-val confluentVersion = "5.0.0"
+val confluentVersion = "5.0.2"
 val kafkaVersion = "2.0.1"
 val ktorVersion = "1.0.0"
 val log4j2Version = "2.11.1"
