@@ -15,8 +15,8 @@ import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.streamConfig
 import no.nav.dagpenger.streams.toTopic
 import org.apache.avro.generic.GenericRecord
-import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
+import org.apache.kafka.streams.Topology
 import org.apache.kafka.streams.kstream.ValueMapper
 import org.apache.logging.log4j.ThreadContext
 import java.util.Properties
@@ -60,8 +60,8 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
         }
     }
 
-    override fun setupStreams(): KafkaStreams {
-        LOGGER.info { "Initiating start of $SERVICE_APP_ID" }
+    override fun buildTopology(): Topology {
+
         val builder = StreamsBuilder()
 
         val inngåendeJournalposter = builder.consumeGenericTopic(
@@ -96,7 +96,7 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
             .peek { key, value -> LOGGER.info("Producing ${value.javaClass.simpleName} with key '$key' ") }
             .toTopic(INNGÅENDE_JOURNALPOST, env.schemaRegistryUrl)
 
-        return KafkaStreams(builder.build(), this.getConfig())
+        return builder.build()
     }
 
     override fun getConfig(): Properties {
