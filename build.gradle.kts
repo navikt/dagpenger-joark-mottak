@@ -56,6 +56,7 @@ val kafkaVersion = "2.0.1"
 val ktorVersion = "1.0.0"
 val log4j2Version = "2.11.1"
 val jupiterVersion = "5.3.2"
+val dpBibliotekerVersion = "2019.05.16-15.01.9c87faf52e8d"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -63,6 +64,8 @@ dependencies {
     implementation("com.github.navikt:dagpenger-streams:2019.05.20-12.02.83ff2b7cb7f6")
     implementation("com.github.navikt:dagpenger-events:2019.05.20-11.56.33cd4c73a439")
     implementation("no.nav.dagpenger:dagpenger-metrics:1.0-SNAPSHOT")
+
+    implementation("com.github.navikt.dp-biblioteker:sts-klient:$dpBibliotekerVersion")
 
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
