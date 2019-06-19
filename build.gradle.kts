@@ -56,7 +56,7 @@ val kafkaVersion = "2.0.1"
 val ktorVersion = "1.0.0"
 val log4j2Version = "2.11.1"
 val jupiterVersion = "5.3.2"
-val dpBibliotekerVersion = "2019.05.21-15.46.697023d907a7"
+val dpBibliotekerVersion = "2019.06.19-09.38.5466af242e44"
 
 dependencies {
     implementation(kotlin("stdlib"))
