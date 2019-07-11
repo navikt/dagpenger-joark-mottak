@@ -51,9 +51,10 @@ dependencies {
 
     implementation(Dagpenger.Streams)
     implementation(Dagpenger.Events)
-    implementation("no.nav.dagpenger:dagpenger-metrics:1.0-SNAPSHOT")
 
     implementation(Dagpenger.Biblioteker.stsKlient)
+
+    implementation(Prometheus.common)
 
     implementation(Fuel.fuel)
     implementation(Fuel.library("gson"))
