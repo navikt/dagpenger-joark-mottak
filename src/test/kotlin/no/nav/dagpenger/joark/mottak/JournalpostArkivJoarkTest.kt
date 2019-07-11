@@ -1,25 +1,46 @@
 package no.nav.dagpenger.joark.mottak
 
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.notFound
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomakehurst.wiremock.matching.RegexPattern
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.oidc.OidcToken
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class JournalpostArkivJoarkTest {
 
-    @Rule
-    @JvmField
-    var wireMockRule = WireMockRule(WireMockConfiguration.wireMockConfig().dynamicPort())
+    companion object {
+        val server: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
+
+        @BeforeAll
+        @JvmStatic
+        fun start() {
+            server.start()
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun stop() {
+            server.stop()
+        }
+    }
+
+    @BeforeEach
+    fun configure() {
+        WireMock.configureFor(server.port())
+    }
 
     class DummyOidcClient : OidcClient {
         override fun oidcToken(): OidcToken = OidcToken(UUID.randomUUID().toString(), "openid", 3000)
@@ -40,7 +61,7 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(wireMockRule.url(""), DummyOidcClient())
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
 
         assertEquals(journalPost.journalTilstand, JournalTilstand.ENDELIG)
@@ -76,7 +97,7 @@ class JournalpostArkivJoarkTest {
         )
     }
 
-    @Test(expected = JournalpostArkivException::class)
+    @Test
     fun `fetch JournalPost on 200 ok but no content`() {
 
         val body = ""
@@ -90,11 +111,14 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(wireMockRule.url(""), DummyOidcClient())
-        joarkClient.hentInngåendeJournalpost("2")
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
+
+        val result = runCatching { joarkClient.hentInngåendeJournalpost("2") }
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is JournalpostArkivException)
     }
 
-    @Test(expected = JournalpostArkivException::class)
+    @Test
     fun `fetch JournalPost on 4xx errors`() {
 
         stubFor(
@@ -105,7 +129,10 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(wireMockRule.url(""), DummyOidcClient())
-        joarkClient.hentInngåendeJournalpost("-1")
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
+
+        val result = runCatching { joarkClient.hentInngåendeJournalpost("-1") }
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is JournalpostArkivException)
     }
 }

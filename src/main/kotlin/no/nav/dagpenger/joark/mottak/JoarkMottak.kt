@@ -1,11 +1,11 @@
 package no.nav.dagpenger.joark.mottak
 
+import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Behov
 import no.nav.dagpenger.events.isAnnet
 import no.nav.dagpenger.events.isEttersending
 import no.nav.dagpenger.events.isSoknad
-import no.nav.dagpenger.metrics.aCounter
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.Service
@@ -23,29 +23,33 @@ import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
 
+const val DAGPENGER_NAMESPACE = "dagpenger"
 class JoarkMottak(val env: Environment, private val journalpostArkiv: JournalpostArkiv) : Service() {
     override val SERVICE_APP_ID =
         "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
 
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
-    private val jpCounter = aCounter(
-        name = "journalpost_received",
-        labelNames = listOf(
-            "skjemaId",
-            "skjemaIdIsKnown",
-            "henvendelsesType",
-            "mottaksKanal",
-            "hasJournalfEnhet",
-            "numberOfDocuments",
-            "numberOfBrukere",
-            "brukerType",
-            "hasIdentifikator",
-            "journalTilstand",
-            "hasKanalReferanseId"
-        ),
-        help = "Number of Journalposts received on tema DAG"
+    private val labelNames = listOf(
+        "skjemaId",
+        "skjemaIdIsKnown",
+        "henvendelsesType",
+        "mottaksKanal",
+        "hasJournalfEnhet",
+        "numberOfDocuments",
+        "numberOfBrukere",
+        "brukerType",
+        "hasIdentifikator",
+        "journalTilstand",
+        "hasKanalReferanseId"
     )
+    private val jpCounter = Counter
+        .build()
+        .namespace(DAGPENGER_NAMESPACE)
+        .name("journalpost_received")
+        .help("Number of Journalposts received on tema DAG")
+        .labelNames(*labelNames.toTypedArray())
+        .register()
 
     companion object {
         @JvmStatic

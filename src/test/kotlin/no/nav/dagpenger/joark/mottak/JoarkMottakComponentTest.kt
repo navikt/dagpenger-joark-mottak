@@ -15,9 +15,10 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.streams.StreamsConfig
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+
 import java.time.Duration
 import java.util.Properties
 import java.util.Random
@@ -49,14 +50,14 @@ class JoarkMottakComponentTest {
 
         val joarkMottak = JoarkMottak(env, JournalpostArkivDummy())
 
-        @BeforeClass
+        @BeforeAll
         @JvmStatic
         fun setup() {
             embeddedEnvironment.start()
             joarkMottak.start()
         }
 
-        @AfterClass
+        @AfterAll
         @JvmStatic
         fun teardown() {
             joarkMottak.stop()
@@ -161,7 +162,6 @@ class JoarkMottakComponentTest {
             put(StreamsConfig.CLIENT_ID_CONFIG, "dummy-joark-producer")
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java.name)
-            put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true)
             put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
             put(SaslConfigs.SASL_MECHANISM, "PLAIN")
             put(
