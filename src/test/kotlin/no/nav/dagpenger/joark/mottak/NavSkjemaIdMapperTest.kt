@@ -1,7 +1,7 @@
 package no.nav.dagpenger.joark.mottak
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class NavSkjemaIdMapperTest {
     @Test

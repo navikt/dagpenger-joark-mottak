@@ -5,8 +5,9 @@ import no.nav.dagpenger.events.avro.Behov
 import no.nav.dagpenger.events.avro.Ettersending
 import no.nav.dagpenger.events.avro.Søknad
 import org.apache.avro.io.EncoderFactory
+
 import org.apache.avro.specific.SpecificDatumWriter
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.util.regex.Pattern
 import kotlin.test.assertEquals
