@@ -38,17 +38,15 @@ class JoarkMottakComponentTest {
             topics = listOf(Topics.JOARK_EVENTS.name, Topics.INNGÅENDE_JOURNALPOST.name)
         )
 
-        val env = Environment(
-            username = username,
-            password = password,
-            bootstrapServersUrl = embeddedEnvironment.brokersURL,
-            schemaRegistryUrl = embeddedEnvironment.schemaRegistry!!.url,
-            oicdStsUrl = "localhost",
-            journalfoerinngaaendeV1Url = "localhost",
-            httpPort = getAvailablePort()
-        )
+        val env = Configuration().copy(
+            kafka = Configuration.Kafka(
+                brokers = embeddedEnvironment.brokersURL,
+                schemaRegisterUrl = embeddedEnvironment.schemaRegistry!!.url,
+                password = password,
+                user = username),
+            application = Configuration.Application(httpPort = getAvailablePort()))
 
-        val joarkMottak = JoarkMottak(env, JournalpostArkivDummy())
+        val joarkMottak = JoarkMottak(env)
 
         @BeforeAll
         @JvmStatic
@@ -129,11 +127,11 @@ class JoarkMottakComponentTest {
         )
     }
 
-    private fun behovConsumer(env: Environment): KafkaConsumer<String, Behov> {
+    private fun behovConsumer(config: Configuration): KafkaConsumer<String, Behov> {
         val consumer: KafkaConsumer<String, Behov> = KafkaConsumer(Properties().apply {
-            put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
+            put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, config.kafka.schemaRegisterUrl)
             put(ConsumerConfig.GROUP_ID_CONFIG, "dummy-dagpenger-innkomne-jp")
-            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServersUrl)
+            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.kafka.brokers)
             put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
             put(
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
@@ -147,7 +145,7 @@ class JoarkMottakComponentTest {
             put(SaslConfigs.SASL_MECHANISM, "PLAIN")
             put(
                 SaslConfigs.SASL_JAAS_CONFIG,
-                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${env.username}\" password=\"${env.password}\";"
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${config.kafka.user}\" password=\"${config.kafka.password}\";"
             )
         })
 
@@ -155,10 +153,10 @@ class JoarkMottakComponentTest {
         return consumer
     }
 
-    private fun dummyJoarkProducer(env: Environment): DummyJoarkProducer {
+    private fun dummyJoarkProducer(config: Configuration): DummyJoarkProducer {
         val props = Properties().apply {
-            put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
-            put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServersUrl)
+            put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, config.kafka.schemaRegisterUrl)
+            put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, config.kafka.brokers)
             put(StreamsConfig.CLIENT_ID_CONFIG, "dummy-joark-producer")
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java.name)
@@ -166,7 +164,7 @@ class JoarkMottakComponentTest {
             put(SaslConfigs.SASL_MECHANISM, "PLAIN")
             put(
                 SaslConfigs.SASL_JAAS_CONFIG,
-                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${env.username}\" password=\"${env.password}\";"
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${config.kafka.user}\" password=\"${config.kafka.password}\";"
             )
         }
 

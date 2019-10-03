@@ -78,6 +78,9 @@ dependencies {
     testRuntimeOnly(Junit5.engine)
     testImplementation(Wiremock.standalone)
     testImplementation(KafkaEmbedded.env)
+    testImplementation(Kafka.streamTestUtils)
+
+    implementation(Konfig.konfig)
 }
 
 spotless {
