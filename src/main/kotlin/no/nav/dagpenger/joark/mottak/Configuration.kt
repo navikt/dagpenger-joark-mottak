@@ -8,6 +8,9 @@ import com.natpryce.konfig.intType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
 import no.nav.dagpenger.streams.KafkaCredential
+import no.nav.dagpenger.streams.Topic
+import no.nav.dagpenger.streams.Topics
+import org.apache.avro.generic.GenericRecord
 
 private val localProperties = ConfigurationMap(
     mapOf(
@@ -47,6 +50,7 @@ data class Configuration(
     val application: Application = Application()
 ) {
     data class Kafka(
+        val joarkTopic: Topic<String, GenericRecord> = Topics.JOARK_EVENTS,
         val brokers: String = config()[Key("kafka.bootstrap.servers", stringType)],
         val schemaRegisterUrl: String = config()[Key("kafka.schema.registry.url", stringType)],
         val user: String? = config().getOrNull(Key("srvdagpenger.joark.mottak.username", stringType)),

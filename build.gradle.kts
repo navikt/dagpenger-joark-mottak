@@ -57,6 +57,8 @@ dependencies {
 
     implementation(Prometheus.common)
 
+    implementation(Konfig.konfig)
+
     implementation(Fuel.fuel)
     implementation(Fuel.library("gson"))
 
@@ -79,8 +81,7 @@ dependencies {
     testImplementation(Wiremock.standalone)
     testImplementation(KafkaEmbedded.env)
     testImplementation(Kafka.streamTestUtils)
-
-    implementation(Konfig.konfig)
+    testImplementation(Mockk.mockk)
 }
 
 spotless {

@@ -2,6 +2,7 @@ package no.nav.dagpenger.joark.mottak
 
 import io.prometheus.client.Counter
 import mu.KotlinLogging
+import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.PacketDeserializer
 import no.nav.dagpenger.streams.PacketSerializer
@@ -10,6 +11,7 @@ import no.nav.dagpenger.streams.Topic
 import no.nav.dagpenger.streams.Topics.JOARK_EVENTS
 import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.streamConfig
+import no.nav.dagpenger.streams.toTopic
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
@@ -59,7 +61,7 @@ class JoarkMottak(val config: Configuration) : Service() {
         val builder = StreamsBuilder()
 
         val inngåendeJournalposter = builder.consumeGenericTopic(
-            JOARK_EVENTS, config.kafka.schemaRegisterUrl
+            config.kafka.joarkTopic, config.kafka.schemaRegisterUrl
         )
 
         inngåendeJournalposter
@@ -71,7 +73,11 @@ class JoarkMottak(val config: Configuration) : Service() {
                 )
             }
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
-            .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString()}
+            .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }
+            .mapValues { _, record ->  Packet().apply {
+                this.putValue("journalpostId", record.get("journalpostId").toString())
+            }}
+            .toTopic(DAGPENGER_INNGÅENDE_JOURNALFØRING)
 
         return builder.build()
     }

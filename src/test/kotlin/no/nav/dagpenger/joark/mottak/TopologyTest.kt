@@ -1,5 +1,11 @@
 package no.nav.dagpenger.joark.mottak
 
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
+import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.dagpenger.streams.Topics
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.streams.StreamsConfig
@@ -10,22 +16,48 @@ import java.util.Properties
 import kotlin.test.assertTrue
 
 class TopologyTest {
-    companion object {
-        val factory = ConsumerRecordFactory<String, GenericRecord>(
-            Topics.JOARK_EVENTS.name,
-            Topics.JOARK_EVENTS.keySerde.serializer(),
-            Topics.JOARK_EVENTS.valueSerde.serializer()
+
+    private val schemaRegistryClient = mockk<SchemaRegistryClient>().apply {
+        every {
+            this@apply.getId(any(), any())
+        } returns 1
+
+        every {
+            this@apply.register(any(), any())
+        } returns 1
+
+        every {
+            this@apply.getById(1)
+        } returns joarkjournalfoeringhendelserAvroSchema
+    }
+
+    private val avroSerde = GenericAvroSerde(schemaRegistryClient)
+    private val configuration: Configuration = Configuration()
+        .copy(
+            kafka = Configuration.Kafka().copy(
+                joarkTopic = Topics.JOARK_EVENTS.copy(
+                    valueSerde = avroSerde
+                )
+
+            )
         )
 
-        val config = Properties().apply {
-            this[StreamsConfig.APPLICATION_ID_CONFIG] = "test"
-            this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
-        }
+    private val factory = ConsumerRecordFactory<String, GenericRecord>(
+        Topics.JOARK_EVENTS.name,
+        Topics.JOARK_EVENTS.keySerde.serializer(),
+        avroSerde.serializer()
+
+    )
+
+    private val config = Properties().apply {
+        this[StreamsConfig.APPLICATION_ID_CONFIG] = "test"
+        this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
     }
 
     @Test
-    fun `sjekke at inkomne journalposter blir packet`() {
-        val joarkMottak = JoarkMottak(Configuration())
+    fun `Sjekke at inkomne journalposter med tema DAG og hendelses type MidlertidigJournalført blir prosessert`() {
+
+        val joarkMottak = JoarkMottak(configuration)
         TopologyTestDriver(joarkMottak.buildTopology(), config).use { topologyTestDriver ->
             val inputRecord = factory.create(lagJoarkHendelse(123, "DAG", "MidlertidigJournalført"))
             topologyTestDriver.pipeInput(inputRecord)
@@ -36,8 +68,9 @@ class TopologyTest {
                 DAGPENGER_INNGÅENDE_JOURNALFØRING.valueSerde.deserializer()
             )
 
-            assertTrue { null == ut }
+
+            ut shouldNotBe null
+            ut.value().getLongValue("journalpostId") shouldBe 123
         }
     }
-
 }

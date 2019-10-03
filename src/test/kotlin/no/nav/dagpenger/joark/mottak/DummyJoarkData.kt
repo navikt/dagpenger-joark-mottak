@@ -4,7 +4,7 @@ import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 
 // From http://stash.devillo.no/projects/BOAF/repos/dok-avro/browse/dok-journalfoering-hendelse-v1/src/main/avro/schema/v1
-private val schemaSource = """
+private val joarkjournalfoeringhendelserSchema = """
 
             {
               "namespace" : "no.nav.joarkjournalfoeringhendelser",
@@ -26,9 +26,10 @@ private val schemaSource = """
 
             """.trimIndent()
 
+val joarkjournalfoeringhendelserAvroSchema = Schema.Parser().parse(joarkjournalfoeringhendelserSchema)
+
 fun lagJoarkHendelse(journalpostId: Long, tema: String, hendelsesType: String): GenericData.Record {
-    val avroSchema = Schema.Parser().parse(schemaSource)
-    return GenericData.Record(avroSchema).apply {
+    return GenericData.Record(joarkjournalfoeringhendelserAvroSchema).apply {
         put("journalpostId", journalpostId)
         put("hendelsesId", journalpostId.toString())
         put("versjon", journalpostId)
