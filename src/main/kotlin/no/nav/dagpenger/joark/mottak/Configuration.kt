@@ -7,10 +7,14 @@ import com.natpryce.konfig.Key
 import com.natpryce.konfig.intType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
+import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.KafkaCredential
+import no.nav.dagpenger.streams.PacketDeserializer
+import no.nav.dagpenger.streams.PacketSerializer
 import no.nav.dagpenger.streams.Topic
 import no.nav.dagpenger.streams.Topics
 import org.apache.avro.generic.GenericRecord
+import org.apache.kafka.common.serialization.Serdes
 
 private val localProperties = ConfigurationMap(
     mapOf(
@@ -51,6 +55,11 @@ data class Configuration(
 ) {
     data class Kafka(
         val joarkTopic: Topic<String, GenericRecord> = Topics.JOARK_EVENTS,
+        val dagpengerJournalpostTopic: Topic<String, Packet> = Topic(
+            "privat-dagpenger-journalpost-mottatt-v1",
+            keySerde = Serdes.String(),
+            valueSerde = Serdes.serdeFrom(PacketSerializer(), PacketDeserializer())
+        ),
         val brokers: String = config()[Key("kafka.bootstrap.servers", stringType)],
         val schemaRegisterUrl: String = config()[Key("kafka.schema.registry.url", stringType)],
         val user: String? = config().getOrNull(Key("srvdagpenger.joark.mottak.username", stringType)),
