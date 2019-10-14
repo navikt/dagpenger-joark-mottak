@@ -4,7 +4,6 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import mu.KotlinLogging
 import no.nav.dagpenger.streams.Topics.JOARK_EVENTS
-import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
@@ -24,44 +23,8 @@ class DummyJoarkProducer(properties: Properties) {
     private val LOGGER = KotlinLogging.logger {}
     private val journalpostProducer = KafkaProducer<String, GenericRecord>(properties)
 
-    // From http://stash.devillo.no/projects/BOAF/repos/dok-avro/browse/dok-journalfoering-hendelse-v1/src/main/avro/schema/v1
-    private val schemaSource = """
-
-                {
-                  "namespace" : "no.nav.joarkjournalfoeringhendelser",
-                  "type" : "record",
-                  "name" : "JournalfoeringHendelseRecord",
-                  "fields" : [
-                    {"name": "hendelsesId", "type": "string"},
-                    {"name": "versjon", "type": "int"},
-                    {"name": "hendelsesType", "type": "string"},
-                    {"name": "journalpostId", "type": "long"},
-                    {"name": "journalpostStatus", "type": "string"},
-                    {"name": "temaGammelt", "type": "string"},
-                    {"name": "temaNytt", "type": "string"},
-                    {"name": "mottaksKanal", "type": "string"},
-                    {"name": "kanalReferanseId", "type": "string"},
-                    {"name": "behandlingstema", "type": "string", "default": ""}
-                  ]
-                }
-
-                """.trimIndent()
-
     fun produceEvent(journalpostId: Long, tema: String, hendelsesType: String) {
-        val avroSchema = Schema.Parser().parse(schemaSource)
-        val joarkJournalpost: GenericData.Record = GenericData.Record(avroSchema).apply {
-            put("journalpostId", journalpostId)
-            put("hendelsesId", journalpostId.toString())
-            put("versjon", journalpostId)
-            put("hendelsesType", hendelsesType)
-            put("journalpostStatus", "journalpostStatus")
-            put("temaGammelt", tema)
-            put("temaNytt", tema)
-            put("mottaksKanal", "mottaksKanal")
-            put("kanalReferanseId", "kanalReferanseId")
-            put("behandlingstema", tema)
-        }
-
+        val joarkJournalpost: GenericData.Record = lagJoarkHendelse(journalpostId, tema, hendelsesType)
         LOGGER.info { "Creating InngåendeJournalpost $journalpostId to topic ${JOARK_EVENTS.name}" }
         val record: RecordMetadata = journalpostProducer.send(
                 ProducerRecord(JOARK_EVENTS.name, journalpostId.toString(), joarkJournalpost)

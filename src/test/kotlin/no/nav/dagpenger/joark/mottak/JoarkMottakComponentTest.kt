@@ -2,12 +2,11 @@ package no.nav.dagpenger.joark.mottak
 
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
+import io.kotlintest.shouldBe
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.getAvailablePort
-import no.nav.dagpenger.events.avro.Behov
-import no.nav.dagpenger.streams.Topics
-import no.nav.dagpenger.streams.Topics.INNGÅENDE_JOURNALPOST
+import no.nav.dagpenger.events.Packet
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -35,20 +34,18 @@ class JoarkMottakComponentTest {
             autoStart = false,
             withSchemaRegistry = true,
             withSecurity = true,
-            topics = listOf(Topics.JOARK_EVENTS.name, Topics.INNGÅENDE_JOURNALPOST.name)
+            topics = listOf("aapen-dok-journalfoering-v1", "privat-dagpenger-journalpost-mottatt-v1")
         )
 
-        val env = Environment(
-            username = username,
-            password = password,
-            bootstrapServersUrl = embeddedEnvironment.brokersURL,
-            schemaRegistryUrl = embeddedEnvironment.schemaRegistry!!.url,
-            oicdStsUrl = "localhost",
-            journalfoerinngaaendeV1Url = "localhost",
-            httpPort = getAvailablePort()
-        )
+        val configuration = Configuration().copy(
+            kafka = Configuration.Kafka(
+                brokers = embeddedEnvironment.brokersURL,
+                schemaRegisterUrl = embeddedEnvironment.schemaRegistry!!.url,
+                password = password,
+                user = username),
+            application = Configuration.Application(httpPort = getAvailablePort()))
 
-        val joarkMottak = JoarkMottak(env, JournalpostArkivDummy())
+        val joarkMottak = JoarkMottak(configuration)
 
         @BeforeAll
         @JvmStatic
@@ -86,79 +83,49 @@ class JoarkMottakComponentTest {
             Random().nextLong() to "DAG"
         )
 
-        val dummyJoarkProducer = dummyJoarkProducer(env)
+        val dummyJoarkProducer = dummyJoarkProducer(configuration)
 
         kjoarkEvents.forEach { id, tema ->
             dummyJoarkProducer.produceEvent(journalpostId = id, tema = tema, hendelsesType = "MidlertidigJournalført")
         }
 
-        val behovConsumer: KafkaConsumer<String, Behov> = behovConsumer(env)
+        val behovConsumer: KafkaConsumer<String, Packet> = behovConsumer(configuration)
+
         val behov = behovConsumer.poll(Duration.ofSeconds(5)).toList()
 
-        assertEquals(kjoarkEvents.filterValues { it == "DAG" }.size, behov.size)
+        kjoarkEvents.filterValues { it == "DAG" }.size shouldBe behov.size
     }
 
-    @Test
-    fun ` Component test of JoarkMottak where hendelsesType is not 'MidlertidigJournalført' `() {
-
-        val kjoarkEvents = mapOf(
-            Random().nextLong() to "DAG",
-            Random().nextLong() to "SOMETHING",
-            Random().nextLong() to "DAG",
-            Random().nextLong() to "DAG",
-            Random().nextLong() to "DAG",
-            Random().nextLong() to "DAG",
-            Random().nextLong() to "DAG",
-            Random().nextLong() to "JP",
-            Random().nextLong() to "DAG",
-            Random().nextLong() to "DAG"
-        )
-
-        val dummyJoarkProducer = dummyJoarkProducer(env)
-
-        kjoarkEvents.forEach { id, tema ->
-            dummyJoarkProducer.produceEvent(journalpostId = id, tema = tema, hendelsesType = "ett eller annet annet")
-        }
-
-        val behovConsumer: KafkaConsumer<String, Behov> = behovConsumer(env)
-        val behovList = behovConsumer.poll(Duration.ofSeconds(5)).toList()
-
-        assertEquals(
-            0,
-            behovList.filterNot { kjoarkEvents.keys.contains(it.value().getJournalpost().getJournalpostId().toLong()) }.size
-        )
-    }
-
-    private fun behovConsumer(env: Environment): KafkaConsumer<String, Behov> {
-        val consumer: KafkaConsumer<String, Behov> = KafkaConsumer(Properties().apply {
-            put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
+    private fun behovConsumer(config: Configuration): KafkaConsumer<String, Packet> {
+        val consumer: KafkaConsumer<String, Packet> = KafkaConsumer(Properties().apply {
+            put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, config.kafka.schemaRegisterUrl)
             put(ConsumerConfig.GROUP_ID_CONFIG, "dummy-dagpenger-innkomne-jp")
-            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServersUrl)
+            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.kafka.brokers)
             put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
             put(
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                INNGÅENDE_JOURNALPOST.keySerde.deserializer().javaClass.name
+                configuration.kafka.dagpengerJournalpostTopic.keySerde.deserializer().javaClass.name
             )
             put(
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                INNGÅENDE_JOURNALPOST.valueSerde.deserializer().javaClass.name
+                configuration.kafka.dagpengerJournalpostTopic.valueSerde.deserializer().javaClass.name
             )
             put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
             put(SaslConfigs.SASL_MECHANISM, "PLAIN")
             put(
                 SaslConfigs.SASL_JAAS_CONFIG,
-                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${env.username}\" password=\"${env.password}\";"
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${config.kafka.user}\" password=\"${config.kafka.password}\";"
             )
         })
 
-        consumer.subscribe(listOf(INNGÅENDE_JOURNALPOST.name))
+        consumer.subscribe(listOf(config.kafka.dagpengerJournalpostTopic.name))
         return consumer
     }
 
-    private fun dummyJoarkProducer(env: Environment): DummyJoarkProducer {
+    private fun dummyJoarkProducer(config: Configuration): DummyJoarkProducer {
         val props = Properties().apply {
-            put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
-            put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServersUrl)
+            put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, config.kafka.schemaRegisterUrl)
+            put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, config.kafka.brokers)
             put(StreamsConfig.CLIENT_ID_CONFIG, "dummy-joark-producer")
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java.name)
@@ -166,7 +133,7 @@ class JoarkMottakComponentTest {
             put(SaslConfigs.SASL_MECHANISM, "PLAIN")
             put(
                 SaslConfigs.SASL_JAAS_CONFIG,
-                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${env.username}\" password=\"${env.password}\";"
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${config.kafka.user}\" password=\"${config.kafka.password}\";"
             )
         }
 

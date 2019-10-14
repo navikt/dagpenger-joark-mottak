@@ -2,76 +2,50 @@ package no.nav.dagpenger.joark.mottak
 
 import io.prometheus.client.Counter
 import mu.KotlinLogging
-import no.nav.dagpenger.events.avro.Behov
-import no.nav.dagpenger.events.isAnnet
-import no.nav.dagpenger.events.isEttersending
-import no.nav.dagpenger.events.isSoknad
-import no.nav.dagpenger.oidc.StsOidcClient
-import no.nav.dagpenger.streams.KafkaCredential
+import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.Service
-import no.nav.dagpenger.streams.Topics.INNGÅENDE_JOURNALPOST
-import no.nav.dagpenger.streams.Topics.JOARK_EVENTS
 import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.streamConfig
 import no.nav.dagpenger.streams.toTopic
-import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
-import org.apache.kafka.streams.kstream.ValueMapper
-import org.apache.logging.log4j.ThreadContext
 import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
-
 const val DAGPENGER_NAMESPACE = "dagpenger"
-class JoarkMottak(val env: Environment, private val journalpostArkiv: JournalpostArkiv) : Service() {
+private val labelNames = listOf(
+    "skjemaId",
+    "skjemaIdIsKnown",
+    "henvendelsesType",
+    "mottaksKanal",
+    "hasJournalfEnhet",
+    "numberOfDocuments",
+    "numberOfBrukere",
+    "brukerType",
+    "hasIdentifikator",
+    "journalTilstand",
+    "hasKanalReferanseId"
+)
+private val jpCounter = Counter
+    .build()
+    .namespace(DAGPENGER_NAMESPACE)
+    .name("journalpost_received")
+    .help("Number of Journalposts received on tema DAG")
+    .labelNames(*labelNames.toTypedArray())
+    .register()
+
+class JoarkMottak(val config: Configuration) : Service() {
     override val SERVICE_APP_ID =
         "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
 
-    override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
-
-    private val labelNames = listOf(
-        "skjemaId",
-        "skjemaIdIsKnown",
-        "henvendelsesType",
-        "mottaksKanal",
-        "hasJournalfEnhet",
-        "numberOfDocuments",
-        "numberOfBrukere",
-        "brukerType",
-        "hasIdentifikator",
-        "journalTilstand",
-        "hasKanalReferanseId"
-    )
-    private val jpCounter = Counter
-        .build()
-        .namespace(DAGPENGER_NAMESPACE)
-        .name("journalpost_received")
-        .help("Number of Journalposts received on tema DAG")
-        .labelNames(*labelNames.toTypedArray())
-        .register()
-
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val env = Environment()
-            val journalpostArkiv: JournalpostArkiv = JournalpostArkivJoark(
-                env.journalfoerinngaaendeV1Url,
-                StsOidcClient(env.oicdStsUrl, env.username, env.password)
-            )
-            val service = JoarkMottak(env, journalpostArkiv)
-            service.start()
-        }
-    }
+    override val HTTP_PORT: Int = config.application.httpPort
 
     override fun buildTopology(): Topology {
 
         val builder = StreamsBuilder()
 
         val inngåendeJournalposter = builder.consumeGenericTopic(
-            JOARK_EVENTS.copy(
-                name = if (env.fasitEnvironmentName.isBlank()) JOARK_EVENTS.name else JOARK_EVENTS.name + "-" + env.fasitEnvironmentName
-            ), env.schemaRegistryUrl
+            config.kafka.joarkTopic, config.kafka.schemaRegisterUrl
         )
 
         inngåendeJournalposter
@@ -84,21 +58,12 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
             }
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
             .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }
-            .flatMapValues(ValueMapper<GenericRecord, List<Behov>> {
-                try {
-                    listOf(hentInngåendeJournalpost(it.get("journalpostId").toString()))
-                } catch (e: JournalpostArkivException) {
-                    if (e.statusCode == 403) {
-                        LOGGER.warn("Could not fetch journalpost", e)
-                        emptyList<Behov>()
-                    } else {
-                        throw e
-                    }
+            .mapValues { _, record ->
+                Packet().apply {
+                    this.putValue("journalpostId", record.get("journalpostId").toString())
                 }
-            })
-            .selectKey { _, behov -> behov.getJournalpost().getJournalpostId() }
-            .peek { key, value -> LOGGER.info("Producing ${value.javaClass.simpleName} with key '$key' ") }
-            .toTopic(INNGÅENDE_JOURNALPOST, env.schemaRegistryUrl)
+            }
+            .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         return builder.build()
     }
@@ -106,50 +71,14 @@ class JoarkMottak(val env: Environment, private val journalpostArkiv: Journalpos
     override fun getConfig(): Properties {
         return streamConfig(
             appId = SERVICE_APP_ID,
-            bootStapServerUrl = env.bootstrapServersUrl,
-            credential = KafkaCredential(env.username, env.password)
+            bootStapServerUrl = config.kafka.brokers,
+            credential = config.kafka.credential()
         )
     }
+}
 
-    private fun hentInngåendeJournalpost(journalpostId: String): Behov {
-        ThreadContext.put("journalpostId", journalpostId)
-        val journalpost = journalpostArkiv.hentInngåendeJournalpost(journalpostId)
-        val behov = journalpost.toBehov(journalpostId)
-        ThreadContext.put("behovId", behov.getBehovId())
-        registerMetrics(journalpost, behov)
-        ThreadContext.clearMap()
-        return behov
-    }
-
-    private fun registerMetrics(journalpost: Journalpost, behov: Behov) {
-        val skjemaId = journalpost.dokumentListe.firstOrNull()?.navSkjemaId ?: "unknown"
-        val skjemaIdIsKnown = HenvendelsesTypeMapper.isKnownSkjemaId(skjemaId).toString()
-        val henvendelsesType = when {
-            behov.isSoknad() -> "Soknad"
-            behov.isEttersending() -> "Ettersending"
-            behov.isAnnet() -> "Annet"
-            else -> "unknown"
-        }
-        val hasJournalfEnhet = journalpost.journalfEnhet?.let { it } ?: "ukjent"
-        val brukerType =
-            journalpost.brukerListe.takeIf { it.size == 1 }?.firstOrNull()?.brukerType?.toString() ?: "notSingleBruker"
-        val hasIdentifikator = journalpost.brukerListe.firstOrNull()?.identifikator?.let { "true" } ?: "false"
-        val hasKanalreferanseId = journalpost.kanalReferanseId?.let { "true" } ?: "false"
-
-        jpCounter
-            .labels(
-                skjemaId,
-                skjemaIdIsKnown,
-                henvendelsesType,
-                journalpost.mottaksKanal?.let { it } ?: "ingen",
-                hasJournalfEnhet,
-                journalpost.dokumentListe.size.toString(),
-                journalpost.brukerListe.size.toString(),
-                brukerType,
-                hasIdentifikator,
-                journalpost.journalTilstand.toString(),
-                hasKanalreferanseId
-            )
-            .inc()
-    }
+fun main(args: Array<String>) {
+    val config = Configuration()
+    val service = JoarkMottak(config)
+    service.start()
 }
