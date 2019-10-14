@@ -46,6 +46,20 @@ class JoarkMottakTopologyTest {
         }
     }
 
+    @Test
+    fun `Skal ikke prosessere inkomne journalposter med tema DAG og hendelses type Ferdigstilt `() {
+        val joarkMottak = JoarkMottak(configuration)
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val journalpostId: Long = 123
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "Ferdigstilt"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldBe null
+        }
+    }
+
     private val schemaRegistryClient = mockk<SchemaRegistryClient>().apply {
         every {
             this@apply.getId(any(), any())
