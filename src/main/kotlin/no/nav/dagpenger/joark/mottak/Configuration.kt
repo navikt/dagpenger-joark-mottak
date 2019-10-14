@@ -31,8 +31,7 @@ private val devProperties = ConfigurationMap(
         "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
         "kafka.aapen.dok.journalfoering.topic" to "aapen-dok-journalfoering-v1-q1",
         "application.profile" to Profile.DEV.toString(),
-        "application.httpPort" to "8080",
-        "feature.gjustering" to true.toString()
+        "application.httpPort" to "8080"
     )
 )
 private val prodProperties = ConfigurationMap(
@@ -57,8 +56,7 @@ data class Configuration(
     val application: Application = Application()
 ) {
     data class Kafka(
-        val kafkaAapendDokJournalFøringTopicNavn: String = config()[Key("kafka.aapen.dok.journalfoering.topic", stringType)],
-        val joarkTopic: Topic<String, GenericRecord> = Topics.JOARK_EVENTS.copy(name = kafkaAapendDokJournalFøringTopicNavn),
+        val joarkTopic: Topic<String, GenericRecord> = Topics.JOARK_EVENTS.copy(name = config()[Key("kafka.aapen.dok.journalfoering.topic", stringType)]),
         val dagpengerJournalpostTopic: Topic<String, Packet> = Topic(
             "privat-dagpenger-journalpost-mottatt-v1",
             keySerde = Serdes.String(),
