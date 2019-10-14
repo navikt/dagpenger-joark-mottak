@@ -28,7 +28,7 @@ repositories {
 
 application {
     applicationName = "dagpenger-joark-mottak"
-    mainClassName = "no.nav.dagpenger.joark.mottak.JoarkMottak"
+    mainClassName = "no.nav.dagpenger.joark.mottak.JoarkMottakKt"
 }
 
 java {
