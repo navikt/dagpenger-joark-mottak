@@ -20,6 +20,7 @@ private val localProperties = ConfigurationMap(
     mapOf(
         "kafka.bootstrap.servers" to "localhost:9092",
         "kafka.schema.registry.url" to "localhost:8081",
+        "kafka.aapen.dok.journalfoering.topic" to "aapen-dok-journalfoering-v1",
         "oidc.sts.issuerurl" to "localhost:8082",
         "application.profile" to Profile.LOCAL.toString(),
         "application.httpPort" to "8080"
@@ -28,6 +29,7 @@ private val localProperties = ConfigurationMap(
 private val devProperties = ConfigurationMap(
     mapOf(
         "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
+        "kafka.aapen.dok.journalfoering.topic" to "aapen-dok-journalfoering-v1-q1",
         "application.profile" to Profile.DEV.toString(),
         "application.httpPort" to "8080",
         "feature.gjustering" to true.toString()
@@ -36,6 +38,7 @@ private val devProperties = ConfigurationMap(
 private val prodProperties = ConfigurationMap(
     mapOf(
         "kafka.bootstrap.servers" to "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
+        "kafka.aapen.dok.journalfoering.topic" to "aapen-dok-journalfoering-v1-p",
         "application.profile" to Profile.PROD.toString(),
         "application.httpPort" to "8080"
     )
@@ -54,7 +57,8 @@ data class Configuration(
     val application: Application = Application()
 ) {
     data class Kafka(
-        val joarkTopic: Topic<String, GenericRecord> = Topics.JOARK_EVENTS,
+        val kafkaAapendDokJournalFøringTopicNavn: String = config()[Key("kafka.aapen.dok.journalfoering.topic", stringType)],
+        val joarkTopic: Topic<String, GenericRecord> = Topics.JOARK_EVENTS.copy(name = kafkaAapendDokJournalFøringTopicNavn),
         val dagpengerJournalpostTopic: Topic<String, Packet> = Topic(
             "privat-dagpenger-journalpost-mottatt-v1",
             keySerde = Serdes.String(),
