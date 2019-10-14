@@ -63,7 +63,7 @@ data class Configuration(
         val brokers: String = config()[Key("kafka.bootstrap.servers", stringType)],
         val schemaRegisterUrl: String = config()[Key("kafka.schema.registry.url", stringType)],
         val user: String? = config().getOrNull(Key("srvdagpenger.joark.mottak.username", stringType)),
-        val password: String? = config().getOrNull(Key("srvdagpenger.joark.mottak.username", stringType))
+        val password: String? = config().getOrNull(Key("srvdagpenger.joark.mottak.password", stringType))
     ) {
         fun credential(): KafkaCredential? {
             return if (user != null && password != null) {
