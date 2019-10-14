@@ -69,10 +69,16 @@ class JoarkMottak(val config: Configuration) : Service() {
     }
 
     override fun getConfig(): Properties {
+        val credential = config.kafka.credential()
+
+        credential?.let {
+            LOGGER.info { "Using kafka credential ${it.username} and password starting with ${it.password.substring(3)}" }
+        }
+
         return streamConfig(
             appId = SERVICE_APP_ID,
             bootStapServerUrl = config.kafka.brokers,
-            credential = config.kafka.credential()
+            credential = credential
         )
     }
 }
