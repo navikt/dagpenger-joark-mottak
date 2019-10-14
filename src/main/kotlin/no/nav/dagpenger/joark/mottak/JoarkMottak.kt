@@ -44,6 +44,8 @@ class JoarkMottak(val config: Configuration) : Service() {
 
         val builder = StreamsBuilder()
 
+        LOGGER.info { "Consuming topic ${config.kafka.joarkTopic.name}" }
+
         val inngåendeJournalposter = builder.consumeGenericTopic(
             config.kafka.joarkTopic, config.kafka.schemaRegisterUrl
         )
