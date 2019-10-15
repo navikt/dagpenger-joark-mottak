@@ -24,7 +24,8 @@ private val localProperties = ConfigurationMap(
         "oidc.sts.issuerurl" to "localhost:8082",
         "application.profile" to Profile.LOCAL.toString(),
         "application.httpPort" to "8080",
-        "kafka.schema.registry.url" to "http://localhost:8081"
+        "kafka.schema.registry.url" to "http://localhost:8081",
+        "oidc.sts.issuerurl" to "https://localhost:8082"
     )
 )
 private val devProperties = ConfigurationMap(
@@ -33,7 +34,8 @@ private val devProperties = ConfigurationMap(
         "kafka.aapen.dok.journalfoering.topic" to "aapen-dok-journalfoering-v1-q1",
         "application.profile" to Profile.DEV.toString(),
         "application.httpPort" to "8080",
-        "kafka.schema.registry.url" to "http://kafka-schema-registry.tpa:8081"
+        "kafka.schema.registry.url" to "http://kafka-schema-registry.tpa:8081",
+        "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local"
     )
 )
 private val prodProperties = ConfigurationMap(
@@ -42,7 +44,8 @@ private val prodProperties = ConfigurationMap(
         "kafka.aapen.dok.journalfoering.topic" to "aapen-dok-journalfoering-v1-p",
         "application.profile" to Profile.PROD.toString(),
         "application.httpPort" to "8080",
-        "kafka.schema.registry.url" to "http://kafka-schema-registry.tpa:8081"
+        "kafka.schema.registry.url" to "http://kafka-schema-registry.tpa:8081",
+        "oidc.sts.issuerurl" to "https://security-token-service.nais.adeo.no"
     )
 )
 
