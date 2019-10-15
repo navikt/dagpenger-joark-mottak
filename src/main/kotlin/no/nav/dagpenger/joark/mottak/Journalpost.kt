@@ -12,7 +12,12 @@ data class Journalpost(
     val kanalnavn: String?,
     val journalforendeEnhet: String?,
     val dokumenter: List<DokumentInfo>
-)
+) {
+    fun mapToHenvendelsesType(): Henvendelsestype {
+        val brevkode = NavSkjemaIdMapper.getNavSkjemaId(this.dokumenter.first().brevkode)
+        return HenvendelsesTypeMapper.getHenvendelsesType(brevkode)
+    }
+}
 
 
 data class DokumentInfo(
