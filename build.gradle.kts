@@ -49,7 +49,6 @@ configurations {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-
     implementation(Dagpenger.Streams)
     implementation(Dagpenger.Events)
 
