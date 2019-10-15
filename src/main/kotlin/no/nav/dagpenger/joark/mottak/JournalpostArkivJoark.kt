@@ -32,8 +32,7 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
     }
 
     private fun journalpostQuery(journalpostId: String) = """
-        {
-            "query": "query {
+            query {
                 journalpost(journalpostId: \"$journalpostId\") {
                     journalstatus
                     journalfoerendeEnhet
@@ -47,8 +46,8 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
                       brevkode
                     }
                 }
-            }"
-        }
+            }
+        
     """.trimIndent()
 }
 
