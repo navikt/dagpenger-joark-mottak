@@ -4,10 +4,12 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
+import mu.KotlinLogging
 import no.nav.dagpenger.events.moshiInstance
 import no.nav.dagpenger.oidc.OidcClient
 
 private val adapter = moshiInstance.adapter(GraphqlQuery::class.java)
+private val logger = KotlinLogging.logger {}
 
 class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient: OidcClient) :
     JournalpostArkiv {
@@ -19,7 +21,7 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
                 ("Content-Type" to "application/json")
             )
             body(
-                adapter.toJson(JournalPostQuery(journalpostId))
+                adapter.toJson(JournalPostQuery(journalpostId)).also { logger.info { it }  }
             )
             responseObject<GraphQlJournalpostResponse>()
         }

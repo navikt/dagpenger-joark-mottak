@@ -65,7 +65,8 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
             .mapValues { _, record ->
                 val journalpostId = record.get("journalpostId").toString()
                 try {
-                    journalpostArkiv.hentInngåendeJournalpost(journalpostId)
+                    journalpostArkiv.hentInngående
+                    Journalpost(journalpostId)
                 } catch (t: Throwable) {
                     LOGGER.warn { t }
                 }
