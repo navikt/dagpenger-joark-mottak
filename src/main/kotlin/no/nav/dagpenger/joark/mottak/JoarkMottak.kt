@@ -51,6 +51,7 @@ class JoarkMottak(private val config: Configuration) : Service() {
         )
 
         inngåendeJournalposter
+            .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
             .peek { _, value ->
                 LOGGER.info(
                     "Received journalpost with journalpost id: ${value.get("journalpostId")} and tema: ${value.get(
@@ -58,7 +59,6 @@ class JoarkMottak(private val config: Configuration) : Service() {
                     )}, hendelsesType: ${value.get("hendelsesType")}"
                 )
             }
-            .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
             .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }
             .mapValues { _, record ->
                 Packet().apply {
