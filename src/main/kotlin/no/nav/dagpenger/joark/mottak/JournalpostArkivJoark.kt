@@ -8,7 +8,7 @@ import mu.KotlinLogging
 import no.nav.dagpenger.events.moshiInstance
 import no.nav.dagpenger.oidc.OidcClient
 
-private val adapter = moshiInstance.adapter(GraphqlQuery::class.java)
+private val adapter = moshiInstance.adapter(GraphqlQuery::class.java).serializeNulls()
 private val logger = KotlinLogging.logger {}
 
 class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient: OidcClient) :
@@ -37,10 +37,11 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
     }
 }
 
-sealed class GraphqlQuery(val query: String, val variables: String)
+sealed class GraphqlQuery(val query: String, val variables: Any?)
 
 data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
-    query = """query {
+    query = """ 
+            query {
                 journalpost(journalpostId: "$journalpostId") {
                     journalstatus
                     journalfoerendeEnhet
@@ -54,9 +55,14 @@ data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
                       brevkode
                     }
                 }
-            }""".replace("\n", "").trim(),
-    variables = ""
+            }
+            """.trimIndent(),
+    variables = null
 )
+
+fun main() {
+    adapter.toJson(JournalPostQuery("12435")).also { println(it) }
+}
 
 class JournalpostArkivException(val statusCode: Int, override val message: String, override val cause: Throwable) :
     RuntimeException(message, cause)

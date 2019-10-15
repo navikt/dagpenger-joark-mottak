@@ -12,7 +12,7 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 import java.util.Properties
 
-private val LOGGER = KotlinLogging.logger {}
+private val logger = KotlinLogging.logger {}
 const val DAGPENGER_NAMESPACE = "dagpenger"
 private val labelNames = listOf(
     "skjemaId",
@@ -46,7 +46,7 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
 
         val builder = StreamsBuilder()
 
-        LOGGER.info { "Consuming topic ${config.kafka.joarkTopic.name}" }
+        logger.info { "Consuming topic ${config.kafka.joarkTopic.name}" }
 
         val inngåendeJournalposter = builder.consumeGenericTopic(
             config.kafka.joarkTopic, config.kafka.schemaRegisterUrl
@@ -55,7 +55,7 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
         inngåendeJournalposter
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
             .peek { _, value ->
-                LOGGER.info(
+                logger.info(
                     "Received journalpost with journalpost id: ${value.get("journalpostId")} and tema: ${value.get(
                         "temaNytt"
                     )}, hendelsesType: ${value.get("hendelsesType")}"
@@ -64,6 +64,13 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
             .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }
             .mapValues { _, record ->
                 val journalpostId = record.get("journalpostId").toString()
+
+                try {
+                    journalpostArkiv.hentInngåendeJournalpost(journalpostId)
+                        .also { logger.info { "Tittel på jp ${it.tittel}" } }
+                } catch (t: Throwable) {
+                    logger.warn { t }
+                }
                 Packet().apply {
                     this.putValue("journalpostId", journalpostId)
                 }
@@ -84,9 +91,12 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
 
 fun main(args: Array<String>) {
     val config = Configuration()
-    val journalpostArkiv = JournalpostArkivJoark(config.application.joarkJournalpostArkivUrl,
-        StsOidcClient(config.application.oidcStsUrl,
-            config.kafka.user!!, config.kafka.password!!)
+    val journalpostArkiv = JournalpostArkivJoark(
+        config.application.joarkJournalpostArkivUrl,
+        StsOidcClient(
+            config.application.oidcStsUrl,
+            config.kafka.user!!, config.kafka.password!!
+        )
     )
 
     val service = JoarkMottak(config, journalpostArkiv)
