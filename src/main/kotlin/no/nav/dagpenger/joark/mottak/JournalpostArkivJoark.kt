@@ -21,7 +21,7 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
                 ("Content-Type" to "application/json")
             )
             body(
-                adapter.toJson(JournalPostQuery(journalpostId)).also { logger.info { it }  }
+                adapter.toJson(JournalPostQuery(journalpostId)).also { logger.info { it } }
             )
             responseObject<GraphQlJournalpostResponse>()
         }
