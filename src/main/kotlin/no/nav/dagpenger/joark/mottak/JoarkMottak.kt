@@ -34,7 +34,7 @@ private val jpCounter = Counter
     .labelNames(*labelNames.toTypedArray())
     .register()
 
-class JoarkMottak(val config: Configuration) : Service() {
+class JoarkMottak(private val config: Configuration) : Service() {
     override val SERVICE_APP_ID =
         "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
 
