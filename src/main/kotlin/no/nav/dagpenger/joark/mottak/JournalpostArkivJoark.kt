@@ -16,7 +16,7 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
                 ("Content-Type" to "application/json")
             )
             body(
-                """ "query": "${journalpostQuery(journalpostId)}" """.trimIndent()
+                journalpostQuery(journalpostId).apply { print(this) }
             )
             responseObject<GraphQlJournalpostResponse>()
         }
@@ -32,20 +32,22 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
     }
 
     private fun journalpostQuery(journalpostId: String) = """
-        query {
-          journalpost(journalpostId: \"$journalpostId\") {
-            journalstatus
-            journalfoerendeEnhet
-            bruker {
-              type
-              id
-            }
-            kanalnavn
-            dokumenter {
-              dokumentInfoId
-              brevkode
-            }
-          }
+        {
+            "query": "query {
+                journalpost(journalpostId: \"$journalpostId\") {
+                    journalstatus
+                    journalfoerendeEnhet
+                    bruker {
+                      type
+                      id
+                    }
+                    kanalnavn
+                    dokumenter {
+                      dokumentInfoId
+                      brevkode
+                    }
+                }
+            }"
         }
     """.trimIndent()
 }
