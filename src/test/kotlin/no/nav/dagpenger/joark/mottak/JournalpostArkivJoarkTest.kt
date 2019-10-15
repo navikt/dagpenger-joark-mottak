@@ -63,7 +63,7 @@ class JournalpostArkivJoarkTest {
 
         val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
-        assertEquals("MASKERT_FELT", journalPost?.tittel)
+        assertEquals("MASKERT_FELT", journalPost.tittel)
     }
 
     @Test

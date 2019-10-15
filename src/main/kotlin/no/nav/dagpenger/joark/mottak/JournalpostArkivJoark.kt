@@ -1,10 +1,13 @@
 package no.nav.dagpenger.joark.mottak
 
 import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
+import no.nav.dagpenger.events.moshiInstance
 import no.nav.dagpenger.oidc.OidcClient
+
+private val adapter = moshiInstance.adapter(GraphqlQuery::class.java)
 
 class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient: OidcClient) :
     JournalpostArkiv {
@@ -16,7 +19,7 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
                 ("Content-Type" to "application/json")
             )
             body(
-                journalpostQuery(journalpostId).apply { print(this) }
+                adapter.toJson(JournalPostQuery(journalpostId))
             )
             responseObject<GraphQlJournalpostResponse>()
         }
@@ -30,9 +33,12 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
             is Result.Success -> result.get().data.journalpost
         }
     }
+}
 
-    private fun journalpostQuery(journalpostId: String) = """
-            query {
+sealed class GraphqlQuery(val query: String, val variables: String)
+
+data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
+    query = """query {
                 journalpost(journalpostId: "$journalpostId") {
                     journalstatus
                     journalfoerendeEnhet
@@ -46,10 +52,9 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
                       brevkode
                     }
                 }
-            }
-        
-    """.trimIndent()
-}
+            }""".replace("\n", "").trim(),
+    variables = ""
+)
 
 class JournalpostArkivException(val statusCode: Int, override val message: String, override val cause: Throwable) :
     RuntimeException(message, cause)
