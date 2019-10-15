@@ -4,7 +4,6 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
-import mu.KotlinLogging
 import no.nav.dagpenger.events.moshiInstance
 import no.nav.dagpenger.oidc.OidcClient
 
