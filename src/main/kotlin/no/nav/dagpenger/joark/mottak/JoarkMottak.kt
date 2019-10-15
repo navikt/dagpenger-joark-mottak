@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.nav.dagpenger.events.Packet
+import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.streamConfig
@@ -34,7 +35,8 @@ private val jpCounter = Counter
     .labelNames(*labelNames.toTypedArray())
     .register()
 
-class JoarkMottak(private val config: Configuration) : Service() {
+class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostArkiv) : Service() {
+
     override val SERVICE_APP_ID =
         "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
 
@@ -81,6 +83,11 @@ class JoarkMottak(private val config: Configuration) : Service() {
 
 fun main(args: Array<String>) {
     val config = Configuration()
-    val service = JoarkMottak(config)
+    val journalpostArkiv = JournalpostArkivJoark(config.application.joarkJournalpostArkivUrl,
+        StsOidcClient(config.application.oidcStsUrl,
+            config.kafka.user!!, config.kafka.password!!)
+    )
+
+    val service = JoarkMottak(config, journalpostArkiv)
     service.start()
 }
