@@ -9,7 +9,6 @@ import no.nav.dagpenger.events.moshiInstance
 import no.nav.dagpenger.oidc.OidcClient
 
 private val adapter = moshiInstance.adapter(GraphqlQuery::class.java).serializeNulls()
-private val logger = KotlinLogging.logger {}
 
 class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient: OidcClient) :
     JournalpostArkiv {
@@ -21,7 +20,7 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
                 ("Content-Type" to "application/json")
             )
             body(
-                adapter.toJson(JournalPostQuery(journalpostId)).also { logger.info { it } }
+                adapter.toJson(JournalPostQuery(journalpostId))
             )
             responseObject<GraphQlJournalpostResponse>()
         }
