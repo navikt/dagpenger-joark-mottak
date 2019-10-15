@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 internal class ConfigurationTest {
     @Test
     fun `Configuration is loaded based on application profile`() {
-
         withProps(dummyConfigs + mapOf("NAIS_CLUSTER_NAME" to "dev-fss")) {
             with(Configuration()) {
                 this.application.profile shouldBe Profile.DEV
