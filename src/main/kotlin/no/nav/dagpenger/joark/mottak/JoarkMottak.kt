@@ -64,11 +64,6 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
             .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }
             .mapValues { _, record ->
                 val journalpostId = record.get("journalpostId").toString()
-                try {
-                    journalpostArkiv.hentInngåendeJournalpost(journalpostId)
-                } catch (t: Throwable) {
-                    LOGGER.warn { t }
-                }
                 Packet().apply {
                     this.putValue("journalpostId", journalpostId)
                 }
