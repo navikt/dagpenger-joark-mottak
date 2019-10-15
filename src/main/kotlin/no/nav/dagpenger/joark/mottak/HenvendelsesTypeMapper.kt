@@ -1,9 +1,5 @@
 package no.nav.dagpenger.joark.mottak
 
-import no.nav.dagpenger.events.avro.Annet
-import no.nav.dagpenger.events.avro.Ettersending
-import no.nav.dagpenger.events.avro.Søknad
-
 object HenvendelsesTypeMapper {
     private val allKnownTypes = listOf(
         "NAV 04-01.03",
@@ -50,18 +46,18 @@ object HenvendelsesTypeMapper {
         "NAV 90-00.08")
 
     private val supportedTypes = mapOf(
-        "NAV 04-01.03" to Søknad(),
-        "NAV 04-01.04" to Søknad(),
-        "NAV 04-16.03" to Søknad(),
-        "NAV 04-16.04" to Søknad(),
-        "NAVe 04-01.03" to Ettersending(),
-        "NAVe 04-01.04" to Ettersending(),
-        "NAVe 04-16.03" to Ettersending(),
-        "NAVe 04-16.04" to Ettersending()
+        "NAV 04-01.03" to Henvendelsestype.SØKNAD,
+        "NAV 04-01.04" to Henvendelsestype.SØKNAD,
+        "NAV 04-16.03" to Henvendelsestype.SØKNAD,
+        "NAV 04-16.04" to Henvendelsestype.SØKNAD,
+        "NAVe 04-01.03" to Henvendelsestype.ETTERSENDING,
+        "NAVe 04-01.04" to Henvendelsestype.ETTERSENDING,
+        "NAVe 04-16.03" to Henvendelsestype.ETTERSENDING,
+        "NAVe 04-16.04" to Henvendelsestype.ETTERSENDING
     )
 
-    fun getHenvendelsesType(navSkjemaId: String?): Any {
-        return supportedTypes.getOrDefault(navSkjemaId.orEmpty(), Annet())
+    fun getHenvendelsesType(navSkjemaId: String?): Henvendelsestype {
+        return supportedTypes.getOrDefault(navSkjemaId.orEmpty(), Henvendelsestype.ANNET)
     }
 
     fun isKnownSkjemaId(navSkjemaId: String): Boolean {
@@ -69,4 +65,6 @@ object HenvendelsesTypeMapper {
     }
 }
 
-data class Henvendelse(val netsId: String, val skjemaId: String, val navn: String, val type: Søknad)
+enum class Henvendelsestype {
+    SØKNAD, ETTERSENDING, ANNET
+}

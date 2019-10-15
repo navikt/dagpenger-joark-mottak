@@ -3,8 +3,8 @@ package no.nav.dagpenger.joark.mottak
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.notFound
+import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
@@ -47,13 +47,13 @@ class JournalpostArkivJoarkTest {
     }
 
     @Test
-    fun `fetch JournalPost on 200 ok`() {
-
+    fun `henter Journalpost med riktig spørring`() {
         val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-journalpost-payload.json")
             .readText()
         stubFor(
-            get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/1"))
+            post(urlEqualTo("/"))
                 .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .withHeader("Content-type", RegexPattern("application/json"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -63,47 +63,17 @@ class JournalpostArkivJoarkTest {
 
         val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
-
-        assertEquals(journalPost.journalTilstand, JournalTilstand.ENDELIG)
-        assertEquals(
-            journalPost.avsender,
-            Avsender(navn = "string", avsenderType = AvsenderType.PERSON, identifikator = "string")
-        )
-        assertEquals(journalPost.brukerListe, listOf(Bruker(brukerType = BrukerType.PERSON, identifikator = "string")))
-        assertEquals(journalPost.arkivSak, ArkivSak(arkivSakSystem = "string", arkivSakId = "string"))
-        assertEquals(journalPost.tema, "string")
-        assertEquals(journalPost.tittel, "string")
-        assertEquals(journalPost.kanalReferanseId, "string")
-        assertEquals(journalPost.forsendelseMottatt, "2018-09-25T11:21:11.387Z")
-        assertEquals(journalPost.mottaksKanal, "string")
-        assertEquals(journalPost.journalfEnhet, "string")
-        assertEquals(
-            journalPost.dokumentListe, listOf(
-                Dokument(
-                    dokumentId = "string",
-                    dokumentTypeId = "string",
-                    navSkjemaId = "string",
-                    tittel = "string",
-                    dokumentKategori = "string",
-                    variant = listOf(Variant(arkivFilType = "string", variantFormat = "string")),
-                    logiskVedleggListe = listOf(
-                        LogiskVedlegg(
-                            logiskVedleggId = "string",
-                            logiskVedleggTittel = "string"
-                        )
-                    )
-                )
-            )
-        )
+        assertEquals("MASKERT_FELT", journalPost?.tittel)
     }
 
     @Test
-    fun `fetch JournalPost on 200 ok but no content`() {
-
-        val body = ""
+    fun `håndterer statuskode 200 med errors og uten Journalpost`() {
+        val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-journalpost-error-payload.json")
+            .readText()
         stubFor(
-            get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/2"))
+            post(urlEqualTo("/"))
                 .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .withHeader("Content-type", RegexPattern("application/json"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -112,17 +82,16 @@ class JournalpostArkivJoarkTest {
         )
 
         val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
-
         val result = runCatching { joarkClient.hentInngåendeJournalpost("2") }
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is JournalpostArkivException)
     }
 
     @Test
-    fun `fetch JournalPost on 4xx errors`() {
+    fun `håndterer 4xx-feil`() {
 
         stubFor(
-            get(urlEqualTo("/rest/journalfoerinngaaende/v1/journalposter/-1"))
+            post(urlEqualTo("/"))
                 .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
                 .willReturn(
                     notFound()

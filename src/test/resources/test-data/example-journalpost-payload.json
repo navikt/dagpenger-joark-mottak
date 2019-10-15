@@ -1,45 +1,42 @@
 {
-  "journalTilstand": "ENDELIG",
-  "avsender": {
-    "avsenderType": "PERSON",
-    "identifikator": "string",
-    "navn": "string"
-  },
-  "brukerListe": [
-    {
-      "brukerType": "PERSON",
-      "identifikator": "string"
-    }
-  ],
-  "arkivSak": {
-    "arkivSakSystem": "string",
-    "arkivSakId": "string"
-  },
-  "tema": "string",
-  "tittel": "string",
-  "kanalReferanseId": "string",
-  "forsendelseMottatt": "2018-09-25T11:21:11.387Z",
-  "mottaksKanal": "string",
-  "journalfEnhet": "string",
-  "dokumentListe": [
-    {
-      "dokumentId": "string",
-      "dokumentTypeId": "string",
-      "navSkjemaId": "string",
-      "tittel": "string",
-      "dokumentKategori": "string",
-      "variant": [
+  "data": {
+    "journalpost": {
+      "tittel": "MASKERT_FELT",
+      "journalstatus": "UKJENT_BRUKER",
+      "journalfoerendeEnhet": "2950",
+      "avsenderMottaker": {
+        "navn": null,
+        "type": "NULL",
+        "id": null
+      },
+      "bruker": null,
+      "sak": null,
+      "tema": "GEN",
+      "kanal": "SKAN_NETS",
+      "kanalnavn": "Skanning Nets",
+      "dokumenter": [
         {
-          "arkivFilType": "string",
-          "variantFormat": "string"
+          "dokumentInfoId": "469203579",
+          "brevkode": null,
+          "datoFerdigstilt": null,
+          "dokumentstatus": null,
+          "logiskeVedlegg": [
+            {
+              "logiskVedleggId": "319159354",
+              "tittel": "MASKERT_FELT"
+            }
+          ]
         }
       ],
-      "logiskVedleggListe": [
+      "skjerming": null,
+      "relevanteDatoer": [
         {
-          "logiskVedleggId": "string",
-          "logiskVedleggTittel": "string"
+          "dato": "2019-06-17T00:00"
         }
-      ]
+      ],
+      "behandlingstema": null,
+      "behandlingstemanavn": null,
+      "antallRetur": null
     }
-  ]
+  }
 }
