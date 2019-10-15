@@ -33,7 +33,7 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
 
     private fun journalpostQuery(journalpostId: String) = """
             query {
-                journalpost(journalpostId: \"$journalpostId\") {
+                journalpost(journalpostId: "$journalpostId") {
                     journalstatus
                     journalfoerendeEnhet
                     bruker {
