@@ -15,12 +15,8 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
     override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {
         val (_, response, result) = with(joarkUrl.httpPost()) {
             authentication().bearer(oidcClient.oidcToken().access_token)
-            header(
-                ("Content-Type" to "application/json")
-            )
-            body(
-                adapter.toJson(JournalPostQuery(journalpostId))
-            )
+            header("Content-Type" to "application/json")
+            body(adapter.toJson(JournalPostQuery(journalpostId)))
             responseObject<GraphQlJournalpostResponse>()
         }
 
@@ -57,10 +53,6 @@ data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
             """.trimIndent(),
     variables = null
 )
-
-fun main() {
-    adapter.toJson(JournalPostQuery("12435")).also { println(it) }
-}
 
 class JournalpostArkivException(val statusCode: Int, override val message: String, override val cause: Throwable) :
     RuntimeException(message, cause)
