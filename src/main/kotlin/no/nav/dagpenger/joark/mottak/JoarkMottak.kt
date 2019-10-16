@@ -35,6 +35,10 @@ private val jpCounter = Counter
     .labelNames(*labelNames.toTypedArray())
     .register()
 
+internal object PacketKeys {
+    const val JOURNALPOST_ID: String = "journalpostId"
+}
+
 class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostArkiv) : Service() {
 
     override val SERVICE_APP_ID =
@@ -56,25 +60,26 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
             .peek { _, value ->
                 logger.info(
-                    "Received journalpost with journalpost id: ${value.get("journalpostId")} and tema: ${value.get(
+                    "Received journalpost with journalpost id: ${value.get(PacketKeys.JOURNALPOST_ID)} and tema: ${value.get(
                         "temaNytt"
                     )}, hendelsesType: ${value.get("hendelsesType")}"
                 )
             }
             .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }
             .mapValues { _, record ->
-                val journalpostId = record.get("journalpostId").toString()
+                val journalpostId = record.get(PacketKeys.JOURNALPOST_ID).toString()
 
                 try {
                     journalpostArkiv.hentInngåendeJournalpost(journalpostId)
-                        .also { logger.info { "Tittel ${it.tittel} dokumenter ${it.dokumenter.size} - dokumentkoder ${it.dokumenter.joinToString { dok -> "${dok.brevkode}, " }}" } }
+                        .also { logger.info { "Tittel ${it.tittel} dokumenter ${it.dokumenter.size} - dokumentkoder ${it.dokumenter.joinToString { dok -> " '${dok.brevkode}'" }}" } }
                 } catch (t: Throwable) {
                     logger.warn { t }
                 }
                 Packet().apply {
-                    this.putValue("journalpostId", journalpostId)
+                    this.putValue(PacketKeys.JOURNALPOST_ID, journalpostId)
                 }
             }
+            .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         return builder.build()
