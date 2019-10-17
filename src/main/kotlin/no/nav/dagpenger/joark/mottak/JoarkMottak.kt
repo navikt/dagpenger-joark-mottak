@@ -39,7 +39,6 @@ internal object PacketKeys {
     const val HOVEDSKJEMA_ID: String = "hovedskjemaId"
     const val AKTØR_ID: String = "aktørId"
     const val JOURNALPOST_ID: String = "journalpostId"
-    
 }
 
 class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostArkiv) : Service() {
@@ -73,7 +72,7 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
                 val journalpostId = record.get(PacketKeys.JOURNALPOST_ID).toString()
 
                 mapAktørId(journalpostArkiv.hentInngåendeJournalpost(journalpostId))
-                    .also { logger.info { "Journalpost: ${it}}" } }
+                    .also { logger.info { "Journalpost: $it}" } }
             }
             .mapValues { _, journalpost ->
                 Packet().apply {

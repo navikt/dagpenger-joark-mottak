@@ -3,7 +3,6 @@ package no.nav.dagpenger.joark.mottak
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.kotlintest.shouldBe
-import io.mockk.mockk
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.getAvailablePort
@@ -18,7 +17,6 @@ import org.apache.kafka.streams.StreamsConfig
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-
 import java.time.Duration
 import java.util.Properties
 import java.util.Random
@@ -46,7 +44,7 @@ class JoarkMottakComponentTest {
                 user = username),
             application = Configuration.Application(httpPort = getAvailablePort()))
 
-        val joarkMottak = JoarkMottak(configuration, mockk())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
 
         @BeforeAll
         @JvmStatic
