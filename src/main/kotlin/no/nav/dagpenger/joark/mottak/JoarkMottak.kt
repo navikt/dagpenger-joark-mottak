@@ -73,7 +73,7 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
                 Packet().apply {
                     this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
                     this.putValue(PacketKeys.AKTØR_ID, journalpost.bruker?.id ?: "")
-                    this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode)
+                    this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
                     this.putValue(PacketKeys.NY_SØKNAD, journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD)
                 }
             }

@@ -22,7 +22,7 @@ data class Journalpost(
 
 data class DokumentInfo(
     val dokumentInfoId: String,
-    val brevkode: String
+    val brevkode: String?
 )
 
 data class Bruker(
