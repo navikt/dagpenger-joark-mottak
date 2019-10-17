@@ -72,7 +72,6 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
                 try {
                     journalpostArkiv.hentInngåendeJournalpost(journalpostId)
                         .also { logger.info { "Journalpost: ${it }}" } }
-
                 } catch (t: Throwable) {
                     logger.warn { t }
                 }

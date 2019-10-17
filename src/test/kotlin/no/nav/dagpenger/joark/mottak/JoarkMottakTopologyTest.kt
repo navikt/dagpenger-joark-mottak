@@ -109,7 +109,7 @@ class JoarkMottakTopologyTest {
         override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {
             return Journalpost(
                 journalstatus = Journalstatus.MOTTATT,
-                bruker = Bruker(BrukerType.AKTOERID, "123"),
+                bruker = Bruker(BrukerType.AKTOERID),
                 tittel = "Kul tittel",
                 datoOpprettet = "2019-05-05",
                 kanalnavn = "DAG",
