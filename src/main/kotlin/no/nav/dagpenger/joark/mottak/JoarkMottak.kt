@@ -36,7 +36,10 @@ private val jpCounter = Counter
     .register()
 
 internal object PacketKeys {
+    const val HOVEDSKJEMA_ID: String = "hovedskjemaId"
+    const val AKTØR_ID: String = "aktørId"
     const val JOURNALPOST_ID: String = "journalpostId"
+    
 }
 
 class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostArkiv) : Service() {
@@ -69,14 +72,14 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
             .mapValues { _, record ->
                 val journalpostId = record.get(PacketKeys.JOURNALPOST_ID).toString()
 
-                try {
-                    journalpostArkiv.hentInngåendeJournalpost(journalpostId)
-                        .also { logger.info { "Journalpost: ${it }}" } }
-                } catch (t: Throwable) {
-                    logger.warn { t }
-                }
+                mapAktørId(journalpostArkiv.hentInngåendeJournalpost(journalpostId))
+                    .also { logger.info { "Journalpost: ${it}}" } }
+            }
+            .mapValues { _, journalpost ->
                 Packet().apply {
-                    this.putValue(PacketKeys.JOURNALPOST_ID, journalpostId)
+                    this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
+                    this.putValue(PacketKeys.AKTØR_ID, journalpost.bruker?.id ?: "")
+                    this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode)
                 }
             }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
@@ -84,6 +87,8 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
 
         return builder.build()
     }
+
+    private fun mapAktørId(it: Journalpost) = it.copy(bruker = it.bruker?.copy(id = "1111"))
 
     override fun getConfig(): Properties {
         return streamConfig(

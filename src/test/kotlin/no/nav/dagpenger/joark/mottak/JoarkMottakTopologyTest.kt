@@ -60,6 +60,38 @@ class JoarkMottakTopologyTest {
         }
     }
 
+    @Test
+    fun `skal mappe aktørid riktig`() {
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkivJoark())
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val journalpostId: Long = 123
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldNotBe null
+            ut?.value()?.getStringValue("aktørId") shouldBe "1111"
+        }
+    }
+
+    @Test
+    fun `skal gi hovedskjema`() {
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkivJoark())
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val journalpostId: Long = 123
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldNotBe null
+            ut?.value()?.getStringValue("hovedskjemaId") shouldBe "NAV 022-123"
+        }
+    }
+
+
+
     private val schemaRegistryClient = mockk<SchemaRegistryClient>().apply {
         every {
             this@apply.getId(any(), any())
@@ -109,12 +141,13 @@ class JoarkMottakTopologyTest {
         override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {
             return Journalpost(
                 journalstatus = Journalstatus.MOTTATT,
-                bruker = Bruker(BrukerType.AKTOERID),
+                journalpostId = "123",
+                bruker = Bruker(BrukerType.AKTOERID, "123"),
                 tittel = "Kul tittel",
                 datoOpprettet = "2019-05-05",
                 kanalnavn = "DAG",
                 journalforendeEnhet = "Uvisst",
-                dokumenter = listOf()
+                dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAV 022-123"))
             )
         }
     }

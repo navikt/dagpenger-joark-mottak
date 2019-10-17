@@ -38,6 +38,7 @@ data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
             query {
                 journalpost(journalpostId: "$journalpostId") {
                     journalstatus
+                    journalpostid
                     journalfoerendeEnhet
                     bruker {
                       type

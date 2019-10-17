@@ -6,6 +6,7 @@ data class Data(val journalpost: Journalpost)
 
 data class Journalpost(
     val journalstatus: Journalstatus?,
+    val journalpostId: String,
     val bruker: Bruker?,
     val tittel: String?,
     val datoOpprettet: String,
@@ -25,7 +26,8 @@ data class DokumentInfo(
 )
 
 data class Bruker(
-    val type: BrukerType
+    val type: BrukerType,
+    val id: String
 )
 
 enum class BrukerType {
