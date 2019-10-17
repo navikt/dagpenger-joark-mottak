@@ -54,11 +54,11 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
 
         inngåendeJournalposter
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
-            .peek { _, value ->
+            .peek { _, record ->
                 logger.info(
-                    "Received journalpost with journalpost id: ${value[PacketKeys.JOURNALPOST_ID]} and tema: ${value[
+                    "Received journalpost with journalpost id: ${record[PacketKeys.JOURNALPOST_ID]} and tema: ${record[
                         "temaNytt"]
-                    }, hendelsesType: ${value["hendelsesType"]}"
+                    }, hendelsesType: ${record["hendelsesType"]}"
                 )
             }
             .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }

@@ -86,7 +86,8 @@ class JoarkMottakTopologyTest {
             val ut = readOutput(topologyTestDriver)
 
             ut shouldNotBe null
-            ut?.value()?.getStringValue("hovedskjemaId") shouldBe "NAV 022-123"
+            ut?.value()?.getStringValue("hovedskjemaId") shouldBe "NAV 04-01.04"
+            ut?.value()?.getBoolean("nySøknad") shouldBe true
         }
     }
 

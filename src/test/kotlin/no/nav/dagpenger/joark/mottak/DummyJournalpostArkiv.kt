@@ -10,7 +10,7 @@ class DummyJournalpostArkiv() : JournalpostArkiv {
             datoOpprettet = "2019-05-05",
             kanalnavn = "DAG",
             journalforendeEnhet = "Uvisst",
-            dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAV 022-123"))
+            dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAV 04-01.04"))
         )
     }
 }
