@@ -10,7 +10,7 @@ class HenvendelsesTypeMapperTest {
     @Test
     fun ` known søknad-skjemaId gets mapped to søknad`() {
         val type = HenvendelsesTypeMapper.getHenvendelsesType("NAV 04-01.03")
-        assertEquals(type, Henvendelsestype.SØKNAD)
+        assertEquals(type, Henvendelsestype.NY_SØKNAD)
     }
 
     @Test

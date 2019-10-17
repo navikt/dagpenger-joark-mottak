@@ -16,7 +16,8 @@ private val logger = KotlinLogging.logger {}
 const val DAGPENGER_NAMESPACE = "dagpenger"
 private val labelNames = listOf(
     "skjemaId",
-    "brukerType"
+    "brukerType",
+    "henvendelsestype"
 
 )
 private val jpCounter = Counter
@@ -28,6 +29,7 @@ private val jpCounter = Counter
     .register()
 
 internal object PacketKeys {
+    const val NY_SØKNAD: String = "nySøknad"
     const val HOVEDSKJEMA_ID: String = "hovedskjemaId"
     const val AKTØR_ID: String = "aktørId"
     const val JOURNALPOST_ID: String = "journalpostId"
@@ -72,6 +74,7 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
                     this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
                     this.putValue(PacketKeys.AKTØR_ID, journalpost.bruker?.id ?: "")
                     this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode)
+                    this.putValue(PacketKeys.NY_SØKNAD, journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD)
                 }
             }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
@@ -83,11 +86,13 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
     private fun registerMetrics(journalpost: Journalpost) {
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
         val brukerType = journalpost.bruker?.type.toString()
+        val henvendelsestype = journalpost.mapToHenvendelsesType().toString()
 
         jpCounter
             .labels(
                 skjemaId,
-                brukerType
+                brukerType,
+                henvendelsestype
             )
             .inc()
     }
