@@ -71,7 +71,8 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
 
                 try {
                     journalpostArkiv.hentInngåendeJournalpost(journalpostId)
-                        .also { logger.info { "Tittel ${it.tittel} dokumenter ${it.dokumenter.size} - dokumentkoder ${it.dokumenter.joinToString { dok -> " '${dok.brevkode}'" }}" } }
+                        .also { logger.info { "Journalpost: ${it }}" } }
+
                 } catch (t: Throwable) {
                     logger.warn { t }
                 }

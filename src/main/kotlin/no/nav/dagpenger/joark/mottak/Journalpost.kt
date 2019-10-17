@@ -25,8 +25,7 @@ data class DokumentInfo(
 )
 
 data class Bruker(
-    val type: BrukerType,
-    val id: String
+    val type: BrukerType
 )
 
 enum class BrukerType {
