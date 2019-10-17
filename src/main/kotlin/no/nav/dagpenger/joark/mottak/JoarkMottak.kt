@@ -16,16 +16,8 @@ private val logger = KotlinLogging.logger {}
 const val DAGPENGER_NAMESPACE = "dagpenger"
 private val labelNames = listOf(
     "skjemaId",
-    "skjemaIdIsKnown",
-    "henvendelsesType",
-    "mottaksKanal",
-    "hasJournalfEnhet",
-    "numberOfDocuments",
-    "numberOfBrukere",
-    "brukerType",
-    "hasIdentifikator",
-    "journalTilstand",
-    "hasKanalReferanseId"
+    "brukerType"
+
 )
 private val jpCounter = Counter
     .build()
@@ -73,6 +65,7 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
 
                 mapAktørId(journalpostArkiv.hentInngåendeJournalpost(journalpostId))
                     .also { logger.info { "Journalpost: $it}" } }
+                    .also { registerMetrics(it) }
             }
             .mapValues { _, journalpost ->
                 Packet().apply {
@@ -85,6 +78,18 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         return builder.build()
+    }
+
+    private fun registerMetrics(journalpost: Journalpost) {
+        val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
+        val brukerType = journalpost.bruker?.type.toString()
+
+        jpCounter
+            .labels(
+                skjemaId,
+                brukerType
+            )
+            .inc()
     }
 
     private fun mapAktørId(it: Journalpost) = it.copy(bruker = it.bruker?.copy(id = "1111"))
