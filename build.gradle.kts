@@ -96,6 +96,10 @@ spotless {
     }
 }
 
+tasks.named("compileKotlin") {
+    dependsOn("spotlessCheck")
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
