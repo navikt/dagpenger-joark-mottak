@@ -56,9 +56,9 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
             .peek { _, value ->
                 logger.info(
-                    "Received journalpost with journalpost id: ${value.get(PacketKeys.JOURNALPOST_ID)} and tema: ${value.get(
-                        "temaNytt"
-                    )}, hendelsesType: ${value.get("hendelsesType")}"
+                    "Received journalpost with journalpost id: ${value[PacketKeys.JOURNALPOST_ID]} and tema: ${value[
+                        "temaNytt"]
+                    }, hendelsesType: ${value["hendelsesType"]}"
                 )
             }
             .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }
