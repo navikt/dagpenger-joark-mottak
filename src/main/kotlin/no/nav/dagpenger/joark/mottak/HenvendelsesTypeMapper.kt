@@ -31,8 +31,8 @@ object HenvendelsesTypeMapper {
         "U1",
         "NAV 04-03.08",
         "S8",
-        "NAV 04-01.03",
-        "NAV 04-01.04"
+        "NAV 04-01.03", // NAVe 04-01.03
+        "NAV 04-01.04" // NAVe 04-01.04
     )
 
     private val supportedTypes = mapOf(

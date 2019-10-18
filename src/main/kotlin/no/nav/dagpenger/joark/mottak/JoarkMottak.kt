@@ -17,7 +17,8 @@ const val DAGPENGER_NAMESPACE = "dagpenger"
 private val labelNames = listOf(
     "skjemaId",
     "brukerType",
-    "henvendelsestype"
+    "henvendelsestype",
+    "skjemaIdIsKnown"
 
 )
 private val jpCounter = Counter
@@ -87,12 +88,14 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
         val brukerType = journalpost.bruker?.type.toString()
         val henvendelsestype = journalpost.mapToHenvendelsesType().toString()
+        val skjemaIdKjent = HenvendelsesTypeMapper.isKnownSkjemaId(skjemaId).toString()
 
         jpCounter
             .labels(
                 skjemaId,
                 brukerType,
-                henvendelsestype
+                henvendelsestype,
+                skjemaIdKjent
             )
             .inc()
     }
