@@ -7,6 +7,7 @@ class DummyJournalpostArkiv() : JournalpostArkiv {
             journalpostId = "123",
             bruker = Bruker(BrukerType.AKTOERID, "123"),
             tittel = "Kul tittel",
+            kanal = "NAV.no",
             datoOpprettet = "2019-05-05",
             kanalnavn = "DAG",
             journalforendeEnhet = "Uvisst",

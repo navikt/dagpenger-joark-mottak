@@ -45,6 +45,7 @@ data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
                       type
                       id
                     }
+                    kanal
                     kanalnavn
                     dokumenter {
                       dokumentInfoId

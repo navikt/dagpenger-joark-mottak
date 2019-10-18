@@ -18,7 +18,11 @@ private val labelNames = listOf(
     "skjemaId",
     "brukerType",
     "henvendelsestype",
-    "skjemaIdIsKnown"
+    "skjemaIdIsKnown",
+    "numberOfDocuments",
+    "kanal",
+    "kanalnavn",
+    "journalTilstand"
 
 )
 private val jpCounter = Counter
@@ -89,13 +93,21 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
         val brukerType = journalpost.bruker?.type.toString()
         val henvendelsestype = journalpost.mapToHenvendelsesType().toString()
         val skjemaIdKjent = HenvendelsesTypeMapper.isKnownSkjemaId(skjemaId).toString()
+        val numberOfDocuments = journalpost.dokumenter.size.toString()
+        val kanal = journalpost.kanal?.let { it } ?: "ukjent"
+        val kanalnavn = journalpost.kanalnavn?.let { it } ?: "ukjent"
+        val journalTilstand = journalpost.journalstatus?.name ?: "ukjent"
 
         jpCounter
             .labels(
                 skjemaId,
                 brukerType,
                 henvendelsestype,
-                skjemaIdKjent
+                skjemaIdKjent,
+                numberOfDocuments,
+                kanal,
+                kanalnavn,
+                journalTilstand
             )
             .inc()
     }

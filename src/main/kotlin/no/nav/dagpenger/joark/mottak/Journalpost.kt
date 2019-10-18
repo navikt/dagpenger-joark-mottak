@@ -10,6 +10,7 @@ data class Journalpost(
     val bruker: Bruker?,
     val tittel: String?,
     val datoOpprettet: String?,
+    val kanal: String?,
     val kanalnavn: String?,
     val journalforendeEnhet: String?,
     val dokumenter: List<DokumentInfo>
