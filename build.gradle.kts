@@ -55,6 +55,7 @@ dependencies {
     implementation(Dagpenger.Biblioteker.stsKlient)
 
     implementation(Prometheus.common)
+    implementation(Prometheus.log4j2)
 
     implementation(Konfig.konfig)
 
