@@ -10,7 +10,7 @@ class PersonOppslag(private val personOppslagUrl: String) {
             header("Content-Type" to "application/json")
             body(
                 adapter.toJson(
-                    PersonQuery(id, brukerType.toString())
+                    PersonQuery(id, mapBrukerTypeTilAktørType[brukerType].toString())
                 )
             )
             responseObject<GraphQlPersonResponse>()
@@ -27,6 +27,16 @@ class PersonOppslag(private val personOppslagUrl: String) {
     }
 }
 
+val mapBrukerTypeTilAktørType = mapOf(
+    BrukerType.AKTOERID to AktørType.AKTOER_ID,
+    BrukerType.FNR to AktørType.NATURLIG_IDENT
+)
+
+enum class AktørType {
+    AKTOER_ID,
+    NATURLIG_IDENT
+}
+
 internal data class PersonQuery(val id: String, val aktørType: String) : GraphqlQuery(
     query = """ 
             query {
@@ -38,21 +48,6 @@ internal data class PersonQuery(val id: String, val aktørType: String) : Graphq
             }
             """.trimIndent(),
     variables = null
-)
-
-data class GraphQlPersonResponse(val data: Data, val errors: List<String>?) {
-    data class Data(val person: Person)
-}
-
-data class Person(
-    val aktoerId: String,
-    val naturligIdent: String,
-    val behandlendeEnheter: List<BehandlendeEnhet>
-)
-
-data class BehandlendeEnhet(
-    val enhetId: String,
-    val enhetNavn: String
 )
 
 class PersonOppslagException(val statusCode: Int, override val message: String, override val cause: Throwable) :
