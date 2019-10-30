@@ -36,8 +36,10 @@ private val jpCounter = Counter
 internal object PacketKeys {
     const val NY_SØKNAD: String = "nySøknad"
     const val HOVEDSKJEMA_ID: String = "hovedskjemaId"
-    const val AKTØR_ID: String = "aktørId"
     const val JOURNALPOST_ID: String = "journalpostId"
+    const val AKTØR_ID: String = "aktørId"
+    const val BEHANDLENDE_ENHETER: String = "behandlendeEnheter"
+    const val NATURLIG_IDENT: String = "naturligIdent"
 }
 
 class JoarkMottak(
@@ -81,12 +83,16 @@ class JoarkMottak(
             .mapValues { _, journalpost ->
                 Packet().apply {
                     this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
-                    this.putValue(PacketKeys.AKTØR_ID, journalpost.bruker?.id ?: "")
                     this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
                     this.putValue(
                         PacketKeys.NY_SØKNAD,
                         journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD
                     )
+                    personOppslag.hentPerson(journalpost.bruker.id, journalpost.bruker.type).let {
+                        this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
+                        this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
+                        this.putValue(PacketKeys.BEHANDLENDE_ENHETER, it.behandlendeEnheter)
+                    }
                 }
             }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }

@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.kotlintest.shouldBe
+import io.mockk.every
 import io.mockk.mockk
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
@@ -45,13 +46,19 @@ class JoarkMottakComponentTest {
                 user = username),
             application = Configuration.Application(httpPort = getAvailablePort()))
 
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), mockk())
+        val personOppslagMock = mockk<PersonOppslag>()
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock)
 
         @BeforeAll
         @JvmStatic
         fun setup() {
             embeddedEnvironment.start()
             joarkMottak.start()
+            every { personOppslagMock.hentPerson(any(), any()) } returns Person(
+                aktoerId = "1111",
+                naturligIdent = "1234",
+                behandlendeEnheter = listOf(BehandlendeEnhet(enhetId = "abc", enhetNavn = "NAV Enhet"))
+            )
         }
 
         @AfterAll
