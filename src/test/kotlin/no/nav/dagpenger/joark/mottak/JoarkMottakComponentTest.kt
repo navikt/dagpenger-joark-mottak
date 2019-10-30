@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.kotlintest.shouldBe
+import io.mockk.mockk
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.getAvailablePort
@@ -44,7 +45,7 @@ class JoarkMottakComponentTest {
                 user = username),
             application = Configuration.Application(httpPort = getAvailablePort()))
 
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), mockk())
 
         @BeforeAll
         @JvmStatic

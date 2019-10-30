@@ -40,7 +40,11 @@ internal object PacketKeys {
     const val JOURNALPOST_ID: String = "journalpostId"
 }
 
-class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostArkiv) : Service() {
+class JoarkMottak(
+    val config: Configuration,
+    val journalpostArkiv: JournalpostArkiv,
+    val personOppslag: PersonOppslag
+) : Service() {
 
     override val SERVICE_APP_ID =
         "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
@@ -79,7 +83,10 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
                     this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
                     this.putValue(PacketKeys.AKTØR_ID, journalpost.bruker?.id ?: "")
                     this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
-                    this.putValue(PacketKeys.NY_SØKNAD, journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD)
+                    this.putValue(
+                        PacketKeys.NY_SØKNAD,
+                        journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD
+                    )
                 }
             }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
@@ -133,6 +140,7 @@ fun main(args: Array<String>) {
         )
     )
 
-    val service = JoarkMottak(config, journalpostArkiv)
+    val personOppslag = PersonOppslag(config.application.personOppslagUrl)
+    val service = JoarkMottak(config, journalpostArkiv, personOppslag)
     service.start()
 }

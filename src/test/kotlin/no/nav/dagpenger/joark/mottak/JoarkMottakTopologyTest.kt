@@ -20,7 +20,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal prosessere inkomne journalposter med tema DAG og hendelses type MidlertidigJournalført `() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), mockk())
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
             val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
@@ -35,7 +35,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal ikke prosessere journalposter med andre temaer en DAG`() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), mockk())
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val inputRecord = factory.create(lagJoarkHendelse(123, "ANNET", "MidlertidigJournalført"))
             topologyTestDriver.pipeInput(inputRecord)
@@ -48,7 +48,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal ikke prosessere inkomne journalposter med tema DAG og hendelses type Ferdigstilt `() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), mockk())
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
             val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "Ferdigstilt"))
@@ -62,7 +62,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `skal mappe aktørid riktig`() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), mockk())
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
             val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
@@ -77,7 +77,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `skal gi hovedskjema`() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), mockk())
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
             val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
