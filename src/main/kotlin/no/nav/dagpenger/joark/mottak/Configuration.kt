@@ -26,7 +26,8 @@ private val localProperties = ConfigurationMap(
         "application.profile" to Profile.LOCAL.toString(),
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "http://localhost:8081",
-        "oidc.sts.issuerurl" to "https://localhost:8082"
+        "oidc.sts.issuerurl" to "https://localhost:8082",
+        "application.skip.jp.ids" to "453481189"
     )
 )
 private val devProperties = ConfigurationMap(
@@ -38,7 +39,7 @@ private val devProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.preprod.local",
         "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local",
-        "application.skip.jp.ids" to "453481189"
+        "application.skip.jp.ids" to "453481189,453481189"
     )
 )
 private val prodProperties = ConfigurationMap(
