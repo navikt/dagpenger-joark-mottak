@@ -46,7 +46,9 @@ internal data class PersonQuery(val id: String, val aktørType: String) : Graphq
                 person(id: "$id", aktoerType: $aktørType) {
                     aktoerId
                     naturligIdent
-                    behandlendeEnheter
+                    behandlendeEnheter {
+                        enhetId
+                        enhetNavn
                 }
             }
             """.trimIndent(),
