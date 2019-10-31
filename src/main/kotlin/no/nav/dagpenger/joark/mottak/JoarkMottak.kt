@@ -59,7 +59,6 @@ class JoarkMottak(val config: Configuration, val journalpostArkiv: JournalpostAr
 
         inngåendeJournalposter
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
-            .filterNot { _, jp -> config.application.journalPostIdsToSkip.contains(jp[PacketKeys.JOURNALPOST_ID]) }
             .peek { _, record ->
                 logger.info(
                     "Received journalpost with journalpost id: ${record[PacketKeys.JOURNALPOST_ID]} and tema: ${record[

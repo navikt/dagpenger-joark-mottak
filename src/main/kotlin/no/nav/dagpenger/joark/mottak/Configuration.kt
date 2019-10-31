@@ -37,8 +37,7 @@ private val devProperties = ConfigurationMap(
         "application.profile" to Profile.DEV.toString(),
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.preprod.local",
-        "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local",
-        "application.skip.jp.ids" to "453481189"
+        "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local"
     )
 )
 private val prodProperties = ConfigurationMap(
@@ -85,7 +84,6 @@ data class Configuration(
     }
 
     data class Application(
-        val journalPostIdsToSkip: Set<String> = config().getOrNull(Key("application.skip.jp.ids", stringType))?.let { it.split(",").toSet() } ?: emptySet(),
         val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) },
         val httpPort: Int = config()[Key("application.httpPort", intType)],
         val oidcStsUrl: String = config()[Key("oidc.sts.issuerurl", stringType)],
