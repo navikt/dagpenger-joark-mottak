@@ -102,7 +102,7 @@ class JoarkMottak(
 
     private fun registerMetrics(journalpost: Journalpost) {
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
-        val brukerType = journalpost.bruker.type.toString()
+        val brukerType = journalpost.bruker?.type?.toString() ?: "ukjent"
         val henvendelsestype = journalpost.mapToHenvendelsesType().toString()
         val skjemaIdKjent = HenvendelsesTypeMapper.isKnownSkjemaId(skjemaId).toString()
         val numberOfDocuments = journalpost.dokumenter.size.toString()
