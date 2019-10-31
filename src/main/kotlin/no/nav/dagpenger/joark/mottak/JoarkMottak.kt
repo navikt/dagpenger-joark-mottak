@@ -88,10 +88,12 @@ class JoarkMottak(
                         PacketKeys.NY_SØKNAD,
                         journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD
                     )
-                    personOppslag.hentPerson(journalpost.bruker.id, journalpost.bruker.type).let {
-                        this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
-                        this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
-                        this.putValue(PacketKeys.BEHANDLENDE_ENHETER, it.behandlendeEnheter)
+                    if (null != journalpost.bruker) {
+                        personOppslag.hentPerson(journalpost.bruker.id, journalpost.bruker.type).let {
+                            this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
+                            this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
+                            this.putValue(PacketKeys.BEHANDLENDE_ENHETER, it.behandlendeEnheter)
+                        }
                     }
                 }
             }
