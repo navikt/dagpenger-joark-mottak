@@ -76,8 +76,7 @@ class JoarkMottak(
             .mapValues { _, record ->
                 val journalpostId = record.get(PacketKeys.JOURNALPOST_ID).toString()
 
-                mapAktørId(journalpostArkiv.hentInngåendeJournalpost(journalpostId))
-                    .also { logger.info { "Journalpost: $it}" } }
+                journalpostArkiv.hentInngåendeJournalpost(journalpostId)
                     .also { registerMetrics(it) }
             }
             .mapValues { _, journalpost ->
@@ -103,7 +102,7 @@ class JoarkMottak(
 
     private fun registerMetrics(journalpost: Journalpost) {
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
-        val brukerType = journalpost.bruker?.type.toString()
+        val brukerType = journalpost.bruker.type.toString()
         val henvendelsestype = journalpost.mapToHenvendelsesType().toString()
         val skjemaIdKjent = HenvendelsesTypeMapper.isKnownSkjemaId(skjemaId).toString()
         val numberOfDocuments = journalpost.dokumenter.size.toString()
@@ -124,8 +123,6 @@ class JoarkMottak(
             )
             .inc()
     }
-
-    private fun mapAktørId(it: Journalpost) = it.copy(bruker = it.bruker?.copy(id = "1111"))
 
     override fun getConfig(): Properties {
         return streamConfig(

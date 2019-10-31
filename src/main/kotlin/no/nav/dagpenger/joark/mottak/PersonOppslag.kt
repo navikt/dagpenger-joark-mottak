@@ -13,7 +13,7 @@ class PersonOppslag(private val personOppslagUrl: String, private val oidcClient
             header("Content-Type" to "application/json")
             body(
                 adapter.toJson(
-                    PersonQuery(id, mapBrukerTypeTilIdType[brukerType].toString())
+                    PersonQuery(id, mapBrukerTypeTilIdType[brukerType] ?: throw PersonOppslagException(message = "Failed to map $brukerType"))
                 )
             )
             responseObject<GraphQlPersonResponse>()
@@ -40,10 +40,10 @@ enum class IdType {
     NATURLIG_IDENT
 }
 
-internal data class PersonQuery(val id: String, val idType: String) : GraphqlQuery(
+internal data class PersonQuery(val id: String, val idType: IdType) : GraphqlQuery(
     query = """ 
             query {
-                person(id: "$id", idType: $idType) {
+                person(id: "$id", idType: ${idType.name}) {
                     aktoerId
                     naturligIdent
                     behandlendeEnheter {
@@ -55,5 +55,5 @@ internal data class PersonQuery(val id: String, val idType: String) : GraphqlQue
     variables = null
 )
 
-class PersonOppslagException(val statusCode: Int, override val message: String, override val cause: Throwable) :
+class PersonOppslagException(val statusCode: Int = 500, override val message: String, override val cause: Throwable? = null) :
     RuntimeException(message, cause)
