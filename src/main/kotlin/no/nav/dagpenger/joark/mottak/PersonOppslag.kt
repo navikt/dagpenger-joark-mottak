@@ -13,7 +13,7 @@ class PersonOppslag(private val personOppslagUrl: String, private val oidcClient
             header("Content-Type" to "application/json")
             body(
                 adapter.toJson(
-                    PersonQuery(id, mapBrukerTypeTilAktørType[brukerType].toString())
+                    PersonQuery(id, mapBrukerTypeTilIdType[brukerType].toString())
                 )
             )
             responseObject<GraphQlPersonResponse>()
@@ -30,20 +30,20 @@ class PersonOppslag(private val personOppslagUrl: String, private val oidcClient
     }
 }
 
-val mapBrukerTypeTilAktørType = mapOf(
-    BrukerType.AKTOERID to AktørType.AKTOER_ID,
-    BrukerType.FNR to AktørType.NATURLIG_IDENT
+val mapBrukerTypeTilIdType = mapOf(
+    BrukerType.AKTOERID to IdType.AKTOER_ID,
+    BrukerType.FNR to IdType.NATURLIG_IDENT
 )
 
-enum class AktørType {
+enum class IdType {
     AKTOER_ID,
     NATURLIG_IDENT
 }
 
-internal data class PersonQuery(val id: String, val aktørType: String) : GraphqlQuery(
+internal data class PersonQuery(val id: String, val idType: String) : GraphqlQuery(
     query = """ 
             query {
-                person(id: "$id", aktoerType: $aktørType) {
+                person(id: "$id", idType: $idType) {
                     aktoerId
                     naturligIdent
                     behandlendeEnheter {
