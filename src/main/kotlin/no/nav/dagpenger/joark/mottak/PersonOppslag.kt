@@ -23,7 +23,7 @@ class PersonOppslag(private val personOppslagUrl: String, private val oidcClient
             is Result.Failure ->
                 throw PersonOppslagException(
                 response.statusCode,
-                "Failed to fetch person. Response message ${response.responseMessage}. Payload from server ${response.body().asString("applicatiion/json")}"
+                "Failed to fetch person. Response message ${response.responseMessage}. Payload from server ${response.body().asString("application/json")}"
             )
             is Result.Success -> result.get().data.person
         }
