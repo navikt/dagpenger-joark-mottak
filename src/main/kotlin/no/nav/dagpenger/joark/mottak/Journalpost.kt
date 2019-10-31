@@ -27,7 +27,11 @@ data class DokumentInfo(
 data class Bruker(
     val type: BrukerType,
     val id: String
-)
+) {
+    override fun toString(): String {
+        return "Bruker(type=$type, id='<REDACTED>')"
+    }
+}
 
 enum class BrukerType {
     ORGNR, AKTOERID, FNR
