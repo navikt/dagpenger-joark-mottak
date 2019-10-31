@@ -16,8 +16,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class JournalpostArkivJoarkTest {
-
+internal class PersonOppslagTest {
     companion object {
         val server: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
 
@@ -40,12 +39,11 @@ class JournalpostArkivJoarkTest {
     }
 
     @Test
-    fun `henter Journalpost med riktig spørring`() {
-        val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-journalpost-payload.json")
+    fun `henter person med riktig spørring`() {
+        val body = PersonOppslagTest::class.java.getResource("/test-data/example-person-payload.json")
             .readText()
         stubFor(
             post(urlEqualTo("/"))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
                 .withHeader("Content-type", RegexPattern("application/json"))
                 .willReturn(
                     aResponse()
@@ -54,18 +52,17 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
-        val journalPost = joarkClient.hentInngåendeJournalpost("1")
-        assertEquals("MASKERT_FELT", journalPost.tittel)
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
+        val person = personOppslag.hentPerson("789", BrukerType.AKTOERID)
+        assertEquals("789", person.aktoerId)
     }
 
     @Test
-    fun `håndterer statuskode 200 med errors og uten Journalpost`() {
-        val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-journalpost-error-payload.json")
+    fun `håndterer statuskode 200 med errors og uten person`() {
+        val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-person-error-payload.json")
             .readText()
         stubFor(
             post(urlEqualTo("/"))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
                 .withHeader("Content-type", RegexPattern("application/json"))
                 .willReturn(
                     aResponse()
@@ -74,27 +71,25 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
-        val result = runCatching { joarkClient.hentInngåendeJournalpost("2") }
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
+        val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
         assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is JournalpostArkivException)
+        assertTrue(result.exceptionOrNull() is PersonOppslagException)
     }
 
     @Test
-    fun `håndterer 4xx-feil`() {
-
+    fun `håndterer 400-statuskoder`() {
         stubFor(
             post(urlEqualTo("/"))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .withHeader("Content-type", RegexPattern("application/json"))
                 .willReturn(
                     notFound()
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
-
-        val result = runCatching { joarkClient.hentInngåendeJournalpost("-1") }
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
+        val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
         assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is JournalpostArkivException)
+        assertTrue(result.exceptionOrNull() is PersonOppslagException)
     }
 }

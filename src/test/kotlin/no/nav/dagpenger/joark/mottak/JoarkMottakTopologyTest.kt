@@ -13,14 +13,28 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.test.ConsumerRecordFactory
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.util.Properties
 
 class JoarkMottakTopologyTest {
+    companion object {
+        val personOppslagMock = mockk<PersonOppslag>()
+
+        @BeforeAll
+        @JvmStatic
+        fun setUp() {
+            every { personOppslagMock.hentPerson(any(), any()) } returns Person(
+                aktoerId = "1111",
+                naturligIdent = "1234",
+                behandlendeEnheter = listOf(BehandlendeEnhet(enhetId = "abc", enhetNavn = "NAV Enhet"))
+            )
+        }
+    }
 
     @Test
     fun `Skal prosessere inkomne journalposter med tema DAG og hendelses type MidlertidigJournalført `() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock)
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
             val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
@@ -35,7 +49,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal ikke prosessere journalposter med andre temaer en DAG`() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock)
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val inputRecord = factory.create(lagJoarkHendelse(123, "ANNET", "MidlertidigJournalført"))
             topologyTestDriver.pipeInput(inputRecord)
@@ -48,7 +62,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal ikke prosessere inkomne journalposter med tema DAG og hendelses type Ferdigstilt `() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock)
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
             val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "Ferdigstilt"))
@@ -62,7 +76,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `skal mappe aktørid riktig`() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock)
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
             val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
@@ -77,7 +91,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `skal gi hovedskjema`() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock)
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
             val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))

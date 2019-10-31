@@ -1,0 +1,14 @@
+{
+    "data": {
+        "person": {
+            "aktoerId": "789",
+            "naturligIdent": "123",
+            "behandlendeEnheter": [
+                {
+                    "enhetId": "abc",
+                    "enhetNavn": "Enhet 1"
+                }
+            ]
+        }
+    }
+}

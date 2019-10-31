@@ -4,10 +4,7 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
-import no.nav.dagpenger.events.moshiInstance
 import no.nav.dagpenger.oidc.OidcClient
-
-private val adapter = moshiInstance.adapter(GraphqlQuery::class.java).serializeNulls()
 
 class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient: OidcClient) :
     JournalpostArkiv {
@@ -31,9 +28,7 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
     }
 }
 
-sealed class GraphqlQuery(val query: String, val variables: Any?)
-
-data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
+internal data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
     query = """ 
             query {
                 journalpost(journalpostId: "$journalpostId") {

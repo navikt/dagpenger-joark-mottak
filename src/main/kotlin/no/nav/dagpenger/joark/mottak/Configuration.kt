@@ -26,7 +26,8 @@ private val localProperties = ConfigurationMap(
         "application.profile" to Profile.LOCAL.toString(),
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "http://localhost:8081",
-        "oidc.sts.issuerurl" to "https://localhost:8082"
+        "oidc.sts.issuerurl" to "https://localhost:8082",
+        "personoppslag.url" to "https://localhost:1010"
     )
 )
 private val devProperties = ConfigurationMap(
@@ -37,7 +38,8 @@ private val devProperties = ConfigurationMap(
         "application.profile" to Profile.DEV.toString(),
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.preprod.local",
-        "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local"
+        "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local",
+        "personoppslag.url" to "https://dp-graphql.nais.preprod.local/graphql"
     )
 )
 private val prodProperties = ConfigurationMap(
@@ -48,7 +50,8 @@ private val prodProperties = ConfigurationMap(
         "application.profile" to Profile.PROD.toString(),
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.adeo.no",
-        "oidc.sts.issuerurl" to "https://security-token-service.nais.adeo.no"
+        "oidc.sts.issuerurl" to "https://security-token-service.nais.adeo.no",
+        "personoppslag.url" to "https://dp-graphql.nais.adeo.no/graphql"
     )
 )
 
@@ -87,7 +90,8 @@ data class Configuration(
         val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) },
         val httpPort: Int = config()[Key("application.httpPort", intType)],
         val oidcStsUrl: String = config()[Key("oidc.sts.issuerurl", stringType)],
-        val joarkJournalpostArkivUrl: String = config()[Key("joark.journalpostarkiv.url", stringType)]
+        val joarkJournalpostArkivUrl: String = config()[Key("joark.journalpostarkiv.url", stringType)],
+        val personOppslagUrl: String = config()[Key("personoppslag.url", stringType)]
     )
 }
 

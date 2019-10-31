@@ -1,0 +1,13 @@
+{
+  "errors":
+  [
+    {
+      "message": "Validation error of type FieldUndefined: Field 'dokumentoveriktBruker' in type 'Query' is undefined @ 'dokumentoveriktBruker'",
+      "locations": [
+        {
+          "line":1,
+          "column":8}
+      ],
+    }
+  ],
+}
