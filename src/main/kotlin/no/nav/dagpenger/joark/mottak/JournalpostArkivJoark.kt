@@ -34,10 +34,9 @@ class JournalpostArkivJoark(private val joarkUrl: String, private val oidcClient
 sealed class GraphqlQuery(val query: String, val variables: Any?)
 
 data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
-
     query = """ 
             query {
-                journalpost(journalpostId: ${'$'}journalpostId) {
+                journalpost(journalpostId: "$journalpostId") {
                     journalstatus
                     journalpostId
                     journalfoerendeEnhet
@@ -53,16 +52,10 @@ data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
                       brevkode
                     }
                 }
-            }""",
-    variables = """
-        { journalpostId: "$journalpostId" }
-    """.trimIndent()
+            }
+            """.trimIndent(),
+    variables = null
 )
-
-fun main() {
-    val jp = JournalPostQuery("123456")
-    println(adapter.toJson(jp))
-}
 
 class JournalpostArkivException(val statusCode: Int, override val message: String, override val cause: Throwable) :
     RuntimeException(message, cause)
