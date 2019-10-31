@@ -1,12 +1,15 @@
 package no.nav.dagpenger.joark.mottak
 
+import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
+import no.nav.dagpenger.oidc.OidcClient
 
-class PersonOppslag(private val personOppslagUrl: String) {
+class PersonOppslag(private val personOppslagUrl: String, private val oidcClient: OidcClient) {
     fun hentPerson(id: String, brukerType: BrukerType): Person {
         val (_, response, result) = with(personOppslagUrl.httpPost()) {
+            authentication().bearer(oidcClient.oidcToken().access_token)
             header("Content-Type" to "application/json")
             body(
                 adapter.toJson(

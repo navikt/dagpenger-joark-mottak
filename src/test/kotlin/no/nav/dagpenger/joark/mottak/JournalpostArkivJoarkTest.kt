@@ -9,13 +9,10 @@ import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.matching.RegexPattern
-import no.nav.dagpenger.oidc.OidcClient
-import no.nav.dagpenger.oidc.OidcToken
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -40,10 +37,6 @@ class JournalpostArkivJoarkTest {
     @BeforeEach
     fun configure() {
         WireMock.configureFor(server.port())
-    }
-
-    class DummyOidcClient : OidcClient {
-        override fun oidcToken(): OidcToken = OidcToken(UUID.randomUUID().toString(), "openid", 3000)
     }
 
     @Test

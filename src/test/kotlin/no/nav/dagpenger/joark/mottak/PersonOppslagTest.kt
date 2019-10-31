@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.notFound
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
@@ -51,7 +52,7 @@ internal class PersonOppslagTest {
                 )
         )
 
-        val personOppslag = PersonOppslag(server.url(""))
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
         val person = personOppslag.hentPerson("789", BrukerType.AKTOERID)
         assertEquals("789", person.aktoerId)
     }
@@ -70,7 +71,23 @@ internal class PersonOppslagTest {
                 )
         )
 
-        val personOppslag = PersonOppslag(server.url(""))
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
+        val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is PersonOppslagException)
+    }
+
+    @Test
+    fun `håndterer 400-statuskoder`() {
+        stubFor(
+            post(urlEqualTo("/"))
+                .withHeader("Content-type", RegexPattern("application/json"))
+                .willReturn(
+                    notFound()
+                )
+        )
+
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
         val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is PersonOppslagException)

@@ -138,15 +138,21 @@ class JoarkMottak(
 
 fun main(args: Array<String>) {
     val config = Configuration()
-    val journalpostArkiv = JournalpostArkivJoark(
-        config.application.joarkJournalpostArkivUrl,
-        StsOidcClient(
-            config.application.oidcStsUrl,
-            config.kafka.user!!, config.kafka.password!!
-        )
+    val oidcClient = StsOidcClient(
+        config.application.oidcStsUrl,
+        config.kafka.user!!, config.kafka.password!!
     )
 
-    val personOppslag = PersonOppslag(config.application.personOppslagUrl)
+    val journalpostArkiv = JournalpostArkivJoark(
+        config.application.joarkJournalpostArkivUrl,
+        oidcClient
+    )
+
+    val personOppslag = PersonOppslag(
+        config.application.personOppslagUrl,
+        oidcClient
+    )
+
     val service = JoarkMottak(config, journalpostArkiv, personOppslag)
     service.start()
 }
