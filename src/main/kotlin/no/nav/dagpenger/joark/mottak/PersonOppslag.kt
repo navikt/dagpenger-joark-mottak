@@ -57,4 +57,3 @@ internal data class PersonQuery(val id: String, val aktørType: String) : Graphq
 
 class PersonOppslagException(val statusCode: Int, override val message: String, override val cause: Throwable) :
     RuntimeException(message, cause)
-
