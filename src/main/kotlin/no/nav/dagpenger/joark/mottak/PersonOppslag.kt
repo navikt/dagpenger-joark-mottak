@@ -49,6 +49,7 @@ internal data class PersonQuery(val id: String, val idType: IdType) : GraphqlQue
                     behandlendeEnheter {
                         enhetId
                         enhetNavn
+                    }
                 }
             }
             """.trimIndent(),
