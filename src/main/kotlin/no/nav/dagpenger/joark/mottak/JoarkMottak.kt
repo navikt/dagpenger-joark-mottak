@@ -77,6 +77,7 @@ class JoarkMottak(
                 val journalpostId = record.get(PacketKeys.JOURNALPOST_ID).toString()
 
                 journalpostArkiv.hentInngåendeJournalpost(journalpostId)
+                    .also { logger.info { "Journalpost ${mapAktørId(it)}" } }
                     .also { registerMetrics(it) }
             }
             .mapValues { _, journalpost ->
@@ -99,6 +100,8 @@ class JoarkMottak(
 
         return builder.build()
     }
+
+    private fun mapAktørId(it: Journalpost) = it.copy(bruker = it.bruker?.copy(id = "1111"))
 
     private fun registerMetrics(journalpost: Journalpost) {
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
