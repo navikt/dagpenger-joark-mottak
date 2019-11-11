@@ -95,6 +95,9 @@ class JoarkMottak(
                     }
                 }
             }
+            .filter { _, packet ->
+                packet.getBoolean(PacketKeys.NY_SØKNAD)
+            }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
