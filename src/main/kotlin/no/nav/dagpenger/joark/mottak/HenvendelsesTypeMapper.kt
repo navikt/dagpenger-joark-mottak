@@ -34,15 +34,17 @@ object HenvendelsesTypeMapper {
         "NAV 04-01.03", // NAVe 04-01.03
         "NAVe 04-01.03",
         "NAV 04-01.04", // NAVe 04-01.04,
-        "NAVe 04-01.04"
+        "NAVe 04-01.04",
+        "NAV 04-06.08",
+        "NAV 04-06.09"
 
     )
 
     private val supportedTypes = mapOf(
         "NAV 04-01.03" to Henvendelsestype.NY_SØKNAD,
         "NAV 04-01.04" to Henvendelsestype.NY_SØKNAD,
-        "NAVe 04-01.03" to Henvendelsestype.NY_SØKNAD,
-        "NAVe 04-01.04" to Henvendelsestype.NY_SØKNAD
+        "NAVe 04-01.03" to Henvendelsestype.ETTERSENDELSE,
+        "NAVe 04-01.04" to Henvendelsestype.ETTERSENDELSE
     )
 
     fun getHenvendelsesType(navSkjemaId: String?): Henvendelsestype {
@@ -55,5 +57,7 @@ object HenvendelsesTypeMapper {
 }
 
 enum class Henvendelsestype {
-    NY_SØKNAD, ANNET
+    NY_SØKNAD,
+    ETTERSENDELSE,
+    ANNET
 }

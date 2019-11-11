@@ -105,6 +105,34 @@ class JoarkMottakTopologyTest {
         }
     }
 
+    @Test
+    fun `skal ikke ta vare på packets som ikke er NY_SØKNAD`() {
+        val journalpostId: Long = 123
+
+        val journalpostarkiv = mockk<JournalpostArkivJoark>()
+        every { journalpostarkiv.hentInngåendeJournalpost(journalpostId.toString()) } returns Journalpost(
+            journalstatus = Journalstatus.MOTTATT,
+            journalpostId = "123",
+            bruker = Bruker(BrukerType.AKTOERID, "123"),
+            tittel = "Kul tittel",
+            kanal = "NAV.no",
+            datoOpprettet = "2019-05-05",
+            kanalnavn = "DAG",
+            journalforendeEnhet = "Uvisst",
+            dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAVe 04-01.04"))
+        )
+
+        val joarkMottak = JoarkMottak(configuration, journalpostarkiv, personOppslagMock)
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldBe null
+        }
+    }
+
     private val schemaRegistryClient = mockk<SchemaRegistryClient>().apply {
         every {
             this@apply.getId(any(), any())
