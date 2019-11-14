@@ -34,7 +34,7 @@ private val devProperties = ConfigurationMap(
     mapOf(
         "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
         "kafka.aapen.dok.journalfoering.topic" to "aapen-dok-journalfoering-v1-q1",
-        "joark.journalpostarkiv.url" to "https://saf-q1.nais.preprod.local/graphiq",
+        "joark.journalpostarkiv.url" to "https://saf-q1.nais.preprod.local/graphql",
         "application.profile" to Profile.DEV.toString(),
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.preprod.local",
