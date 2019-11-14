@@ -45,6 +45,7 @@ internal class PersonOppslagTest {
         stubFor(
             post(urlEqualTo("/"))
                 .withHeader("Content-type", RegexPattern("application/json"))
+                    .withHeader("X-API-KEY", RegexPattern("hunter2"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -52,7 +53,7 @@ internal class PersonOppslagTest {
                 )
         )
 
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
         val person = personOppslag.hentPerson("789", BrukerType.AKTOERID)
         assertEquals("789", person.aktoerId)
     }
@@ -64,6 +65,7 @@ internal class PersonOppslagTest {
         stubFor(
             post(urlEqualTo("/"))
                 .withHeader("Content-type", RegexPattern("application/json"))
+                    .withHeader("X-API-KEY", RegexPattern("hunter2"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -71,7 +73,7 @@ internal class PersonOppslagTest {
                 )
         )
 
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
         val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is PersonOppslagException)
@@ -82,12 +84,13 @@ internal class PersonOppslagTest {
         stubFor(
             post(urlEqualTo("/"))
                 .withHeader("Content-type", RegexPattern("application/json"))
+                    .withHeader("X-API-KEY", RegexPattern("hunter2"))
                 .willReturn(
                     notFound()
                 )
         )
 
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
         val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is PersonOppslagException)

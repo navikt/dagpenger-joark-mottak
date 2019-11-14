@@ -27,7 +27,8 @@ private val localProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "http://localhost:8081",
         "oidc.sts.issuerurl" to "https://localhost:8082",
-        "personoppslag.url" to "https://localhost:1010"
+        "personoppslag.url" to "https://localhost:1010",
+            "graphql.apikey" to "hunter2"
     )
 )
 private val devProperties = ConfigurationMap(
@@ -39,7 +40,8 @@ private val devProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.preprod.local",
         "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local",
-        "personoppslag.url" to "https://dp-graphql.nais.preprod.local/graphql"
+        "personoppslag.url" to "https://dp-graphql.nais.preprod.local/graphql",
+            "graphql.apikey" to "hunter2"
     )
 )
 private val prodProperties = ConfigurationMap(
@@ -51,7 +53,8 @@ private val prodProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.adeo.no",
         "oidc.sts.issuerurl" to "https://security-token-service.nais.adeo.no",
-        "personoppslag.url" to "https://dp-graphql.nais.adeo.no/graphql"
+        "personoppslag.url" to "https://dp-graphql.nais.adeo.no/graphql",
+            "graphql.apikey" to "hunter2"
     )
 )
 
@@ -91,7 +94,8 @@ data class Configuration(
         val httpPort: Int = config()[Key("application.httpPort", intType)],
         val oidcStsUrl: String = config()[Key("oidc.sts.issuerurl", stringType)],
         val joarkJournalpostArkivUrl: String = config()[Key("joark.journalpostarkiv.url", stringType)],
-        val personOppslagUrl: String = config()[Key("personoppslag.url", stringType)]
+        val personOppslagUrl: String = config()[Key("personoppslag.url", stringType)],
+        val graphQlApiKey: String = config()[Key("graphql.apikey", stringType)]
     )
 }
 
