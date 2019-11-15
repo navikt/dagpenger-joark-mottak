@@ -151,7 +151,8 @@ fun main(args: Array<String>) {
 
     val personOppslag = PersonOppslag(
         config.application.personOppslagUrl,
-        oidcClient
+        oidcClient,
+            config.application.graphQlApiKey
     )
 
     val service = JoarkMottak(config, journalpostArkiv, personOppslag)

@@ -6,11 +6,12 @@ import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
 import no.nav.dagpenger.oidc.OidcClient
 
-class PersonOppslag(private val personOppslagUrl: String, private val oidcClient: OidcClient) {
+class PersonOppslag(private val personOppslagUrl: String, private val oidcClient: OidcClient, private val apiKey: String) {
     fun hentPerson(id: String, brukerType: BrukerType): Person {
         val (_, response, result) = with(personOppslagUrl.httpPost()) {
             authentication().bearer(oidcClient.oidcToken().access_token)
             header("Content-Type" to "application/json")
+            header("X-API-KEY" to apiKey)
             body(
                 adapter.toJson(
                     PersonQuery(id, mapBrukerTypeTilIdType[brukerType] ?: throw PersonOppslagException(message = "Failed to map $brukerType"))
