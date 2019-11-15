@@ -35,7 +35,9 @@ class JoarkMottakComponentTest {
             autoStart = false,
             withSchemaRegistry = true,
             withSecurity = true,
-            topics = listOf("aapen-dok-journalfoering-v1", "privat-dagpenger-journalpost-mottatt-v1")
+            topicInfos = listOf(KafkaEnvironment.TopicInfo("aapen-dok-journalfoering-v1"),
+                KafkaEnvironment.TopicInfo("privat-dagpenger-journalpost-mottatt-v1")
+            )
         )
 
         val configuration = Configuration().copy(
