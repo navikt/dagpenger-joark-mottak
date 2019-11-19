@@ -92,6 +92,8 @@ class JoarkMottak(
                             this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
                             this.putValue(PacketKeys.BEHANDLENDE_ENHETER, it.behandlendeEnheter)
                         }
+                    } else {
+                        logger.warn { "Journalpost er ikke tilknyttet bruker? " }
                     }
                 }
             }

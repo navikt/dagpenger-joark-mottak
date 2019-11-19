@@ -57,10 +57,5 @@ internal data class PersonQuery(val id: String, val idType: IdType) : GraphqlQue
     variables = null
 )
 
-fun main() {
-    val p = PersonQuery("123", IdType.AKTOER_ID)
-    println(adapter.toJson(p))
-}
-
 class PersonOppslagException(val statusCode: Int = 500, override val message: String, override val cause: Throwable? = null) :
     RuntimeException(message, cause)

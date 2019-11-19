@@ -28,7 +28,7 @@ private val localProperties = ConfigurationMap(
         "kafka.schema.registry.url" to "http://localhost:8081",
         "oidc.sts.issuerurl" to "https://localhost:8082",
         "personoppslag.url" to "https://localhost:1010",
-            "graphql.apikey" to "hunter2"
+        "graphql.apikey" to "hunter2"
     )
 )
 private val devProperties = ConfigurationMap(
@@ -41,7 +41,7 @@ private val devProperties = ConfigurationMap(
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.preprod.local",
         "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local",
         "personoppslag.url" to "https://dp-graphql.nais.preprod.local/graphql",
-            "graphql.apikey" to "hunter2"
+        "graphql.apikey" to "hunter2"
     )
 )
 private val prodProperties = ConfigurationMap(
@@ -54,7 +54,7 @@ private val prodProperties = ConfigurationMap(
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.adeo.no",
         "oidc.sts.issuerurl" to "https://security-token-service.nais.adeo.no",
         "personoppslag.url" to "https://dp-graphql.nais.adeo.no/graphql",
-            "graphql.apikey" to "hunter2"
+        "graphql.apikey" to "hunter2"
     )
 )
 
@@ -71,7 +71,12 @@ data class Configuration(
     val application: Application = Application()
 ) {
     data class Kafka(
-        val joarkTopic: Topic<String, GenericRecord> = Topics.JOARK_EVENTS.copy(name = config()[Key("kafka.aapen.dok.journalfoering.topic", stringType)]),
+        val joarkTopic: Topic<String, GenericRecord> = Topics.JOARK_EVENTS.copy(
+            name = config()[Key(
+                "kafka.aapen.dok.journalfoering.topic",
+                stringType
+            )]
+        ),
         val dagpengerJournalpostTopic: Topic<String, Packet> = Topic(
             "privat-dagpenger-journalpost-mottatt-v1",
             keySerde = Serdes.String(),

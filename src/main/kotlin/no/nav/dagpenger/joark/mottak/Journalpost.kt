@@ -6,7 +6,7 @@ data class GraphQlJournalpostResponse(val data: Data, val errors: List<String>?)
 data class Journalpost(
     val journalstatus: Journalstatus?,
     val journalpostId: String,
-    val bruker: Bruker,
+    val bruker: Bruker?,
     val tittel: String?,
     val datoOpprettet: String?,
     val kanal: String?,
