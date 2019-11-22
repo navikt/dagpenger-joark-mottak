@@ -90,8 +90,8 @@ class JoarkMottak(
                         journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD
                     )
 
-                    journalpost.relevanteDatoer.find { it.datotype == Datotype.DATO_REGISTRERT }.let {
-                        this.putValue(PacketKeys.DATO_REGISTRERT, it?.dato ?: "ukjent")
+                    journalpost.relevanteDatoer.find { it.datotype == Datotype.DATO_REGISTRERT }?.let {
+                        this.putValue(PacketKeys.DATO_REGISTRERT, it?.dato)
                     }
 
                     if (null != journalpost.bruker) {
