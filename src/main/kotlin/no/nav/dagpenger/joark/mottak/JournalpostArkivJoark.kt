@@ -42,7 +42,12 @@ internal data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
                     }
                     kanal
                     kanalnavn
+                    relevanteDatoer {
+                      dato
+                      datotype
+                    }
                     dokumenter {
+                      tittel
                       dokumentInfoId
                       brevkode
                     }

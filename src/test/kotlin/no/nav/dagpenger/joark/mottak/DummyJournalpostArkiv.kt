@@ -11,7 +11,8 @@ class DummyJournalpostArkiv() : JournalpostArkiv {
             datoOpprettet = "2019-05-05",
             kanalnavn = "DAG",
             journalforendeEnhet = "Uvisst",
-            dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAV 04-01.04"))
+            relevanteDatoer = listOf(RelevantDato(dato = "2018-01-01T12:00:00", datotype = Datotype.DATO_REGISTRERT)),
+            dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.04"))
         )
     }
 }
