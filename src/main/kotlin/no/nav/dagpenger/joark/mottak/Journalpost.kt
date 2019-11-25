@@ -12,6 +12,7 @@ data class Journalpost(
     val kanal: String?,
     val kanalnavn: String?,
     val journalforendeEnhet: String?,
+    val relevanteDatoer: List<RelevantDato>,
     val dokumenter: List<DokumentInfo>
 ) {
     fun mapToHenvendelsesType(): Henvendelsestype {
@@ -20,6 +21,7 @@ data class Journalpost(
 }
 
 data class DokumentInfo(
+    val tittel: String,
     val dokumentInfoId: String,
     val brevkode: String?
 )
@@ -37,6 +39,15 @@ enum class BrukerType {
     ORGNR, AKTOERID, FNR
 }
 
+data class RelevantDato(
+    val dato: String,
+    val datotype: Datotype
+)
+
+enum class Datotype {
+    DATO_SENDT_PRINT, DATO_EKSPEDERT, DATO_JOURNALFOERT,
+    DATO_REGISTRERT, DATO_AVS_RETUR, DATO_DOKUMENT
+}
 enum class Journalstatus {
     MOTTATT, JOURNALFOERT, FERDIGSTILT, EKSPEDERT,
     UNDER_ARBEID, FEILREGISTRERT, UTGAAR, AVBRUTT,

@@ -34,6 +34,8 @@ private val jpCounter = Counter
     .register()
 
 internal object PacketKeys {
+    const val DATO_REGISTRERT: String = "datoRegistrert"
+    const val DOKUMENT_TITLER: String = "dokumentTitler"
     const val NY_SØKNAD: String = "nySøknad"
     const val HOVEDSKJEMA_ID: String = "hovedskjemaId"
     const val JOURNALPOST_ID: String = "journalpostId"
@@ -82,10 +84,16 @@ class JoarkMottak(
                 Packet().apply {
                     this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
                     this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
+                    this.putValue(PacketKeys.DOKUMENT_TITLER, journalpost.dokumenter.map { it.tittel })
                     this.putValue(
                         PacketKeys.NY_SØKNAD,
                         journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD
                     )
+
+                    journalpost.relevanteDatoer.find { it.datotype == Datotype.DATO_REGISTRERT }?.let {
+                        this.putValue(PacketKeys.DATO_REGISTRERT, it?.dato)
+                    }
+
                     if (null != journalpost.bruker) {
                         personOppslag.hentPerson(journalpost.bruker.id, journalpost.bruker.type).let {
                             this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
@@ -154,7 +162,7 @@ fun main(args: Array<String>) {
     val personOppslag = PersonOppslag(
         config.application.personOppslagUrl,
         oidcClient,
-            config.application.graphQlApiKey
+        config.application.graphQlApiKey
     )
 
     val service = JoarkMottak(config, journalpostArkiv, personOppslag)
