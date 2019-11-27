@@ -95,4 +95,25 @@ internal class PersonOppslagTest {
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is PersonOppslagException)
     }
+
+    @Test
+    fun `skal feile hvis behnadlende enhet er null`() {
+        val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/person-behandlende-enhet-null-response.json")
+            .readText()
+        stubFor(
+            post(urlEqualTo("/"))
+                .withHeader("Content-type", RegexPattern("application/json"))
+                .withHeader("X-API-KEY", RegexPattern("hunter2"))
+                .willReturn(
+                    aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                )
+        )
+
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
+        val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is PersonOppslagException)
+    }
 }
