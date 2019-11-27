@@ -1,5 +1,7 @@
 package no.nav.dagpenger.joark.mottak
 
-interface JournalpostArkiv {
+import no.nav.dagpenger.streams.HealthCheck
+
+interface JournalpostArkiv : HealthCheck {
     fun hentInngåendeJournalpost(journalpostId: String): Journalpost
 }

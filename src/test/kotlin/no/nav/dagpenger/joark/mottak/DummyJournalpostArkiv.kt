@@ -1,6 +1,11 @@
 package no.nav.dagpenger.joark.mottak
 
+import no.nav.dagpenger.streams.HealthStatus
+
 class DummyJournalpostArkiv() : JournalpostArkiv {
+    override fun status(): HealthStatus {
+        return HealthStatus.UP
+    }
     override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {
         return Journalpost(
             journalstatus = Journalstatus.MOTTATT,
