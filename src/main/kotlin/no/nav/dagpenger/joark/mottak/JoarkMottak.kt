@@ -4,6 +4,7 @@ import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.oidc.StsOidcClient
+import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.streamConfig
@@ -49,6 +50,8 @@ class JoarkMottak(
     val journalpostArkiv: JournalpostArkiv,
     val personOppslag: PersonOppslag
 ) : Service() {
+    override val healthChecks: List<HealthCheck> =
+            listOf(journalpostArkiv as HealthCheck, personOppslag as HealthCheck)
 
     override val SERVICE_APP_ID =
         "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
@@ -155,12 +158,12 @@ fun main(args: Array<String>) {
     )
 
     val journalpostArkiv = JournalpostArkivJoark(
-        config.application.joarkJournalpostArkivUrl,
+        config.application.joarkJournalpostArkivBaseUrl,
         oidcClient
     )
 
     val personOppslag = PersonOppslag(
-        config.application.personOppslagUrl,
+        config.application.personOppslagBaseUrl,
         oidcClient,
         config.application.graphQlApiKey
     )
