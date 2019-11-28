@@ -95,12 +95,12 @@ data class Configuration(
     }
 
     data class Application(
-            val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) },
-            val httpPort: Int = config()[Key("application.httpPort", intType)],
-            val oidcStsUrl: String = config()[Key("oidc.sts.issuerurl", stringType)],
-            val joarkJournalpostArkivBaseUrl: String = config()[Key("joark.journalpostarkiv.url", stringType)],
-            val personOppslagBaseUrl: String = config()[Key("personoppslag.url", stringType)],
-            val graphQlApiKey: String = config()[Key("graphql.apikey", stringType)]
+        val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) },
+        val httpPort: Int = config()[Key("application.httpPort", intType)],
+        val oidcStsUrl: String = config()[Key("oidc.sts.issuerurl", stringType)],
+        val joarkJournalpostArkivBaseUrl: String = config()[Key("joark.journalpostarkiv.url", stringType)],
+        val personOppslagBaseUrl: String = config()[Key("personoppslag.url", stringType)],
+        val graphQlApiKey: String = config()[Key("graphql.apikey", stringType)]
     )
 }
 
