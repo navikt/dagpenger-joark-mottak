@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 data class GraphQlJournalpostResponse(val data: Data, val errors: List<String>?) {
     class Data(val journalpost: Journalpost)
 }
+
 data class Journalpost(
     val journalstatus: Journalstatus?,
     val journalpostId: String,
@@ -20,11 +21,12 @@ data class Journalpost(
     }
 }
 
-data class DokumentInfo(
-    val tittel: String,
-    val dokumentInfoId: String,
-    val brevkode: String?
-)
+class DokumentInfo(tittel: String?, dokumentInfoId: String, brevkode: String?) {
+    val tittel = tittel
+        get() = field ?: HenvendelsesTypeMapper.allKnownTypes.getOrDefault(brevkode, "Ukjent dokumenttittel")
+    val dokumentInfoId = dokumentInfoId
+    val brevkode = brevkode
+}
 
 data class Bruker(
     val type: BrukerType,
@@ -48,6 +50,7 @@ enum class Datotype {
     DATO_SENDT_PRINT, DATO_EKSPEDERT, DATO_JOURNALFOERT,
     DATO_REGISTRERT, DATO_AVS_RETUR, DATO_DOKUMENT
 }
+
 enum class Journalstatus {
     MOTTATT, JOURNALFOERT, FERDIGSTILT, EKSPEDERT,
     UNDER_ARBEID, FEILREGISTRERT, UTGAAR, AVBRUTT,
