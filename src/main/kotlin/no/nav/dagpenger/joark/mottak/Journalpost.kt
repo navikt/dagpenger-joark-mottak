@@ -26,6 +26,10 @@ class DokumentInfo(tittel: String?, dokumentInfoId: String, brevkode: String?) {
         get() = field ?: HenvendelsesTypeMapper.allKnownTypes.getOrDefault(brevkode, "Ukjent dokumenttittel")
     val dokumentInfoId = dokumentInfoId
     val brevkode = brevkode
+
+    override fun toString(): String {
+        return "DokumentInfo(tittel=$tittel, dokumentInfoId=$dokumentInfoId, brevkode=$brevkode)"
+    }
 }
 
 data class Bruker(
