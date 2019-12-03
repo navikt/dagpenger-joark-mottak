@@ -91,7 +91,8 @@ class JoarkMottak(
                     this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
                     this.putValue(PacketKeys.DOKUMENT_TITLER, journalpost.dokumenter.map { it.tittel })
                     this.putValue(
-                        PacketKeys.DOKUMENTER, journalpost.dokumenter.map { Pair(it.tittel, it.dokumentInfoId) })
+                        PacketKeys.DOKUMENTER, journalpost.dokumenter
+                    )
 
                     this.putValue(
                         PacketKeys.NY_SØKNAD,
