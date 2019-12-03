@@ -25,6 +25,7 @@ class JoarkMottakTopologyTest {
         @JvmStatic
         fun setUp() {
             every { personOppslagMock.hentPerson(any(), any()) } returns Person(
+                navn = "Proffen",
                 aktoerId = "1111",
                 naturligIdent = "1234",
                 behandlendeEnheter = listOf(BehandlendeEnhet(enhetId = "abc", enhetNavn = "NAV Enhet"))

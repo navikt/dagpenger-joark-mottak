@@ -35,6 +35,8 @@ private val jpCounter = Counter
     .register()
 
 internal object PacketKeys {
+    const val DOKUMENTER: String = "dokumenter"
+    const val AVSENDER_NAVN: String = "avsenderNavn"
     const val DATO_REGISTRERT: String = "datoRegistrert"
     const val DOKUMENT_TITLER: String = "dokumentTitler"
     const val NY_SØKNAD: String = "nySøknad"
@@ -51,7 +53,7 @@ class JoarkMottak(
     val personOppslag: PersonOppslag
 ) : Service() {
     override val healthChecks: List<HealthCheck> =
-            listOf(journalpostArkiv as HealthCheck, personOppslag as HealthCheck)
+        listOf(journalpostArkiv as HealthCheck, personOppslag as HealthCheck)
 
     override val SERVICE_APP_ID =
         "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
@@ -89,6 +91,10 @@ class JoarkMottak(
                     this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
                     this.putValue(PacketKeys.DOKUMENT_TITLER, journalpost.dokumenter.map { it.tittel })
                     this.putValue(
+                        PacketKeys.DOKUMENTER, journalpost.dokumenter
+                    )
+
+                    this.putValue(
                         PacketKeys.NY_SØKNAD,
                         journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD
                     )
@@ -102,6 +108,7 @@ class JoarkMottak(
                             this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
                             this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
                             this.putValue(PacketKeys.BEHANDLENDE_ENHETER, it.behandlendeEnheter)
+                            this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)
                         }
                     } else {
                         logger.warn { "Journalpost er ikke tilknyttet bruker? " }
