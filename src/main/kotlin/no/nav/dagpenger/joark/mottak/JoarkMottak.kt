@@ -35,6 +35,7 @@ private val jpCounter = Counter
     .register()
 
 internal object PacketKeys {
+    const val AVSENDER_NAVN: String = "avsenderNavn"
     const val DATO_REGISTRERT: String = "datoRegistrert"
     const val DOKUMENT_TITLER: String = "dokumentTitler"
     const val NY_SØKNAD: String = "nySøknad"
@@ -102,6 +103,7 @@ class JoarkMottak(
                             this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
                             this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
                             this.putValue(PacketKeys.BEHANDLENDE_ENHETER, it.behandlendeEnheter)
+                            this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)
                         }
                     } else {
                         logger.warn { "Journalpost er ikke tilknyttet bruker? " }

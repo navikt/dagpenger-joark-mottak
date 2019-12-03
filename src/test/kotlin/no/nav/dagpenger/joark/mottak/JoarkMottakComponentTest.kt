@@ -57,6 +57,7 @@ class JoarkMottakComponentTest {
             embeddedEnvironment.start()
             joarkMottak.start()
             every { personOppslagMock.hentPerson(any(), any()) } returns Person(
+                navn = "Pelle",
                 aktoerId = "1111",
                 naturligIdent = "1234",
                 behandlendeEnheter = listOf(BehandlendeEnhet(enhetId = "abc", enhetNavn = "NAV Enhet"))

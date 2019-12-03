@@ -5,6 +5,7 @@ data class GraphQlPersonResponse(val data: Data, val errors: List<String>?) {
 }
 
 data class Person(
+    val navn: String,
     val aktoerId: String,
     val naturligIdent: String,
     val behandlendeEnheter: List<BehandlendeEnhet>

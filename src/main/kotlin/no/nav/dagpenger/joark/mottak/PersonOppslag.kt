@@ -58,6 +58,7 @@ internal data class PersonQuery(val id: String, val idType: IdType) : GraphqlQue
     query = """ 
             query {
                 person(id: "$id", idType: ${idType.name}) {
+                    navn
                     aktoerId
                     naturligIdent
                     behandlendeEnheter {
