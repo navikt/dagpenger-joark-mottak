@@ -1,5 +1,6 @@
 package no.nav.dagpenger.joark.mottak
 
+import com.squareup.moshi.Types
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde
 import io.kotlintest.shouldBe
@@ -7,6 +8,7 @@ import io.kotlintest.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.dagpenger.events.Packet
+import no.nav.dagpenger.events.moshiInstance
 import no.nav.dagpenger.streams.Topics
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -103,6 +105,45 @@ class JoarkMottakTopologyTest {
             ut shouldNotBe null
             ut?.value()?.getStringValue("hovedskjemaId") shouldBe "NAV 04-01.04"
             ut?.value()?.getBoolean("nySøknad") shouldBe true
+        }
+    }
+
+    @Test
+    fun `skal legge dokumentliste på pakken i JSON-format`() {
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock)
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val journalpostId: Long = 123
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val adapter = moshiInstance.adapter<List<DokumentInfo>>(
+                Types.newParameterizedType(
+                    List::class.java,
+                    DokumentInfo::class.java
+                )
+            )
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldNotBe null
+            val dokumentListe = ut?.value()?.getObjectValue("dokumenter") { adapter.fromJsonValue(it)!! }!!
+            dokumentListe.size shouldBe 1
+            dokumentListe.first().tittel shouldBe "Søknad"
+        }
+    }
+
+    @Test
+    fun `skal legge navn på pakken`() {
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock)
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val journalpostId: Long = 123
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldNotBe null
+            ut?.value()?.getStringValue("avsenderNavn") shouldBe "Proffen"
         }
     }
 
