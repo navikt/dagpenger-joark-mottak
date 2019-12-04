@@ -38,7 +38,6 @@ internal object PacketKeys {
     const val DOKUMENTER: String = "dokumenter"
     const val AVSENDER_NAVN: String = "avsenderNavn"
     const val DATO_REGISTRERT: String = "datoRegistrert"
-    const val DOKUMENT_TITLER: String = "dokumentTitler"
     const val NY_SØKNAD: String = "nySøknad"
     const val HOVEDSKJEMA_ID: String = "hovedskjemaId"
     const val JOURNALPOST_ID: String = "journalpostId"
@@ -89,7 +88,6 @@ class JoarkMottak(
                 Packet().apply {
                     this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
                     this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
-                    this.putValue(PacketKeys.DOKUMENT_TITLER, journalpost.dokumenter.map { it.tittel })
                     this.putValue(
                         PacketKeys.DOKUMENTER, journalpost.dokumenter
                     )
