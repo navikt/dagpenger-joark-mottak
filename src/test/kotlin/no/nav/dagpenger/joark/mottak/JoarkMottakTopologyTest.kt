@@ -3,10 +3,12 @@ package no.nav.dagpenger.joark.mottak
 import com.squareup.moshi.Types
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde
+import io.kotlintest.matchers.doubles.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import io.prometheus.client.CollectorRegistry
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.moshiInstance
 import no.nav.dagpenger.streams.Topics
@@ -47,6 +49,21 @@ class JoarkMottakTopologyTest {
 
             ut shouldNotBe null
             ut?.value()?.getLongValue("journalpostId") shouldBe journalpostId
+        }
+    }
+
+    @Test
+    fun `Skal telle antall mottatte journalposter som kan behandles`() {
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock)
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val journalpostId: Long = 123
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldNotBe null
+            CollectorRegistry.defaultRegistry.getSampleValue("dagpenger_journalpost_mottatt", arrayOf(), arrayOf()) shouldBeGreaterThan 1.0
         }
     }
 

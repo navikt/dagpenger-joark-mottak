@@ -34,6 +34,13 @@ private val jpCounter = Counter
     .labelNames(*labelNames.toTypedArray())
     .register()
 
+private val jpMottatCounter = Counter
+    .build()
+    .namespace(DAGPENGER_NAMESPACE)
+    .help("Antall journalposter dp joark mottak kan behandle (etter filtrering)")
+    .name("journalpost_mottatt")
+    .register()
+
 internal object PacketKeys {
     const val DOKUMENTER: String = "dokumenter"
     const val AVSENDER_NAVN: String = "avsenderNavn"
@@ -98,7 +105,7 @@ class JoarkMottak(
                     )
 
                     journalpost.relevanteDatoer.find { it.datotype == Datotype.DATO_REGISTRERT }?.let {
-                        this.putValue(PacketKeys.DATO_REGISTRERT, it?.dato)
+                        this.putValue(PacketKeys.DATO_REGISTRERT, it.dato)
                     }
 
                     if (null != journalpost.bruker) {
@@ -109,13 +116,14 @@ class JoarkMottak(
                             this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)
                         }
                     } else {
-                        logger.warn { "Journalpost er ikke tilknyttet bruker? " }
+                        logger.warn { "Journalpost er ikke tilknyttet bruker?" }
                     }
                 }
             }
             .filter { _, packet ->
                 packet.getBoolean(PacketKeys.NY_SØKNAD)
             }
+            .peek { _, _ -> jpMottatCounter.inc() }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
