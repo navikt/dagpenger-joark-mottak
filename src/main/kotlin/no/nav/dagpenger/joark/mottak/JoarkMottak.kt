@@ -10,6 +10,7 @@ import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.streamConfig
 import no.nav.dagpenger.streams.toTopic
 import org.apache.kafka.streams.StreamsBuilder
+import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.Topology
 import java.util.Properties
 
@@ -155,11 +156,13 @@ class JoarkMottak(
     }
 
     override fun getConfig(): Properties {
-        return streamConfig(
+        val properties = streamConfig(
             appId = SERVICE_APP_ID,
             bootStapServerUrl = config.kafka.brokers,
             credential = config.kafka.credential()
         )
+        properties[StreamsConfig.PROCESSING_GUARANTEE_CONFIG] = config.kafka.processingGuarantee
+        return properties
     }
 }
 

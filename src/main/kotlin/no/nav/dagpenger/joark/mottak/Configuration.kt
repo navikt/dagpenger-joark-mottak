@@ -15,6 +15,7 @@ import no.nav.dagpenger.streams.Topic
 import no.nav.dagpenger.streams.Topics
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.common.serialization.Serdes
+import org.apache.kafka.streams.StreamsConfig
 
 private val localProperties = ConfigurationMap(
     mapOf(
@@ -28,7 +29,8 @@ private val localProperties = ConfigurationMap(
         "kafka.schema.registry.url" to "http://localhost:8081",
         "oidc.sts.issuerurl" to "https://localhost:8082",
         "personoppslag.url" to "https://localhost:1010",
-        "graphql.apikey" to "hunter2"
+        "graphql.apikey" to "hunter2",
+        "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE
     )
 )
 private val devProperties = ConfigurationMap(
@@ -41,7 +43,8 @@ private val devProperties = ConfigurationMap(
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.preprod.local",
         "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local",
         "personoppslag.url" to "https://dp-graphql.nais.preprod.local/",
-        "graphql.apikey" to "hunter2"
+        "graphql.apikey" to "hunter2",
+        "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE
     )
 )
 private val prodProperties = ConfigurationMap(
@@ -54,7 +57,8 @@ private val prodProperties = ConfigurationMap(
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.adeo.no",
         "oidc.sts.issuerurl" to "https://security-token-service.nais.adeo.no",
         "personoppslag.url" to "https://dp-graphql.nais.adeo.no/",
-        "graphql.apikey" to "hunter2"
+        "graphql.apikey" to "hunter2",
+        "kafka.processing.guarantee" to StreamsConfig.EXACTLY_ONCE
     )
 )
 
@@ -77,6 +81,7 @@ data class Configuration(
                 stringType
             )]
         ),
+        val processingGuarantee: String = config()[Key("kafka.processing.guarantee", stringType)],
         val dagpengerJournalpostTopic: Topic<String, Packet> = Topic(
             "privat-dagpenger-journalpost-mottatt-v1",
             keySerde = Serdes.String(),
