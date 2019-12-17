@@ -2,6 +2,8 @@ package no.nav.dagpenger.joark.mottak
 
 import io.prometheus.client.Counter
 import mu.KotlinLogging
+import no.finn.unleash.DefaultUnleash
+import no.finn.unleash.Unleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthCheck
@@ -57,7 +59,8 @@ internal object PacketKeys {
 class JoarkMottak(
     val config: Configuration,
     val journalpostArkiv: JournalpostArkiv,
-    val personOppslag: PersonOppslag
+    val personOppslag: PersonOppslag,
+    val unleash: Unleash
 ) : Service() {
     override val healthChecks: List<HealthCheck> =
         listOf(journalpostArkiv as HealthCheck, personOppslag as HealthCheck)
@@ -92,6 +95,7 @@ class JoarkMottak(
                     .also { logger.info { "Journalpost --> $it" } }
                     .also { registerMetrics(it) }
             }
+            .filter { _, _ -> unleash.isEnabled("dp.innlop.behandleNySoknad") }
             .mapValues { _, journalpost ->
                 Packet().apply {
                     this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
@@ -173,6 +177,8 @@ fun main(args: Array<String>) {
         config.kafka.user!!, config.kafka.password!!
     )
 
+    val unleash: Unleash = DefaultUnleash(config.unleashConfig)
+
     val journalpostArkiv = JournalpostArkivJoark(
         config.application.joarkJournalpostArkivBaseUrl,
         oidcClient
@@ -184,6 +190,6 @@ fun main(args: Array<String>) {
         config.application.graphQlApiKey
     )
 
-    val service = JoarkMottak(config, journalpostArkiv, personOppslag)
+    val service = JoarkMottak(config, journalpostArkiv, personOppslag, unleash)
     service.start()
 }
