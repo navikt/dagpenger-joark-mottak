@@ -7,6 +7,7 @@ import com.natpryce.konfig.Key
 import com.natpryce.konfig.intType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
+import no.finn.unleash.util.UnleashConfig
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.PacketDeserializer
@@ -16,6 +17,8 @@ import no.nav.dagpenger.streams.Topics
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsConfig
+import java.net.InetAddress
+import java.net.UnknownHostException
 
 private val localProperties = ConfigurationMap(
     mapOf(
@@ -30,6 +33,7 @@ private val localProperties = ConfigurationMap(
         "oidc.sts.issuerurl" to "https://localhost:8082",
         "personoppslag.url" to "https://localhost:1010",
         "graphql.apikey" to "hunter2",
+        "unleash.url" to "https://localhost",
         "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE
     )
 )
@@ -44,6 +48,7 @@ private val devProperties = ConfigurationMap(
         "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local",
         "personoppslag.url" to "https://dp-graphql.nais.preprod.local/",
         "graphql.apikey" to "hunter2",
+        "unleash.url" to "http://unleash.default.svc.nais.local/api",
         "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE
     )
 )
@@ -58,6 +63,7 @@ private val prodProperties = ConfigurationMap(
         "oidc.sts.issuerurl" to "https://security-token-service.nais.adeo.no",
         "personoppslag.url" to "https://dp-graphql.nais.adeo.no/",
         "graphql.apikey" to "hunter2",
+        "unleash.url" to "https://unleash.nais.adeo.no/api/",
         "kafka.processing.guarantee" to StreamsConfig.EXACTLY_ONCE
     )
 )
@@ -72,7 +78,12 @@ private fun config() = when (System.getenv("NAIS_CLUSTER_NAME") ?: System.getPro
 
 data class Configuration(
     val kafka: Kafka = Kafka(),
-    val application: Application = Application()
+    val application: Application = Application(),
+    val unleashConfig: UnleashConfig = UnleashConfig.builder()
+        .appName(config().getOrElse(Key("app.name", stringType), "dagpenger-joark-mottak"))
+        .instanceId(getHostname())
+        .unleashAPI(config()[Key("unleash.url", stringType)])
+        .build()
 ) {
     data class Kafka(
         val joarkTopic: Topic<String, GenericRecord> = Topics.JOARK_EVENTS.copy(
@@ -107,6 +118,15 @@ data class Configuration(
         val personOppslagBaseUrl: String = config()[Key("personoppslag.url", stringType)],
         val graphQlApiKey: String = config()[Key("graphql.apikey", stringType)]
     )
+}
+
+fun getHostname(): String {
+    return try {
+        val addr: InetAddress = InetAddress.getLocalHost()
+        addr.hostName
+    } catch (e: UnknownHostException) {
+        "unknown"
+    }
 }
 
 enum class Profile {

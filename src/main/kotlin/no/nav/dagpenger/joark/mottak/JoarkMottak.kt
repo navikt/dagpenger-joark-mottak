@@ -2,6 +2,8 @@ package no.nav.dagpenger.joark.mottak
 
 import io.prometheus.client.Counter
 import mu.KotlinLogging
+import no.finn.unleash.DefaultUnleash
+import no.finn.unleash.Unleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthCheck
@@ -52,12 +54,14 @@ internal object PacketKeys {
     const val AKTØR_ID: String = "aktørId"
     const val BEHANDLENDE_ENHETER: String = "behandlendeEnheter"
     const val NATURLIG_IDENT: String = "naturligIdent"
+    const val TOGGLE_BEHANDLE_NY_SØKNAD: String = "toggleBehandleNySøknad"
 }
 
 class JoarkMottak(
     val config: Configuration,
     val journalpostArkiv: JournalpostArkiv,
-    val personOppslag: PersonOppslag
+    val personOppslag: PersonOppslag,
+    val unleash: Unleash
 ) : Service() {
     override val healthChecks: List<HealthCheck> =
         listOf(journalpostArkiv as HealthCheck, personOppslag as HealthCheck)
@@ -94,6 +98,10 @@ class JoarkMottak(
             }
             .mapValues { _, journalpost ->
                 Packet().apply {
+                    if (unleash.isEnabled("dp.innlop.behandleNySoknad")) {
+                        this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_SØKNAD, true)
+                    }
+
                     this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
                     this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
                     this.putValue(
@@ -173,6 +181,8 @@ fun main(args: Array<String>) {
         config.kafka.user!!, config.kafka.password!!
     )
 
+    val unleash: Unleash = DefaultUnleash(config.unleashConfig)
+
     val journalpostArkiv = JournalpostArkivJoark(
         config.application.joarkJournalpostArkivBaseUrl,
         oidcClient
@@ -184,6 +194,6 @@ fun main(args: Array<String>) {
         config.application.graphQlApiKey
     )
 
-    val service = JoarkMottak(config, journalpostArkiv, personOppslag)
+    val service = JoarkMottak(config, journalpostArkiv, personOppslag, unleash)
     service.start()
 }

@@ -5,6 +5,7 @@ import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.kotlintest.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import no.finn.unleash.FakeUnleash
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.getAvailablePort
@@ -49,7 +50,7 @@ class JoarkMottakComponentTest {
             application = Configuration.Application(httpPort = getAvailablePort()))
 
         val personOppslagMock = mockk<PersonOppslag>()
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock)
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock, FakeUnleash())
 
         @BeforeAll
         @JvmStatic
