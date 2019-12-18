@@ -98,9 +98,7 @@ class JoarkMottak(
             }
             .mapValues { _, journalpost ->
                 Packet().apply {
-                    if (unleash.isEnabled("dp.innlop.behandleNySoknad")) {
-                        this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_SØKNAD, true)
-                    }
+                    this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_SØKNAD, unleash.isEnabled("dp.innlop.behandleNySoknad"))
 
                     this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
                     this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
