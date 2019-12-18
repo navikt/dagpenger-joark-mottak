@@ -208,7 +208,7 @@ class JoarkMottakTopologyTest {
             val ut = readOutput(topologyTestDriver)
 
             ut shouldNotBe null
-            ut?.value()?.hasField("toggleBehandleNySøknad") shouldBe false
+            ut?.value()?.getBoolean("toggleBehandleNySøknad") shouldBe false
         }
 
         unleash.enable("dp.innlop.behandleNySoknad")
