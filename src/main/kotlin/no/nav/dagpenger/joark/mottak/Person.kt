@@ -8,7 +8,7 @@ data class Person(
     val navn: String,
     val aktoerId: String,
     val naturligIdent: String,
-    val behandlendeEnheter: List<BehandlendeEnhet>
+    val diskresjonskode: String?
 )
 
 data class BehandlendeEnhet(

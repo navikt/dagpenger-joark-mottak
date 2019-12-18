@@ -268,4 +268,29 @@ class JoarkMottakTopologyTest {
             configuration.kafka.dagpengerJournalpostTopic.valueSerde.deserializer()
         )
     }
+
+    @Test
+    fun `skal få riktig behandlende enhet ved kode 6`() {
+        val personOppslagMedDiskresjonskode = mockk<PersonOppslag>()
+
+        every { personOppslagMedDiskresjonskode.hentPerson(any(), any()) } returns Person(
+            navn = "Proffen",
+            aktoerId = "1111",
+            naturligIdent = "1234",
+            diskresjonskode = "SPSF"
+        )
+
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMedDiskresjonskode, FakeUnleash())
+
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val journalpostId: Long = 123
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldNotBe null
+            ut?.value()?.getStringValue("behandlendeEnhet") shouldBe "2103"
+        }
+    }
 }

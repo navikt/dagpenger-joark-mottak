@@ -61,10 +61,7 @@ internal data class PersonQuery(val id: String, val idType: IdType) : GraphqlQue
                     navn
                     aktoerId
                     naturligIdent
-                    behandlendeEnheter {
-                        enhetId
-                        enhetNavn
-                    }
+                    diskresjonskode
                 }
             }
             """.trimIndent(),
