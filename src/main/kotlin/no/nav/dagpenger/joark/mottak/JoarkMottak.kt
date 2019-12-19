@@ -52,7 +52,7 @@ internal object PacketKeys {
     const val HOVEDSKJEMA_ID: String = "hovedskjemaId"
     const val JOURNALPOST_ID: String = "journalpostId"
     const val AKTØR_ID: String = "aktørId"
-    const val BEHANDLENDE_ENHETER: String = "behandlendeEnheter"
+    const val BEHANDLENDE_ENHET: String = "behandlendeEnhet"
     const val NATURLIG_IDENT: String = "naturligIdent"
     const val TOGGLE_BEHANDLE_NY_SØKNAD: String = "toggleBehandleNySøknad"
 }
@@ -96,6 +96,9 @@ class JoarkMottak(
                     .also { logger.info { "Journalpost --> $it" } }
                     .also { registerMetrics(it) }
             }
+            .filter { _, journalpost ->
+                journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD
+            }
             .mapValues { _, journalpost ->
                 Packet().apply {
                     this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_SØKNAD, unleash.isEnabled("dp.innlop.behandleNySoknad"))
@@ -116,25 +119,32 @@ class JoarkMottak(
                     }
 
                     if (null != journalpost.bruker) {
+
                         personOppslag.hentPerson(journalpost.bruker.id, journalpost.bruker.type).let {
                             this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
                             this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
-                            this.putValue(PacketKeys.BEHANDLENDE_ENHETER, it.behandlendeEnheter)
                             this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)
+                            this.putValue(PacketKeys.BEHANDLENDE_ENHET, behandlendeEnhetFrom(it.diskresjonskode, journalpost.dokumenter.first().brevkode ?: "ukjent"))
                         }
                     } else {
                         logger.warn { "Journalpost er ikke tilknyttet bruker?" }
                     }
                 }
             }
-            .filter { _, packet ->
-                packet.getBoolean(PacketKeys.NY_SØKNAD)
-            }
             .peek { _, _ -> jpMottatCounter.inc() }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         return builder.build()
+    }
+
+    private fun behandlendeEnhetFrom(diskresjonskode: String?, brevkode: String): String {
+        return when {
+            diskresjonskode == "SPSF" -> "2103"
+            brevkode == "NAV 04-01.03" -> "4450"
+            brevkode == "NAV 04-01.04" -> "4455"
+            else -> throw UnsupportedBehandlendeEnhetException("Cannot find behandlende enhet for brevkode $brevkode")
+        }
     }
 
     private fun registerMetrics(journalpost: Journalpost) {
@@ -171,6 +181,8 @@ class JoarkMottak(
         return properties
     }
 }
+
+class UnsupportedBehandlendeEnhetException(override val message: String) : RuntimeException(message)
 
 fun main(args: Array<String>) {
     val config = Configuration()

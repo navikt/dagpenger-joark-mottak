@@ -10,8 +10,3 @@ data class Person(
     val naturligIdent: String,
     val diskresjonskode: String?
 )
-
-data class BehandlendeEnhet(
-    val enhetId: String,
-    val enhetNavn: String
-)

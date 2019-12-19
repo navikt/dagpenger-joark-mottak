@@ -33,7 +33,7 @@ class JoarkMottakTopologyTest {
                 navn = "Proffen",
                 aktoerId = "1111",
                 naturligIdent = "1234",
-                behandlendeEnheter = listOf(BehandlendeEnhet(enhetId = "abc", enhetNavn = "NAV Enhet"))
+                diskresjonskode = null
             )
         }
     }
