@@ -33,7 +33,7 @@ class JoarkMottakTopologyTest {
                 navn = "Proffen",
                 aktoerId = "1111",
                 naturligIdent = "1234",
-                behandlendeEnheter = listOf(BehandlendeEnhet(enhetId = "abc", enhetNavn = "NAV Enhet"))
+                diskresjonskode = null
             )
         }
     }
@@ -267,5 +267,96 @@ class JoarkMottakTopologyTest {
             configuration.kafka.dagpengerJournalpostTopic.keySerde.deserializer(),
             configuration.kafka.dagpengerJournalpostTopic.valueSerde.deserializer()
         )
+    }
+
+    @Test
+    fun `skal få riktig behandlende enhet ved kode 6`() {
+        val personOppslagMedDiskresjonskode = mockk<PersonOppslag>()
+
+        every { personOppslagMedDiskresjonskode.hentPerson(any(), any()) } returns Person(
+            navn = "Proffen",
+            aktoerId = "1111",
+            naturligIdent = "1234",
+            diskresjonskode = "SPSF"
+        )
+
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMedDiskresjonskode, FakeUnleash())
+
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val journalpostId: Long = 123
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldNotBe null
+            ut?.value()?.getStringValue("behandlendeEnhet") shouldBe "2103"
+        }
+    }
+
+    @Test
+    fun `nye søknader (ikke permitering) skal havne på benk 4450`() {
+        val journalpostArkivMock = mockk<JournalpostArkiv>()
+
+        every {
+            journalpostArkivMock.hentInngåendeJournalpost(any())
+        } returns Journalpost(
+            journalstatus = Journalstatus.MOTTATT,
+            journalpostId = "123",
+            bruker = Bruker(BrukerType.AKTOERID, "123"),
+            tittel = "Kul tittel",
+            kanal = "NAV.no",
+            datoOpprettet = "2019-05-05",
+            kanalnavn = "DAG",
+            journalforendeEnhet = "Uvisst",
+            relevanteDatoer = listOf(RelevantDato(dato = "2018-01-01T12:00:00", datotype = Datotype.DATO_REGISTRERT)),
+            dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.03"))
+        )
+
+        val joarkMottak = JoarkMottak(configuration, journalpostArkivMock, personOppslagMock, FakeUnleash())
+
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val journalpostId: Long = 123
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldNotBe null
+            ut?.value()?.getStringValue("behandlendeEnhet") shouldBe "4450"
+        }
+    }
+
+    @Test
+    fun `nye søknader ved permitering skal havne på benk 4455`() {
+        val journalpostArkivMock = mockk<JournalpostArkiv>()
+
+        every {
+            journalpostArkivMock.hentInngåendeJournalpost(any())
+        } returns Journalpost(
+            journalstatus = Journalstatus.MOTTATT,
+            journalpostId = "123",
+            bruker = Bruker(BrukerType.AKTOERID, "123"),
+            tittel = "Kul tittel",
+            kanal = "NAV.no",
+            datoOpprettet = "2019-05-05",
+            kanalnavn = "DAG",
+            journalforendeEnhet = "Uvisst",
+            relevanteDatoer = listOf(RelevantDato(dato = "2018-01-01T12:00:00", datotype = Datotype.DATO_REGISTRERT)),
+            dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.04"))
+        )
+
+        val joarkMottak = JoarkMottak(configuration, journalpostArkivMock, personOppslagMock, FakeUnleash())
+
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val journalpostId: Long = 123
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldNotBe null
+            ut?.value()?.getStringValue("behandlendeEnhet") shouldBe "4455"
+        }
     }
 }
