@@ -133,7 +133,7 @@ class JoarkMottak(
             }
             .peek { _, _ -> jpMottatCounter.inc() }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
-            .peek { _, packet -> logger.info { "Producing packet with journalpostid ${packet.getStringValue(PacketKeys.JOURNALPOST_ID)}" }}
+            .peek { _, packet -> logger.info { "Producing packet with journalpostid ${packet.getStringValue(PacketKeys.JOURNALPOST_ID)}" } }
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         return builder.build()
