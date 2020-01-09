@@ -12,7 +12,7 @@ class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcCl
         JournalpostArkiv {
 
     override fun status(): HealthStatus {
-        val (_, response, result) = with("${joarkBaseUrl}isAlive".httpGet()) {
+        val (_, _, result) = with("${joarkBaseUrl}isAlive".httpGet()) {
             responseString()
         }
         return when (result) {

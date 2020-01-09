@@ -11,7 +11,7 @@ import no.nav.dagpenger.streams.HealthStatus
 
 class PersonOppslag(private val personOppslagBaseUrl: String, private val oidcClient: OidcClient, private val apiKey: String) : HealthCheck {
     override fun status(): HealthStatus {
-        val (_, response, result) = with("${personOppslagBaseUrl}isAlive".httpGet()) {
+        val (_, _, result) = with("${personOppslagBaseUrl}isAlive".httpGet()) {
             responseString()
         }
         return when (result) {
