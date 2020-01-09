@@ -41,8 +41,10 @@ internal class ConfigurationTest {
 
     private val mockedConfigs = listOf(
         "kafka.schema.registry.url",
-        "oidc.sts.issuerurl"
+        "oidc.sts.issuerurl",
+        "srvdagpenger.joark.mottak.username",
+        "srvdagpenger.joark.mottak.password"
     )
 
-    val dummyConfigs = mockedConfigs.associate { it to "test" }
+    val dummyConfigs = mockedConfigs.associateWith { "test" }
 }

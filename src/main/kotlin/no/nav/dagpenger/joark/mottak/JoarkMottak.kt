@@ -189,7 +189,7 @@ fun main(args: Array<String>) {
     val config = Configuration()
     val oidcClient = StsOidcClient(
         config.application.oidcStsUrl,
-        config.kafka.user!!, config.kafka.password!!
+        config.kafka.user, config.kafka.password
     )
 
     val unleash: Unleash = DefaultUnleash(config.unleashConfig)

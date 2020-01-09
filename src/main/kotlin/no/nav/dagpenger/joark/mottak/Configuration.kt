@@ -32,6 +32,8 @@ private val localProperties = ConfigurationMap(
         "kafka.schema.registry.url" to "http://localhost:8081",
         "oidc.sts.issuerurl" to "https://localhost:8082",
         "personoppslag.url" to "https://localhost:1010",
+        "srvdagpenger.joark.mottak.username" to "user",
+        "srvdagpenger.joark.mottak.password" to "password",
         "graphql.apikey" to "hunter2",
         "unleash.url" to "https://localhost",
         "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE
@@ -100,13 +102,11 @@ data class Configuration(
         ),
         val brokers: String = config()[Key("kafka.bootstrap.servers", stringType)],
         val schemaRegisterUrl: String = config()[Key("kafka.schema.registry.url", stringType)],
-        val user: String? = config().getOrNull(Key("srvdagpenger.joark.mottak.username", stringType)),
-        val password: String? = config().getOrNull(Key("srvdagpenger.joark.mottak.password", stringType))
+        val user: String = config()[Key("srvdagpenger.joark.mottak.username", stringType)],
+        val password: String = config()[Key("srvdagpenger.joark.mottak.password", stringType)]
     ) {
         fun credential(): KafkaCredential? {
-            return if (user != null && password != null) {
-                KafkaCredential(user, password)
-            } else null
+            return KafkaCredential(user, password)
         }
     }
 
