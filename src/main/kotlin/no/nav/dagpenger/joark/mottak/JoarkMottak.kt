@@ -4,7 +4,6 @@ import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.finn.unleash.DefaultUnleash
 import no.finn.unleash.Unleash
-import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.Service
@@ -60,11 +59,10 @@ internal object PacketKeys {
 class JoarkMottak(
     val config: Configuration,
     val journalpostArkiv: JournalpostArkiv,
-    val personOppslag: PersonOppslag,
-    val unleash: Unleash
+    val packetCreator: PacketCreator
 ) : Service() {
     override val healthChecks: List<HealthCheck> =
-        listOf(journalpostArkiv as HealthCheck, personOppslag as HealthCheck)
+        listOf(journalpostArkiv as HealthCheck, packetCreator.personOppslag as HealthCheck)
 
     override val SERVICE_APP_ID =
         "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
@@ -100,36 +98,7 @@ class JoarkMottak(
                 journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD
             }
             .mapValues { _, journalpost ->
-                Packet().apply {
-                    this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_SØKNAD, unleash.isEnabled("dp.innlop.behandleNySoknad"))
-
-                    this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
-                    this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
-                    this.putValue(
-                        PacketKeys.DOKUMENTER, journalpost.dokumenter
-                    )
-
-                    this.putValue(
-                        PacketKeys.NY_SØKNAD,
-                        journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD
-                    )
-
-                    journalpost.relevanteDatoer.find { it.datotype == Datotype.DATO_REGISTRERT }?.let {
-                        this.putValue(PacketKeys.DATO_REGISTRERT, it.dato)
-                    }
-
-                    if (null != journalpost.bruker) {
-
-                        personOppslag.hentPerson(journalpost.bruker.id, journalpost.bruker.type).let {
-                            this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
-                            this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
-                            this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)
-                            this.putValue(PacketKeys.BEHANDLENDE_ENHET, behandlendeEnhetFrom(it.diskresjonskode, journalpost.dokumenter.first().brevkode ?: "ukjent"))
-                        }
-                    } else {
-                        logger.warn { "Journalpost er ikke tilknyttet bruker?" }
-                    }
-                }
+                packetCreator.createPacket(journalpost)
             }
             .peek { _, _ -> jpMottatCounter.inc() }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
@@ -137,15 +106,6 @@ class JoarkMottak(
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         return builder.build()
-    }
-
-    private fun behandlendeEnhetFrom(diskresjonskode: String?, brevkode: String): String {
-        return when {
-            diskresjonskode == "SPSF" -> "2103"
-            brevkode == "NAV 04-01.03" -> "4450"
-            brevkode == "NAV 04-01.04" -> "4455"
-            else -> throw UnsupportedBehandlendeEnhetException("Cannot find behandlende enhet for brevkode $brevkode")
-        }
     }
 
     private fun registerMetrics(journalpost: Journalpost) {
@@ -205,6 +165,8 @@ fun main(args: Array<String>) {
         config.application.graphQlApiKey
     )
 
-    val service = JoarkMottak(config, journalpostArkiv, personOppslag, unleash)
+    val packetCreator = PacketCreator(personOppslag, unleash)
+
+    val service = JoarkMottak(config, journalpostArkiv, packetCreator)
     service.start()
 }

@@ -1,15 +1,17 @@
 package no.nav.dagpenger.joark.mottak
 
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.kotlintest.shouldBe
-import io.mockk.every
-import io.mockk.mockk
 import no.finn.unleash.FakeUnleash
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.getAvailablePort
 import no.nav.dagpenger.events.Packet
+import no.nav.dagpenger.oidc.StsOidcClient
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -36,33 +38,49 @@ class JoarkMottakComponentTest {
             autoStart = false,
             withSchemaRegistry = true,
             withSecurity = true,
-            topicInfos = listOf(KafkaEnvironment.TopicInfo("aapen-dok-journalfoering-v1"),
+            topicInfos = listOf(
+                KafkaEnvironment.TopicInfo("aapen-dok-journalfoering-v1"),
                 KafkaEnvironment.TopicInfo("privat-dagpenger-journalpost-mottatt-v1")
             )
         )
+
+        val wireMock by lazy {
+            WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort()).also {
+                it.start()
+            }
+        }
 
         val configuration = Configuration().copy(
             kafka = Configuration.Kafka(
                 brokers = embeddedEnvironment.brokersURL,
                 schemaRegisterUrl = embeddedEnvironment.schemaRegistry!!.url,
                 password = password,
-                user = username),
-            application = Configuration.Application(httpPort = getAvailablePort()))
+                user = username
+            ),
+            application = Configuration.Application(
+                httpPort = getAvailablePort(), oidcStsUrl = wireMock.baseUrl(), personOppslagBaseUrl = "${wireMock.baseUrl()}/"
+            )
 
-        val personOppslagMock = mockk<PersonOppslag>()
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), personOppslagMock, FakeUnleash())
+        )
+
+        val stsOidcClient =
+            StsOidcClient(
+                configuration.application.oidcStsUrl,
+                configuration.kafka.user!!,
+                configuration.kafka.password!!
+            )
+
+        val joarkMottak = JoarkMottak(
+            configuration,
+            DummyJournalpostArkiv(),
+            PacketCreator(PersonOppslag(configuration.application.personOppslagBaseUrl, stsOidcClient, ""), FakeUnleash())
+        )
 
         @BeforeAll
         @JvmStatic
         fun setup() {
             embeddedEnvironment.start()
             joarkMottak.start()
-            every { personOppslagMock.hentPerson(any(), any()) } returns Person(
-                navn = "Pelle",
-                aktoerId = "1111",
-                naturligIdent = "1234",
-                diskresjonskode = null
-            )
         }
 
         @AfterAll
@@ -80,6 +98,42 @@ class JoarkMottakComponentTest {
 
     @Test
     fun ` Component test of JoarkMottak  where hendelsesType is 'MidlertidigJournalført'`() {
+
+        wireMock.addStubMapping(
+            WireMock.post(WireMock.urlEqualTo("/graphql"))
+                .willReturn(
+                    WireMock.okJson(
+                        """
+                   {
+                    "data": {
+                        "person": {
+                            "aktoerId": "789",
+                            "naturligIdent": "123",
+                            "navn": "Pelle"
+                        }
+                    }
+                }
+                """.trimIndent()
+                    )
+                )
+                .build()
+        )
+
+        wireMock.addStubMapping(
+            WireMock.get(WireMock.urlEqualTo("/rest/v1/sts/token/?grant_type=client_credentials&scope=openid"))
+                .willReturn(
+                    WireMock.okJson(
+                        """
+                   {
+                     "access_token": "token",
+                     "token_type": "Bearer",
+                     "expires_in": 3600
+                    } 
+                """.trimIndent()
+                    )
+                )
+                .build()
+        )
 
         val kjoarkEvents = mapOf(
             Random().nextLong() to "DAG",
