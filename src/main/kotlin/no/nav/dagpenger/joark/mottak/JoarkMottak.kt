@@ -94,9 +94,8 @@ class JoarkMottak(
                     .also { logger.info { "Journalpost --> $it" } }
                     .also { registerMetrics(it) }
             }
-            .filter { _, journalpost ->
-                journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD
-            }
+            .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
+            .filter { _, journalpost -> journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD }
             .mapValues { _, journalpost ->
                 packetCreator.createPacket(journalpost)
             }

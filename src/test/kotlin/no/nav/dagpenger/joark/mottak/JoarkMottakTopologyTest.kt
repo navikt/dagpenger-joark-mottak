@@ -53,6 +53,26 @@ class JoarkMottakTopologyTest {
     }
 
     @Test
+    fun `Skal ikke gå videre med journalposter som har annen status enn Mottatt`() {
+        val packetCreator = PacketCreator(personOppslagMock, FakeUnleash())
+        val journalpostarkiv = mockk<JournalpostArkiv>()
+
+        val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator)
+
+        every { journalpostarkiv.hentInngåendeJournalpost(any()) } returns dummyJournalpost(journalstatus = Journalstatus.JOURNALFOERT)
+
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val inputRecord =
+                factory.create(lagJoarkHendelse(123, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldBe null
+        }
+    }
+
+    @Test
     fun `Skal telle antall mottatte journalposter som kan behandles`() {
         val packetCreator = PacketCreator(personOppslagMock, FakeUnleash())
         val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator)
@@ -65,7 +85,11 @@ class JoarkMottakTopologyTest {
             val ut = readOutput(topologyTestDriver)
 
             ut shouldNotBe null
-            CollectorRegistry.defaultRegistry.getSampleValue("dagpenger_journalpost_mottatt", arrayOf(), arrayOf()) shouldBeGreaterThan 1.0
+            CollectorRegistry.defaultRegistry.getSampleValue(
+                "dagpenger_journalpost_mottatt",
+                arrayOf(),
+                arrayOf()
+            ) shouldBeGreaterThan 1.0
         }
     }
 
