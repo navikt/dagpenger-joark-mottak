@@ -35,7 +35,7 @@ class PacketCreator(
                 this.putValue(PacketKeys.BEHANDLENDE_ENHET, behandlendeEnhetFrom(it.diskresjonskode, journalpost.dokumenter.first().brevkode ?: "ukjent"))
             }
         } else {
-            logger.warn { "Journalpost er ikke tilknyttet bruker?" }
+            logger.warn { "Journalpost: ${journalpost.journalpostId} er ikke tilknyttet bruker" }
         }
     }
 
