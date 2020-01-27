@@ -22,7 +22,7 @@ SRVDAGPENGER_JOARK_MOTTAK_PASSWORD=itest
 
 Spørsmål knyttet til koden eller prosjektet kan rettes mot:
 
-* André Roaldseth, andre.roaldseth@nav.no
+* André Roaldseth, andre.roaldseth@nav.no 
 * Eller en annen måte for omverden å kontakte teamet på
 
 ## For NAV-ansatte
