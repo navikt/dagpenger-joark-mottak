@@ -36,6 +36,7 @@ class PacketCreator(
             }
         } else {
             logger.warn { "Journalpost: ${journalpost.journalpostId} er ikke tilknyttet bruker" }
+            this.putValue(PacketKeys.BEHANDLENDE_ENHET, "4450")
         }
     }
 
