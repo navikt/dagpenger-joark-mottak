@@ -53,6 +53,36 @@ class JoarkMottakTopologyTest {
     }
 
     @Test
+    fun `skal prosessere innkommende journalposter som har brevkode ny søknad eller gjenopptak`() {
+        val journalpostId: Long = 123
+
+        val journalpostarkiv = mockk<JournalpostArkivJoark>()
+        every { journalpostarkiv.hentInngåendeJournalpost(journalpostId.toString()) } returns Journalpost(
+            journalstatus = Journalstatus.MOTTATT,
+            journalpostId = "123",
+            bruker = Bruker(BrukerType.AKTOERID, "123"),
+            tittel = "Kul tittel",
+            kanal = "NAV.no",
+            datoOpprettet = "2019-05-05",
+            kanalnavn = "DAG",
+            journalforendeEnhet = "Uvisst",
+            relevanteDatoer = listOf(RelevantDato(dato = "2018-01-01T12:00:00", datotype = Datotype.DATO_REGISTRERT)),
+            dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAV 04-16.04", tittel = "søknad"))
+        )
+
+        val packetCreator = PacketCreator(personOppslagMock, FakeUnleash())
+        val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator)
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldNotBe null
+        }
+    }
+
+    @Test
     fun `Skal ikke gå videre med journalposter som har annen status enn Mottatt`() {
         val packetCreator = PacketCreator(personOppslagMock, FakeUnleash())
         val journalpostarkiv = mockk<JournalpostArkiv>()
@@ -123,7 +153,7 @@ class JoarkMottakTopologyTest {
     }
 
     @Test
-    fun `skal ikke ta vare på packets som ikke er NY_SØKNAD`() {
+    fun `skal ikke ta vare på packets som er ettersendinger`() {
         val journalpostId: Long = 123
 
         val journalpostarkiv = mockk<JournalpostArkivJoark>()

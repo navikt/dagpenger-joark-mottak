@@ -95,7 +95,7 @@ class JoarkMottak(
                     .also { registerMetrics(it) }
             }
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
-            .filter { _, journalpost -> journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD }
+            .filter { _, journalpost -> HenvendelsesTypeMapper.supportedTypes.containsKey(journalpost.dokumenter.first().brevkode) }
             .mapValues { _, journalpost ->
                 packetCreator.createPacket(journalpost)
             }
