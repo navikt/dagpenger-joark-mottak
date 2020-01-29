@@ -93,6 +93,22 @@ class CreatePacketTest {
     }
 
     @Test
+    fun `skal legge behandleNyBrevkode-toggle med verdi true på packet når toggle er på `() {
+        val unleash = FakeUnleash()
+        val packetCreator = PacketCreator(personOppslagMock, unleash)
+
+        val journalpost = dummyJournalpost()
+
+        unleash.disable("dp.innlop.behandleNyBrevkode")
+        val disabledPacket = packetCreator.createPacket(journalpost)
+        disabledPacket.getBoolean("toggleBehandleNyBrevkode") shouldBe false
+
+        unleash.enable("dp.innlop.behandleNyBrevkode")
+        val enabledPacket = packetCreator.createPacket(journalpost)
+        enabledPacket.getBoolean("toggleBehandleNyBrevkode") shouldBe true
+    }
+
+    @Test
     fun `skal få riktig behandlende enhet ved kode 6`() {
         val personOppslagMedDiskresjonskode = mockk<PersonOppslag>()
 
