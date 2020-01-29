@@ -53,6 +53,7 @@ internal object PacketKeys {
     const val AKTØR_ID: String = "aktørId"
     const val BEHANDLENDE_ENHET: String = "behandlendeEnhet"
     const val NATURLIG_IDENT: String = "naturligIdent"
+    const val TOGGLE_BEHANDLE_NY_BREVKODE = "toggleBehandleNyBrevkode"
     const val TOGGLE_BEHANDLE_NY_SØKNAD: String = "toggleBehandleNySøknad"
 }
 
