@@ -53,32 +53,35 @@ class JoarkMottakTopologyTest {
     }
 
     @Test
-    fun `skal prosessere innkommende journalposter som har brevkode ny søknad eller gjenopptak`() {
+    fun `skal prosessere innkommende journalposter som har brevkode gjenopptak når feature toggle er på`() {
         val journalpostId: Long = 123
+        val unleash = FakeUnleash()
 
         val journalpostarkiv = mockk<JournalpostArkivJoark>()
-        every { journalpostarkiv.hentInngåendeJournalpost(journalpostId.toString()) } returns Journalpost(
+        every { journalpostarkiv.hentInngåendeJournalpost(journalpostId.toString()) } returns dummyJournalpost(
             journalstatus = Journalstatus.MOTTATT,
-            journalpostId = "123",
-            bruker = Bruker(BrukerType.AKTOERID, "123"),
-            tittel = "Kul tittel",
-            kanal = "NAV.no",
-            datoOpprettet = "2019-05-05",
-            kanalnavn = "DAG",
-            journalforendeEnhet = "Uvisst",
-            relevanteDatoer = listOf(RelevantDato(dato = "2018-01-01T12:00:00", datotype = Datotype.DATO_REGISTRERT)),
-            dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAV 04-16.04", tittel = "søknad"))
+            dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAV 04-16.03", tittel = "gjenopptak"))
         )
 
-        val packetCreator = PacketCreator(personOppslagMock, FakeUnleash())
+        val packetCreator = PacketCreator(personOppslagMock, unleash)
+
         val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator)
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            unleash.disable("dp.innlop.behandleNyBrevkode")
             val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
             topologyTestDriver.pipeInput(inputRecord)
 
             val ut = readOutput(topologyTestDriver)
 
-            ut shouldNotBe null
+            ut shouldBe null
+
+            unleash.enable("dp.innlop.behandleNyBrevkode")
+
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut2 = readOutput(topologyTestDriver)
+
+            ut2 shouldNotBe null
         }
     }
 

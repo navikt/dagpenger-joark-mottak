@@ -12,7 +12,6 @@ class PacketCreator(
 ) {
     fun createPacket(journalpost: Journalpost) = Packet().apply {
         this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_SØKNAD, true)
-        this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_BREVKODE, unleash.isEnabled("dp.innlop.behandleNyBrevkode"))
 
         this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
         this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")

@@ -53,7 +53,6 @@ internal object PacketKeys {
     const val AKTØR_ID: String = "aktørId"
     const val BEHANDLENDE_ENHET: String = "behandlendeEnhet"
     const val NATURLIG_IDENT: String = "naturligIdent"
-    const val TOGGLE_BEHANDLE_NY_BREVKODE = "toggleBehandleNyBrevkode"
     const val TOGGLE_BEHANDLE_NY_SØKNAD: String = "toggleBehandleNySøknad"
 }
 
@@ -96,7 +95,7 @@ class JoarkMottak(
                     .also { registerMetrics(it) }
             }
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
-            .filter { _, journalpost -> HenvendelsesTypeMapper.supportedTypes.containsKey(journalpost.dokumenter.first().brevkode) }
+            .filter { _, journalpost -> støttetBrevkode(journalpost.mapToHenvendelsesType()) }
             .mapValues { _, journalpost ->
                 packetCreator.createPacket(journalpost)
             }
@@ -107,6 +106,11 @@ class JoarkMottak(
 
         return builder.build()
     }
+
+    private fun støttetBrevkode(henvendelsestype: Henvendelsestype) =
+        henvendelsestype == Henvendelsestype.NY_SØKNAD ||
+            (henvendelsestype == Henvendelsestype.GJENOPPTAK &&
+            packetCreator.unleash.isEnabled("dp.innlop.behandleNyBrevkode"))
 
     private fun registerMetrics(journalpost: Journalpost) {
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
