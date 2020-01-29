@@ -36,7 +36,6 @@ class JoarkMottakTopologyTest {
         }
     }
 
-
     @Test
     fun `skal prosessere brevkoder for ny søknad`() {
         val journalpostId: Long = 123
@@ -56,6 +55,39 @@ class JoarkMottakTopologyTest {
             val ut = readOutput(topologyTestDriver)
 
             ut shouldNotBe null
+        }
+    }
+
+    @Test
+    fun `feature toggle skal ikke ødelegge eksisterende funksjonalitet`() {
+        val journalpostId: Long = 123
+        val unleash = FakeUnleash()
+
+        val journalpostarkiv = mockk<JournalpostArkivJoark>()
+        every { journalpostarkiv.hentInngåendeJournalpost(journalpostId.toString()) } returns dummyJournalpost(
+            journalstatus = Journalstatus.MOTTATT,
+            dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAV 04-01.04", tittel = "ny søknad"))
+        )
+
+        val packetCreator = PacketCreator(personOppslagMock, unleash)
+
+        val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator)
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            unleash.disable("dp.innlop.behandleNyBrevkode")
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutput(topologyTestDriver)
+
+            ut shouldNotBe null
+
+            unleash.enable("dp.innlop.behandleNyBrevkode")
+
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut2 = readOutput(topologyTestDriver)
+
+            ut2 shouldNotBe null
         }
     }
 
