@@ -47,7 +47,6 @@ internal object PacketKeys {
     const val DOKUMENTER: String = "dokumenter"
     const val AVSENDER_NAVN: String = "avsenderNavn"
     const val DATO_REGISTRERT: String = "datoRegistrert"
-    const val NY_SØKNAD: String = "nySøknad"
     const val HOVEDSKJEMA_ID: String = "hovedskjemaId"
     const val JOURNALPOST_ID: String = "journalpostId"
     const val AKTØR_ID: String = "aktørId"
