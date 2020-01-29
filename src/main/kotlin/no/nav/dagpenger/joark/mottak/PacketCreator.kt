@@ -5,6 +5,7 @@ import no.finn.unleash.Unleash
 import no.nav.dagpenger.events.Packet
 
 private val logger = KotlinLogging.logger {}
+
 class PacketCreator(
     val personOppslag: PersonOppslag,
     val unleash: Unleash
@@ -32,11 +33,20 @@ class PacketCreator(
                 this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
                 this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
                 this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)
-                this.putValue(PacketKeys.BEHANDLENDE_ENHET, behandlendeEnhetFrom(it.diskresjonskode, journalpost.dokumenter.first().brevkode ?: "ukjent"))
+                this.putValue(
+                    PacketKeys.BEHANDLENDE_ENHET,
+                    behandlendeEnhetFrom(it.diskresjonskode, journalpost.dokumenter.first().brevkode ?: "ukjent")
+                )
             }
         } else {
             logger.warn { "Journalpost: ${journalpost.journalpostId} er ikke tilknyttet bruker" }
-            this.putValue(PacketKeys.BEHANDLENDE_ENHET, "4450")
+            this.putValue(
+                PacketKeys.BEHANDLENDE_ENHET,
+                behandlendeEnhetFrom(
+                    diskresjonskode = null,
+                    brevkode = journalpost.dokumenter.first().brevkode ?: "ukjent"
+                )
+            )
         }
     }
 
