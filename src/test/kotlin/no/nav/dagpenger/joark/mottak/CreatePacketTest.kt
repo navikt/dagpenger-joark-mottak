@@ -81,19 +81,31 @@ class CreatePacketTest {
     }
 
     @Test
-    fun `skal legge behandlings-toggle med verdi true på packet når toggle er på `() {
+    fun `behandleNySøknad-toggle skal alltid være true (mellomfase) `() {
         val unleash = FakeUnleash()
         val packetCreator = PacketCreator(personOppslagMock, unleash)
 
         val journalpost = dummyJournalpost()
 
-        unleash.disable("dp.innlop.behandleNySoknad")
-        val disabledPacket = packetCreator.createPacket(journalpost)
-        disabledPacket.getBoolean("toggleBehandleNySøknad") shouldBe false
-
         unleash.enable("dp.innlop.behandleNySoknad")
         val enabledPacket = packetCreator.createPacket(journalpost)
         enabledPacket.getBoolean("toggleBehandleNySøknad") shouldBe true
+    }
+
+    @Test
+    fun `skal legge behandleNyBrevkode-toggle med verdi true på packet når toggle er på `() {
+        val unleash = FakeUnleash()
+        val packetCreator = PacketCreator(personOppslagMock, unleash)
+
+        val journalpost = dummyJournalpost()
+
+        unleash.disable("dp.innlop.behandleNyBrevkode")
+        val disabledPacket = packetCreator.createPacket(journalpost)
+        disabledPacket.getBoolean("toggleBehandleNyBrevkode") shouldBe false
+
+        unleash.enable("dp.innlop.behandleNyBrevkode")
+        val enabledPacket = packetCreator.createPacket(journalpost)
+        enabledPacket.getBoolean("toggleBehandleNyBrevkode") shouldBe true
     }
 
     @Test
