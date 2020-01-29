@@ -12,7 +12,6 @@ class PacketCreator(
 ) {
     fun createPacket(journalpost: Journalpost) = Packet().apply {
         this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_SØKNAD, true)
-        this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_BREVKODE, unleash.isEnabled("dp.innlop.behandleNyBrevkode"))
 
         this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
         this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
@@ -56,6 +55,8 @@ class PacketCreator(
             diskresjonskode == "SPSF" -> "2103"
             brevkode == "NAV 04-01.03" -> "4450"
             brevkode == "NAV 04-01.04" -> "4455"
+            brevkode == "NAV 04-16.03" -> "4450"
+            brevkode == "NAV 04-16.04" -> "4455"
             else -> throw UnsupportedBehandlendeEnhetException("Cannot find behandlende enhet for brevkode $brevkode")
         }
     }
