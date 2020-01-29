@@ -56,7 +56,7 @@ class CreatePacketTest {
         val packet = packetCreator.createPacket(journalpost)
 
         packet.getStringValue("hovedskjemaId") shouldBe "NAV 04-01.04"
-        packet.getBoolean("nySøknad") shouldBe true
+        packet.getStringValue("henvendelsestype") shouldBe "NY_SØKNAD"
     }
 
     @Test

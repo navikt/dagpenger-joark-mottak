@@ -19,10 +19,7 @@ class PacketCreator(
             PacketKeys.DOKUMENTER, journalpost.dokumenter
         )
 
-        this.putValue(
-            PacketKeys.NY_SØKNAD,
-            journalpost.mapToHenvendelsesType() == Henvendelsestype.NY_SØKNAD
-        )
+        this.putValue(PacketKeys.HENVENDELSESTYPE, journalpost.mapToHenvendelsesType())
 
         journalpost.relevanteDatoer.find { it.datotype == Datotype.DATO_REGISTRERT }?.let {
             this.putValue(PacketKeys.DATO_REGISTRERT, it.dato)
