@@ -66,8 +66,8 @@ class JoarkMottakComponentTest {
         val stsOidcClient =
             StsOidcClient(
                 configuration.application.oidcStsUrl,
-                configuration.kafka.user!!,
-                configuration.kafka.password!!
+                configuration.kafka.user,
+                configuration.kafka.password
             )
 
         val joarkMottak = JoarkMottak(
@@ -154,11 +154,13 @@ class JoarkMottakComponentTest {
             dummyJoarkProducer.produceEvent(journalpostId = id, tema = tema, hendelsesType = "MidlertidigJournalført")
         }
 
+        Thread.sleep(300)
+
         val behovConsumer: KafkaConsumer<String, Packet> = behovConsumer(configuration)
 
         val behov = behovConsumer.poll(Duration.ofSeconds(5)).toList()
 
-        kjoarkEvents.filterValues { it == "DAG" }.size shouldBe behov.size
+        behov.size shouldBe kjoarkEvents.filterValues { it == "DAG" }.size
     }
 
     private fun behovConsumer(config: Configuration): KafkaConsumer<String, Packet> {

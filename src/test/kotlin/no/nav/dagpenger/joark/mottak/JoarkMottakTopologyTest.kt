@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde
 import io.kotlintest.matchers.doubles.shouldBeGreaterThan
+import io.kotlintest.matchers.withClue
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.mockk.every
@@ -13,6 +14,7 @@ import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.Topics
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.streams.KeyValue
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.test.ConsumerRecordFactory
@@ -108,35 +110,91 @@ class JoarkMottakTopologyTest {
     }
 
     @Test
-    fun `skal prosessere innkommende journalposter som har brevkode gjenopptak når feature toggle er på`() {
-        val journalpostId: Long = 123
-        val unleash = FakeUnleash()
+    fun `skal prosessere innkommende journalposter som har brevkoder gjenopptak, utdanning, etablering og klage-anke når feature toggle er på`() {
+        val unleash = FakeUnleash().apply { enable("dp.innlop.behandleNyBrevkode") }
+        val idTilBrevkode = mapOf(
+            "1" to Pair("NAV 04-16.03", Henvendelsestype.GJENOPPTAK),
+            "2" to Pair("NAV 04-06.05", Henvendelsestype.UTDANNING),
+            "3" to Pair("NAV 04-06.08", Henvendelsestype.ETABLERING),
+            "4" to Pair("NAV 90-00.08", Henvendelsestype.KLAGE_ANKE)
+        )
 
         val journalpostarkiv = mockk<JournalpostArkivJoark>()
-        every { journalpostarkiv.hentInngåendeJournalpost(journalpostId.toString()) } returns dummyJournalpost(
-            journalstatus = Journalstatus.MOTTATT,
-            dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAV 04-16.03", tittel = "gjenopptak"))
-        )
+
+        idTilBrevkode.forEach {
+            every { journalpostarkiv.hentInngåendeJournalpost(it.key) } returns dummyJournalpost(
+                journalstatus = Journalstatus.MOTTATT,
+                dokumenter = listOf(
+                    DokumentInfo(
+                        dokumentInfoId = "9",
+                        brevkode = it.value.first,
+                        tittel = "tittel"
+                    )
+                )
+            )
+        }
 
         val packetCreator = PacketCreator(personOppslagMock, unleash)
 
         val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator)
+
+        val joarkhendelser = idTilBrevkode.map {
+            KeyValue(it.key, lagJoarkHendelse(it.key.toLong(), "DAG", "MidlertidigJournalført") as GenericRecord)
+        }.toMutableList()
+
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
-            unleash.disable("dp.innlop.behandleNyBrevkode")
-            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
-            topologyTestDriver.pipeInput(inputRecord)
-
-            val ut = readOutput(topologyTestDriver)
-
-            ut shouldBe null
-
-            unleash.enable("dp.innlop.behandleNyBrevkode")
+            val inputRecord = factory.create(joarkhendelser)
 
             topologyTestDriver.pipeInput(inputRecord)
 
-            val ut2 = readOutput(topologyTestDriver)
+            idTilBrevkode.forEach {
+                val ut = readOutput(topologyTestDriver)
 
-            ut2 shouldNotBe null
+                withClue("Brevkode for henvendelse ${it.value.second.name} skal prosesseres og skal dermed ikke være null ") {
+                    ut shouldNotBe null
+                    ut?.value()?.getStringValue(PacketKeys.HENVENDELSESTYPE) shouldBe it.value.second.name
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `skal ikke prosessere innkommende journalposter som har brevkoder gjenopptak, utdanning, etablering og klage-anke når feature toggle er av`() {
+        val unleash = FakeUnleash()
+        val idTilBrevkode = mapOf(
+            "1" to "NAV 04-16.03",
+            "2" to "NAV 04-06.05",
+            "3" to "NAV 04-06.08",
+            "4" to "NAV 90-00.08"
+        )
+
+        val journalpostarkiv = mockk<JournalpostArkivJoark>()
+
+        idTilBrevkode.forEach {
+            every { journalpostarkiv.hentInngåendeJournalpost(it.key) } returns dummyJournalpost(
+                journalstatus = Journalstatus.MOTTATT,
+                dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = it.value, tittel = "gjenopptak"))
+            )
+        }
+
+        val packetCreator = PacketCreator(personOppslagMock, unleash)
+
+        val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator)
+
+        val joarkhendelser = idTilBrevkode.map {
+            KeyValue(it.key, lagJoarkHendelse(it.key.toLong(), "DAG", "MidlertidigJournalført") as GenericRecord)
+        }.toMutableList()
+
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val inputRecord = factory.create(joarkhendelser)
+
+            topologyTestDriver.pipeInput(inputRecord)
+
+            idTilBrevkode.forEach {
+                val ut = readOutput(topologyTestDriver)
+
+                ut shouldBe null
+            }
         }
     }
 

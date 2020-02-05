@@ -95,7 +95,8 @@ class JoarkMottak(
                     .also { registerMetrics(it) }
             }
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
-            .filter { _, journalpost -> støttetBrevkode(journalpost.mapToHenvendelsesType()) }
+            .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
+            .filter { _, journalpost -> toggleStøtte(journalpost.henvendelsestype) }
             .mapValues { _, journalpost ->
                 packetCreator.createPacket(journalpost)
             }
@@ -107,15 +108,22 @@ class JoarkMottak(
         return builder.build()
     }
 
-    private fun støttetBrevkode(henvendelsestype: Henvendelsestype) =
-        henvendelsestype == Henvendelsestype.NY_SØKNAD ||
-            (henvendelsestype == Henvendelsestype.GJENOPPTAK &&
-            packetCreator.unleash.isEnabled("dp.innlop.behandleNyBrevkode"))
+    private fun Henvendelsestype.erStøttet() = this in listOf(
+        Henvendelsestype.NY_SØKNAD,
+        Henvendelsestype.UTDANNING,
+        Henvendelsestype.GJENOPPTAK,
+        Henvendelsestype.ETABLERING,
+        Henvendelsestype.KLAGE_ANKE
+    )
+
+    private fun toggleStøtte(henvendelsestype: Henvendelsestype): Boolean {
+        return henvendelsestype == Henvendelsestype.NY_SØKNAD || packetCreator.unleash.isEnabled("dp.innlop.behandleNyBrevkode")
+    }
 
     private fun registerMetrics(journalpost: Journalpost) {
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
         val brukerType = journalpost.bruker?.type?.toString() ?: "ukjent"
-        val henvendelsestype = journalpost.mapToHenvendelsesType().toString()
+        val henvendelsestype = journalpost.henvendelsestype.toString()
         val skjemaIdKjent = HenvendelsesTypeMapper.isKnownSkjemaId(skjemaId).toString()
         val numberOfDocuments = journalpost.dokumenter.size.toString()
         val kanal = journalpost.kanal?.let { it } ?: "ukjent"

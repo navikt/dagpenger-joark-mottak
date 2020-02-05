@@ -19,7 +19,7 @@ class PacketCreator(
             PacketKeys.DOKUMENTER, journalpost.dokumenter
         )
 
-        this.putValue(PacketKeys.HENVENDELSESTYPE, journalpost.mapToHenvendelsesType())
+        this.putValue(PacketKeys.HENVENDELSESTYPE, journalpost.henvendelsestype)
 
         journalpost.relevanteDatoer.find { it.datotype == Datotype.DATO_REGISTRERT }?.let {
             this.putValue(PacketKeys.DATO_REGISTRERT, it.dato)
@@ -54,6 +54,9 @@ class PacketCreator(
             brevkode == "NAV 04-01.04" -> "4455"
             brevkode == "NAV 04-16.03" -> "4450"
             brevkode == "NAV 04-16.04" -> "4455"
+            brevkode == "NAV 04-06.05" -> "4450"
+            brevkode == "NAV 04-06.08" -> "4450"
+            brevkode == "NAV 90-00.08" -> "4450"
             else -> throw UnsupportedBehandlendeEnhetException("Cannot find behandlende enhet for brevkode $brevkode")
         }
     }
