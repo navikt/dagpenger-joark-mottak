@@ -96,6 +96,7 @@ class JoarkMottak(
             }
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
             .filter { _, journalpost -> støttetBrevkode(journalpost.mapToHenvendelsesType()) }
+            .filter { _, journalpost -> toggleStøtte(journalpost.mapToHenvendelsesType()) }
             .mapValues { _, journalpost ->
                 packetCreator.createPacket(journalpost)
             }
@@ -107,10 +108,12 @@ class JoarkMottak(
         return builder.build()
     }
 
+    private fun toggleStøtte(henvendelsestype: Henvendelsestype): Boolean {
+        return henvendelsestype == Henvendelsestype.NY_SØKNAD || packetCreator.unleash.isEnabled("dp.innlop.behandleNyBrevkode")
+    }
+
     private fun støttetBrevkode(henvendelsestype: Henvendelsestype) =
-        henvendelsestype == Henvendelsestype.NY_SØKNAD ||
-            (henvendelsestype == Henvendelsestype.GJENOPPTAK &&
-            packetCreator.unleash.isEnabled("dp.innlop.behandleNyBrevkode"))
+        listOf(Henvendelsestype.NY_SØKNAD, Henvendelsestype.GJENOPPTAK, Henvendelsestype.UTDANNING).contains(henvendelsestype)
 
     private fun registerMetrics(journalpost: Journalpost) {
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"

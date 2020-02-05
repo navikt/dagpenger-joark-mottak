@@ -54,6 +54,7 @@ class PacketCreator(
             brevkode == "NAV 04-01.04" -> "4455"
             brevkode == "NAV 04-16.03" -> "4450"
             brevkode == "NAV 04-16.04" -> "4455"
+            brevkode ==  "NAV 04-06.05" -> "4455" // todo: sjekk opp for utdanning
             else -> throw UnsupportedBehandlendeEnhetException("Cannot find behandlende enhet for brevkode $brevkode")
         }
     }

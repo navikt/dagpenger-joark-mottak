@@ -156,9 +156,10 @@ class JoarkMottakComponentTest {
 
         val behovConsumer: KafkaConsumer<String, Packet> = behovConsumer(configuration)
 
-        val behov = behovConsumer.poll(Duration.ofSeconds(5)).toList()
+        val behov = behovConsumer.poll(Duration.ofSeconds(10)).toList()
 
-        kjoarkEvents.filterValues { it == "DAG" }.size shouldBe behov.size
+
+        behov.size shouldBe kjoarkEvents.filterValues { it == "DAG" }.size
     }
 
     private fun behovConsumer(config: Configuration): KafkaConsumer<String, Packet> {
