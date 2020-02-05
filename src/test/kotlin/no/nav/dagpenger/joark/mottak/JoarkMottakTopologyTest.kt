@@ -113,7 +113,7 @@ class JoarkMottakTopologyTest {
         val unleash = FakeUnleash().apply { enable("dp.innlop.behandleNyBrevkode") }
         val idTilBrevkode = mapOf(
             "1" to "NAV 04-16.03",
-            "2" to  "NAV 04-06.05"
+            "2" to "NAV 04-06.05"
         )
 
         val journalpostarkiv = mockk<JournalpostArkivJoark>()
@@ -132,8 +132,6 @@ class JoarkMottakTopologyTest {
         val joarkhendelser = idTilBrevkode.map {
             KeyValue(it.key, lagJoarkHendelse(it.key.toLong(), "DAG", "MidlertidigJournalført") as GenericRecord)
         }.toMutableList()
-
-
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val inputRecord = factory.create(joarkhendelser)
@@ -144,9 +142,7 @@ class JoarkMottakTopologyTest {
                 val ut = readOutput(topologyTestDriver)
 
                 ut shouldNotBe null
-
             }
-
         }
     }
 
@@ -155,7 +151,7 @@ class JoarkMottakTopologyTest {
         val unleash = FakeUnleash()
         val idTilBrevkode = mapOf(
             "1" to "NAV 04-16.03",
-            "2" to  "NAV 04-06.05"
+            "2" to "NAV 04-06.05"
         )
 
         val journalpostarkiv = mockk<JournalpostArkivJoark>()
@@ -175,8 +171,6 @@ class JoarkMottakTopologyTest {
             KeyValue(it.key, lagJoarkHendelse(it.key.toLong(), "DAG", "MidlertidigJournalført") as GenericRecord)
         }.toMutableList()
 
-
-
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val inputRecord = factory.create(joarkhendelser)
 
@@ -185,10 +179,8 @@ class JoarkMottakTopologyTest {
             idTilBrevkode.forEach {
                 val ut = readOutput(topologyTestDriver)
 
-                ut shouldBe  null
-
+                ut shouldBe null
             }
-
         }
     }
 
