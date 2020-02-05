@@ -95,7 +95,7 @@ class JoarkMottak(
                     .also { registerMetrics(it) }
             }
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
-            .filter { _, journalpost -> støttetBrevkode(journalpost.henvendelsestype) }
+            .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
             .filter { _, journalpost -> toggleStøtte(journalpost.henvendelsestype) }
             .mapValues { _, journalpost ->
                 packetCreator.createPacket(journalpost)
@@ -111,9 +111,6 @@ class JoarkMottak(
     private fun toggleStøtte(henvendelsestype: Henvendelsestype): Boolean {
         return henvendelsestype == Henvendelsestype.NY_SØKNAD || packetCreator.unleash.isEnabled("dp.innlop.behandleNyBrevkode")
     }
-
-    private fun støttetBrevkode(henvendelsestype: Henvendelsestype) =
-        listOf(Henvendelsestype.NY_SØKNAD, Henvendelsestype.GJENOPPTAK, Henvendelsestype.UTDANNING).contains(henvendelsestype)
 
     private fun registerMetrics(journalpost: Journalpost) {
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
@@ -149,6 +146,13 @@ class JoarkMottak(
         return properties
     }
 }
+
+private fun Henvendelsestype.erStøttet() = this in listOf(
+    Henvendelsestype.NY_SØKNAD,
+    Henvendelsestype.UTDANNING,
+    Henvendelsestype.GJENOPPTAK,
+    Henvendelsestype.ETABLERING
+)
 
 class UnsupportedBehandlendeEnhetException(override val message: String) : RuntimeException(message)
 
