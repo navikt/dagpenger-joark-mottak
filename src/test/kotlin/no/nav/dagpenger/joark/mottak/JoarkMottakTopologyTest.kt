@@ -113,7 +113,8 @@ class JoarkMottakTopologyTest {
         val unleash = FakeUnleash().apply { enable("dp.innlop.behandleNyBrevkode") }
         val idTilBrevkode = mapOf(
             "1" to Pair("NAV 04-16.03", Henvendelsestype.GJENOPPTAK),
-            "2" to Pair("NAV 04-06.05", Henvendelsestype.UTDANNING)
+            "2" to Pair("NAV 04-06.05", Henvendelsestype.UTDANNING),
+            "3" to Pair("NAV 04-06.08", Henvendelsestype.ETABLERING)
         )
 
         val journalpostarkiv = mockk<JournalpostArkivJoark>()
@@ -121,7 +122,13 @@ class JoarkMottakTopologyTest {
         idTilBrevkode.forEach {
             every { journalpostarkiv.hentInngåendeJournalpost(it.key) } returns dummyJournalpost(
                 journalstatus = Journalstatus.MOTTATT,
-                dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = it.value.first, tittel = "gjenopptak"))
+                dokumenter = listOf(
+                    DokumentInfo(
+                        dokumentInfoId = "9",
+                        brevkode = it.value.first,
+                        tittel = "gjenopptak"
+                    )
+                )
             )
         }
 
@@ -152,7 +159,8 @@ class JoarkMottakTopologyTest {
         val unleash = FakeUnleash()
         val idTilBrevkode = mapOf(
             "1" to "NAV 04-16.03",
-            "2" to "NAV 04-06.05"
+            "2" to "NAV 04-06.05",
+            "3" to "NAV 04-06.08"
         )
 
         val journalpostarkiv = mockk<JournalpostArkivJoark>()
