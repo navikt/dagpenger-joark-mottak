@@ -112,8 +112,8 @@ class JoarkMottakTopologyTest {
     fun `skal prosessere innkommende journalposter som har brevkoder gjenopptak, utdanning, etablering og klage-anke når feature toggle er på`() {
         val unleash = FakeUnleash().apply { enable("dp.innlop.behandleNyBrevkode") }
         val idTilBrevkode = mapOf(
-            "1" to "NAV 04-16.03",
-            "2" to "NAV 04-06.05"
+            "1" to Pair("NAV 04-16.03", Henvendelsestype.GJENOPPTAK),
+            "2" to Pair("NAV 04-06.05", Henvendelsestype.UTDANNING)
         )
 
         val journalpostarkiv = mockk<JournalpostArkivJoark>()
@@ -121,7 +121,7 @@ class JoarkMottakTopologyTest {
         idTilBrevkode.forEach {
             every { journalpostarkiv.hentInngåendeJournalpost(it.key) } returns dummyJournalpost(
                 journalstatus = Journalstatus.MOTTATT,
-                dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = it.value, tittel = "gjenopptak"))
+                dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = it.value.first, tittel = "gjenopptak"))
             )
         }
 
@@ -142,6 +142,7 @@ class JoarkMottakTopologyTest {
                 val ut = readOutput(topologyTestDriver)
 
                 ut shouldNotBe null
+                ut?.value()?.getStringValue(PacketKeys.HENVENDELSESTYPE) shouldBe it.value.second.name
             }
         }
     }
