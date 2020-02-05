@@ -108,6 +108,14 @@ class JoarkMottak(
         return builder.build()
     }
 
+    private fun Henvendelsestype.erStøttet() = this in listOf(
+        Henvendelsestype.NY_SØKNAD,
+        Henvendelsestype.UTDANNING,
+        Henvendelsestype.GJENOPPTAK,
+        Henvendelsestype.ETABLERING,
+        Henvendelsestype.KLAGE_ANKE
+    )
+
     private fun toggleStøtte(henvendelsestype: Henvendelsestype): Boolean {
         return henvendelsestype == Henvendelsestype.NY_SØKNAD || packetCreator.unleash.isEnabled("dp.innlop.behandleNyBrevkode")
     }
@@ -146,14 +154,6 @@ class JoarkMottak(
         return properties
     }
 }
-
-private fun Henvendelsestype.erStøttet() = this in listOf(
-    Henvendelsestype.NY_SØKNAD,
-    Henvendelsestype.UTDANNING,
-    Henvendelsestype.GJENOPPTAK,
-    Henvendelsestype.ETABLERING,
-    Henvendelsestype.KLAGE_ANKE
-)
 
 class UnsupportedBehandlendeEnhetException(override val message: String) : RuntimeException(message)
 
