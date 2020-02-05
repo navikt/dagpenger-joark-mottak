@@ -151,7 +151,8 @@ private fun Henvendelsestype.erStøttet() = this in listOf(
     Henvendelsestype.NY_SØKNAD,
     Henvendelsestype.UTDANNING,
     Henvendelsestype.GJENOPPTAK,
-    Henvendelsestype.ETABLERING
+    Henvendelsestype.ETABLERING,
+    Henvendelsestype.KLAGE_ANKE
 )
 
 class UnsupportedBehandlendeEnhetException(override val message: String) : RuntimeException(message)

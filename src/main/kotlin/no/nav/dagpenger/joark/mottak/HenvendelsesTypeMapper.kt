@@ -54,7 +54,8 @@ object HenvendelsesTypeMapper {
         "NAV 04-16.03" to Henvendelsestype.GJENOPPTAK,
         "NAV 04-16.04" to Henvendelsestype.GJENOPPTAK,
         "NAV 04-06.05" to Henvendelsestype.UTDANNING,
-        "NAV 04-06.08" to Henvendelsestype.ETABLERING
+        "NAV 04-06.08" to Henvendelsestype.ETABLERING,
+        "NAV 90-00.08" to Henvendelsestype.KLAGE_ANKE
     )
 
     fun getHenvendelsesType(navSkjemaId: String?): Henvendelsestype {
@@ -71,5 +72,6 @@ enum class Henvendelsestype {
     GJENOPPTAK,
     ANNET,
     UTDANNING,
-    ETABLERING
+    ETABLERING,
+    KLAGE_ANKE
 }

@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde
 import io.kotlintest.matchers.doubles.shouldBeGreaterThan
+import io.kotlintest.matchers.withClue
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.mockk.every
@@ -114,7 +115,8 @@ class JoarkMottakTopologyTest {
         val idTilBrevkode = mapOf(
             "1" to Pair("NAV 04-16.03", Henvendelsestype.GJENOPPTAK),
             "2" to Pair("NAV 04-06.05", Henvendelsestype.UTDANNING),
-            "3" to Pair("NAV 04-06.08", Henvendelsestype.ETABLERING)
+            "3" to Pair("NAV 04-06.08", Henvendelsestype.ETABLERING),
+            "4" to Pair("NAV 90-00.08", Henvendelsestype.KLAGE_ANKE)
         )
 
         val journalpostarkiv = mockk<JournalpostArkivJoark>()
@@ -126,7 +128,7 @@ class JoarkMottakTopologyTest {
                     DokumentInfo(
                         dokumentInfoId = "9",
                         brevkode = it.value.first,
-                        tittel = "gjenopptak"
+                        tittel = "tittel"
                     )
                 )
             )
@@ -148,8 +150,10 @@ class JoarkMottakTopologyTest {
             idTilBrevkode.forEach {
                 val ut = readOutput(topologyTestDriver)
 
-                ut shouldNotBe null
-                ut?.value()?.getStringValue(PacketKeys.HENVENDELSESTYPE) shouldBe it.value.second.name
+                withClue("Brevkode for henvendelse ${it.value.second.name} skal prosesseres og skal dermed ikke være null ") {
+                    ut shouldNotBe null
+                    ut?.value()?.getStringValue(PacketKeys.HENVENDELSESTYPE) shouldBe it.value.second.name
+                }
             }
         }
     }
@@ -160,7 +164,8 @@ class JoarkMottakTopologyTest {
         val idTilBrevkode = mapOf(
             "1" to "NAV 04-16.03",
             "2" to "NAV 04-06.05",
-            "3" to "NAV 04-06.08"
+            "3" to "NAV 04-06.08",
+            "4" to "NAV 90-00.08"
         )
 
         val journalpostarkiv = mockk<JournalpostArkivJoark>()
