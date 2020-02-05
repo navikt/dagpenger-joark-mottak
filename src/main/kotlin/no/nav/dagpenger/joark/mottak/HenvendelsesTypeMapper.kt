@@ -48,7 +48,7 @@ object HenvendelsesTypeMapper {
 
     )
 
-    val supportedTypes = mapOf(
+    private val brevkodeTilHenvendelsestype = mapOf(
         "NAV 04-01.03" to Henvendelsestype.NY_SØKNAD,
         "NAV 04-01.04" to Henvendelsestype.NY_SØKNAD,
         "NAV 04-16.03" to Henvendelsestype.GJENOPPTAK,
@@ -58,7 +58,7 @@ object HenvendelsesTypeMapper {
     )
 
     fun getHenvendelsesType(navSkjemaId: String?): Henvendelsestype {
-        return supportedTypes.getOrDefault(navSkjemaId.orEmpty(), Henvendelsestype.ANNET)
+        return brevkodeTilHenvendelsestype.getOrDefault(navSkjemaId.orEmpty(), Henvendelsestype.ANNET)
     }
 
     fun isKnownSkjemaId(navSkjemaId: String): Boolean {
