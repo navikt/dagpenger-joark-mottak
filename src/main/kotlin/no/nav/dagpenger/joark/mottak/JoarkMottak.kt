@@ -95,8 +95,8 @@ class JoarkMottak(
                     .also { registerMetrics(it) }
             }
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
-            .filter { _, journalpost -> støttetBrevkode(journalpost.mapToHenvendelsesType()) }
-            .filter { _, journalpost -> toggleStøtte(journalpost.mapToHenvendelsesType()) }
+            .filter { _, journalpost -> støttetBrevkode(journalpost.henvendelsestype) }
+            .filter { _, journalpost -> toggleStøtte(journalpost.henvendelsestype) }
             .mapValues { _, journalpost ->
                 packetCreator.createPacket(journalpost)
             }
@@ -118,7 +118,7 @@ class JoarkMottak(
     private fun registerMetrics(journalpost: Journalpost) {
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
         val brukerType = journalpost.bruker?.type?.toString() ?: "ukjent"
-        val henvendelsestype = journalpost.mapToHenvendelsesType().toString()
+        val henvendelsestype = journalpost.henvendelsestype.toString()
         val skjemaIdKjent = HenvendelsesTypeMapper.isKnownSkjemaId(skjemaId).toString()
         val numberOfDocuments = journalpost.dokumenter.size.toString()
         val kanal = journalpost.kanal?.let { it } ?: "ukjent"

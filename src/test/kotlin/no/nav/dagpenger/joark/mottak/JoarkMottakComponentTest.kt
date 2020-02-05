@@ -66,8 +66,8 @@ class JoarkMottakComponentTest {
         val stsOidcClient =
             StsOidcClient(
                 configuration.application.oidcStsUrl,
-                configuration.kafka.user!!,
-                configuration.kafka.password!!
+                configuration.kafka.user,
+                configuration.kafka.password
             )
 
         val joarkMottak = JoarkMottak(

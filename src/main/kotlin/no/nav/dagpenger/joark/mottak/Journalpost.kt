@@ -16,9 +16,8 @@ data class Journalpost(
     val relevanteDatoer: List<RelevantDato>,
     val dokumenter: List<DokumentInfo>
 ) {
-    fun mapToHenvendelsesType(): Henvendelsestype {
-        return HenvendelsesTypeMapper.getHenvendelsesType(this.dokumenter.first().brevkode)
-    }
+    val henvendelsestype: Henvendelsestype
+        get() = HenvendelsesTypeMapper.getHenvendelsesType(this.dokumenter.first().brevkode)
 }
 
 class DokumentInfo(tittel: String?, dokumentInfoId: String, brevkode: String?) {
