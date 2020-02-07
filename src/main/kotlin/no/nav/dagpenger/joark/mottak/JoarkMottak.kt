@@ -97,12 +97,16 @@ class JoarkMottak(
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
             .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
             .filter { _, journalpost -> toggleStøtte(journalpost.henvendelsestype) }
-            .mapValues { _, journalpost ->
-                packetCreator.createPacket(journalpost)
-            }
+            .mapValues { _, journalpost -> packetCreator.createPacket(journalpost) }
             .peek { _, _ -> jpMottatCounter.inc() }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
-            .peek { _, packet -> logger.info { "Producing packet with journalpostid ${packet.getStringValue(PacketKeys.JOURNALPOST_ID)}" } }
+            .peek { _, packet ->
+                logger.info {
+                    "Producing packet with journalpostid ${packet.getStringValue(PacketKeys.JOURNALPOST_ID)} and henvendelsestype: ${packet.getStringValue(
+                        PacketKeys.HENVENDELSESTYPE
+                    )}"
+                }
+            }
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         return builder.build()
