@@ -80,6 +80,11 @@ class JoarkMottak(
         )
 
         inngåendeJournalposter
+            .peek { _, record ->
+                logger.info(
+                    "Handling: ${record[PacketKeys.JOURNALPOST_ID]} "
+                )
+            }
             .filter { _, jp -> journalpostIdsFrom21OfJanuary.contains(jp[PacketKeys.JOURNALPOST_ID]) }
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
             .peek { _, record ->
