@@ -50,6 +50,10 @@ pipeline {
         sh label: 'Prepare prod service contract', script: """
            kustomize build ./nais/prod -o ./nais/nais-prod-deploy.yaml &&  cat ./nais/nais-prod-deploy.yaml
         """
+
+        sh label: 'Prepare prod service contract', script: """
+           kustomize build ./nais/prod-opprydder -o ./nais/nais-prod-opprydder-deploy.yaml &&  cat ./nais/nais-prod-opprydder-deploy.yaml
+        """
       }
 
       post {
@@ -154,6 +158,21 @@ pipeline {
             }
           }
         }
+      }
+    }
+
+    stage('Deploy dapgenger opprydder') {
+      when { branch 'fooooo' }
+
+      steps {
+        sh label: 'Deploy with kubectl', script: """
+          kubectl config use-context prod-${env.ZONE}
+          kubectl apply  -f ./nais/nais-prod-opprydder-deploy.yaml --wait
+          kubectl rollout status -w deployment/${APPLICATION_NAME}
+        """
+
+        archiveArtifacts artifacts: 'nais/nais-prod-deploy.yaml', fingerprint: true
+
       }
     }
 
