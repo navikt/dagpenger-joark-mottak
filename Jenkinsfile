@@ -168,7 +168,7 @@ pipeline {
         sh label: 'Deploy with kubectl', script: """
           kubectl config use-context prod-${env.ZONE}
           kubectl apply  -f ./nais/nais-prod-opprydder-deploy.yaml --wait
-          kubectl rollout status -w deployment/${APPLICATION_NAME}
+          kubectl rollout status -w deployment/dagpenger-joark-mottak-opprydder
         """
 
         archiveArtifacts artifacts: 'nais/nais-prod-deploy.yaml', fingerprint: true
