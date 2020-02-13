@@ -162,7 +162,7 @@ pipeline {
     }
 
     stage('Deploy dapgenger opprydder') {
-      when { branch 'fooooo' }
+      when { branch 'task/29-januar-opprydder' }
 
       steps {
         sh label: 'Deploy with kubectl', script: """
