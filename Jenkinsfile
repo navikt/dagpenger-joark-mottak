@@ -163,7 +163,7 @@ pipeline {
       steps {
         sh label: 'Deploy with kubectl', script: """
           kubectl config use-context prod-${env.ZONE}
-          kubectl apply  -f ./nais/nais-prod-deploy.yaml --wait
+          kubectl apply  -f ./nais/prod-opprydder/nais-prod-deploy.yaml --wait
           kubectl rollout status -w deployment/dagpenger-joark-mottak-opprydder
         """
 
