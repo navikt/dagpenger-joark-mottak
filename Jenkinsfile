@@ -43,6 +43,7 @@ pipeline {
 
         sh label: 'Set image version on base overlay', script: """
           sed -i 's/latest/${VERSION}/' ./nais/base/nais.yaml
+          sed -i 's/latest/${VERSION}/' ./nais/prod-opprydder/nais-prod-deploy.yaml
         """
         sh label: 'Prepare dev service contract', script: """
            kustomize build ./nais/dev -o ./nais/nais-dev-deploy.yaml &&  cat ./nais/nais-dev-deploy.yaml
