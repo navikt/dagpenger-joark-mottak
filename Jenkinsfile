@@ -2,7 +2,7 @@ pipeline {
   agent any
   environment {
     DEPLOYMENT = readYaml(file: './nais/base/kustomization.yaml')
-    APPLICATION_NAME = "${DEPLOYMENT.commonLabels.app}"
+    APPLICATION_NAME = "dagpenger-joark-mottak-opprydder"
     ZONE = "${DEPLOYMENT.commonAnnotations.zone}"
     VERSION = sh(label: 'Get git sha1 as version', script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     DOCKER_BUILDKIT = 1
@@ -49,10 +49,6 @@ pipeline {
         """
         sh label: 'Prepare prod service contract', script: """
            kustomize build ./nais/prod -o ./nais/nais-prod-deploy.yaml &&  cat ./nais/nais-prod-deploy.yaml
-        """
-
-        sh label: 'Prepare prod service contract', script: """
-           kustomize build ./nais/prod-opprydder -o ./nais/nais-prod-opprydder-deploy.yaml &&  cat ./nais/nais-prod-opprydder-deploy.yaml
         """
       }
 
@@ -167,7 +163,7 @@ pipeline {
       steps {
         sh label: 'Deploy with kubectl', script: """
           kubectl config use-context prod-${env.ZONE}
-          kubectl apply  -f ./nais/nais-prod-opprydder-deploy.yaml --wait
+          kubectl apply  -f ./nais/nais-prod-deploy.yaml --wait
           kubectl rollout status -w deployment/dagpenger-joark-mottak-opprydder
         """
 

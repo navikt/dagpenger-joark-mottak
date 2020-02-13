@@ -1,0 +1,33 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    zone: fss
+  labels:
+    app: dagpenger-joark-mottak-opprydder
+    team: teamdagpenger
+  name: dagpenger-joark-mottak-opprydder
+  namespace: default
+spec:
+  image: repo.adeo.no:5443/dagpenger-joark-mottak-opprydder:latest
+  liveness:
+    path: /isAlive
+  port: 8080
+  prometheus:
+    enabled: true
+    path: /metrics
+  readiness:
+    path: /isReady
+  replicas:
+    max: 4
+    min: 2
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 384Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  vault:
+    enabled: true
+  webproxy: true
