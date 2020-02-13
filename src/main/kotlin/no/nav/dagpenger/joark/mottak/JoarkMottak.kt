@@ -80,7 +80,7 @@ class JoarkMottak(
         )
 
         inngåendeJournalposter
-            .filter {_, jp ->  journalpostIdsFrom21OfJanuary.contains(jp[PacketKeys.JOURNALPOST_ID])}
+            .filter { _, jp -> journalpostIdsFrom21OfJanuary.contains(jp[PacketKeys.JOURNALPOST_ID]) }
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
             .peek { _, record ->
                 logger.info(
@@ -187,7 +187,6 @@ fun main(args: Array<String>) {
     val service = JoarkMottak(config, journalpostArkiv, packetCreator)
     service.start()
 }
-
 
 val journalpostIdsFrom21OfJanuary = setOf<String>(
     "468016607",

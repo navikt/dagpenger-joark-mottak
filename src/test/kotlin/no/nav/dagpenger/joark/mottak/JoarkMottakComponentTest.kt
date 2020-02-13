@@ -21,12 +21,14 @@ import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.streams.StreamsConfig
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.Properties
 import java.util.Random
 import kotlin.test.assertEquals
 
+@Disabled
 class JoarkMottakComponentTest {
 
     companion object {
