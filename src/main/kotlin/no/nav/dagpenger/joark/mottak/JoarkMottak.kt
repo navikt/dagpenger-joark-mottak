@@ -66,7 +66,7 @@ class JoarkMottak(
         listOf(journalpostArkiv as HealthCheck, packetCreator.personOppslag as HealthCheck)
 
     override val SERVICE_APP_ID =
-        "dagpenger-joark-mottak-opprydder2" // NB: also used as group.id for the consumer group - do not change!
+        "dagpenger-joark-mottak-opprydder-v1"
 
     override val HTTP_PORT: Int = config.application.httpPort
 
