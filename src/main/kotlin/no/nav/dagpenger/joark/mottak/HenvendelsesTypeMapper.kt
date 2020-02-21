@@ -44,8 +44,8 @@ object HenvendelsesTypeMapper {
         "NAV 04-01.03" to "Søknad om dagpenger (ikke permittert)",
         "NAVe 04-01.03" to "Ettersendelse til søknad om dagpenger ved arbeidsledighet (ikke permittert)",
         "NAV 04-01.04" to "Søknad om dagpenger ved permittering",
-        "NAVe 04-01.04" to "Ettersendelse til søknad om dagpenger ved permittering"
-
+        "NAVe 04-01.04" to "Ettersendelse til søknad om dagpenger ved permittering",
+        "NAV 90-00.08" to "Klage og anke"
     )
 
     private val brevkodeTilHenvendelsestype = mapOf(
