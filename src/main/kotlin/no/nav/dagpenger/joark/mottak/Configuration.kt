@@ -7,7 +7,6 @@ import com.natpryce.konfig.Key
 import com.natpryce.konfig.intType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
-import no.finn.unleash.util.UnleashConfig
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.PacketDeserializer
@@ -80,12 +79,7 @@ private fun config() = when (System.getenv("NAIS_CLUSTER_NAME") ?: System.getPro
 
 data class Configuration(
     val kafka: Kafka = Kafka(),
-    val application: Application = Application(),
-    val unleashConfig: UnleashConfig = UnleashConfig.builder()
-        .appName(config().getOrElse(Key("app.name", stringType), "dagpenger-joark-mottak"))
-        .instanceId(getHostname())
-        .unleashAPI(config()[Key("unleash.url", stringType)])
-        .build()
+    val application: Application = Application()
 ) {
     data class Kafka(
         val joarkTopic: Topic<String, GenericRecord> = Topics.JOARK_EVENTS.copy(
