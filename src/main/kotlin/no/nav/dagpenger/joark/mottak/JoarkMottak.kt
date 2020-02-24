@@ -2,8 +2,6 @@ package no.nav.dagpenger.joark.mottak
 
 import io.prometheus.client.Counter
 import mu.KotlinLogging
-import no.finn.unleash.DefaultUnleash
-import no.finn.unleash.Unleash
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.Service
@@ -96,7 +94,6 @@ class JoarkMottak(
             }
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
             .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
-            .filter { _, journalpost -> toggleStøtte(journalpost.henvendelsestype) }
             .mapValues { _, journalpost -> packetCreator.createPacket(journalpost) }
             .peek { _, _ -> jpMottatCounter.inc() }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
@@ -119,10 +116,6 @@ class JoarkMottak(
         Henvendelsestype.ETABLERING,
         Henvendelsestype.KLAGE_ANKE
     )
-
-    private fun toggleStøtte(henvendelsestype: Henvendelsestype): Boolean {
-        return henvendelsestype == Henvendelsestype.NY_SØKNAD || packetCreator.unleash.isEnabled("dp.innlop.behandleNyBrevkode")
-    }
 
     private fun registerMetrics(journalpost: Journalpost) {
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
@@ -168,8 +161,6 @@ fun main(args: Array<String>) {
         config.kafka.user, config.kafka.password
     )
 
-    val unleash: Unleash = DefaultUnleash(config.unleashConfig)
-
     val journalpostArkiv = JournalpostArkivJoark(
         config.application.joarkJournalpostArkivBaseUrl,
         oidcClient
@@ -181,7 +172,7 @@ fun main(args: Array<String>) {
         config.application.graphQlApiKey
     )
 
-    val packetCreator = PacketCreator(personOppslag, unleash)
+    val packetCreator = PacketCreator(personOppslag)
 
     val service = JoarkMottak(config, journalpostArkiv, packetCreator)
     service.start()
