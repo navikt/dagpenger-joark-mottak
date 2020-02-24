@@ -52,8 +52,6 @@ dependencies {
     implementation(Dagpenger.Streams)
     implementation(Dagpenger.Events)
 
-    implementation("no.finn.unleash:unleash-client-java:3.2.9")
-
     implementation(Dagpenger.Biblioteker.stsKlient)
 
     implementation(Prometheus.common)

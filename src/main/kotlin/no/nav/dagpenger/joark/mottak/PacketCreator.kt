@@ -1,14 +1,12 @@
 package no.nav.dagpenger.joark.mottak
 
 import mu.KotlinLogging
-import no.finn.unleash.Unleash
 import no.nav.dagpenger.events.Packet
 
 private val logger = KotlinLogging.logger {}
 
 class PacketCreator(
-    val personOppslag: PersonOppslag,
-    val unleash: Unleash
+    val personOppslag: PersonOppslag
 ) {
     fun createPacket(journalpost: Journalpost) = Packet().apply {
         this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_SØKNAD, true)
