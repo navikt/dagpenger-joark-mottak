@@ -92,6 +92,7 @@ class JoarkMottak(
                     .also { logger.info { "Journalpost --> $it" } }
                     .also { registerMetrics(it) }
             }
+            .peek { _, journalpost -> journalpost.journalstatus.let { if (it != Journalstatus.MOTTATT) logger.warn { "Mottok journalpost ${journalpost.journalpostId} med annen status enn mottatt: $it " } } }
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
             .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
             .mapValues { _, journalpost -> packetCreator.createPacket(journalpost) }
