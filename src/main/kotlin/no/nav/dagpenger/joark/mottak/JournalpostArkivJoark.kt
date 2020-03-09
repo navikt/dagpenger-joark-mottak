@@ -40,7 +40,23 @@ class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcCl
     }
 
     override fun hentSøknadsdata(journalpost: Journalpost): String {
-        return "test"
+        val journalpostId = journalpost.journalpostId
+        val dokumentId = journalpost.dokumenter.first().dokumentInfoId
+
+        val (_, response, result) = with("$joarkBaseUrl$journalpostId/$dokumentId/ORIGINAL".httpGet()) {
+            authentication().bearer(oidcClient.oidcToken().access_token)
+            header("Content-Type" to "application/json")
+            response()
+        }
+
+        return when (result) {
+            is Result.Failure -> throw JournalpostArkivException(
+                response.statusCode,
+                "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.responseMessage}",
+                result.getException()
+            )
+            is Result.Success -> response.data.toString()
+        }
     }
 }
 
