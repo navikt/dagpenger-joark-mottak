@@ -2,7 +2,6 @@ package no.nav.dagpenger.joark.mottak
 
 import io.prometheus.client.Counter
 import mu.KotlinLogging
-import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.Service
@@ -111,9 +110,7 @@ class JoarkMottak(
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         journalpostStream
-            .mapValues { _, journalpost -> Packet().apply {
-                this.putValue("søknadsdata", journalpostArkiv.hentSøknadsdata(journalpost))
-            } }
+            .mapValues { _, journalpost -> journalpostArkiv.hentSøknadsdata(journalpost) }
             .toTopic(config.kafka.søknadsdataTopic)
 
         return builder.build()

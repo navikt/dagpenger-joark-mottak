@@ -297,7 +297,7 @@ class JoarkMottakTopologyTest {
         )
     }
 
-    private fun readOutputSøknadsdata(topologyTestDriver: TopologyTestDriver): ProducerRecord<String, Packet>? {
+    private fun readOutputSøknadsdata(topologyTestDriver: TopologyTestDriver): ProducerRecord<String, String>? {
         return topologyTestDriver.readOutput(
             configuration.kafka.søknadsdataTopic.name,
             configuration.kafka.søknadsdataTopic.keySerde.deserializer(),

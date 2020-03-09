@@ -46,7 +46,7 @@ class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcCl
         val (_, response, result) = with("$joarkBaseUrl$journalpostId/$dokumentId/ORIGINAL".httpGet()) {
             authentication().bearer(oidcClient.oidcToken().access_token)
             header("Content-Type" to "application/json")
-            response()
+            responseString()
         }
 
         return when (result) {
@@ -55,7 +55,7 @@ class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcCl
                 "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.responseMessage}",
                 result.getException()
             )
-            is Result.Success -> response.data.toString()
+            is Result.Success -> result.get()
         }
     }
 }
