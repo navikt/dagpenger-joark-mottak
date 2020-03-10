@@ -39,9 +39,9 @@ class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcCl
         }
     }
 
-    override fun hentSøknadsdata(journalpost: Journalpost): String {
+    override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata {
         val journalpostId = journalpost.journalpostId
-        val dokumentId = journalpost.dokumenter.first().dokumentInfoId
+        val dokumentId = journalpost.dokumenter.firstOrNull()?.dokumentInfoId ?: return emptySøknadsdata
 
         val (_, response, result) = with("$joarkBaseUrl$journalpostId/$dokumentId/ORIGINAL".httpGet()) {
             authentication().bearer(oidcClient.oidcToken().access_token)
@@ -55,7 +55,7 @@ class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcCl
                 "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.responseMessage}",
                 result.getException()
             )
-            is Result.Success -> result.get()
+            is Result.Success -> Søknadsdata(result.get())
         }
     }
 }

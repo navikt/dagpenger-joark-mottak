@@ -111,6 +111,8 @@ class JoarkMottak(
 
         journalpostStream
             .mapValues { _, journalpost -> journalpostArkiv.hentSøknadsdata(journalpost) }
+            .filter { _, søknadsdata -> søknadsdata != emptySøknadsdata }
+            .mapValues { _, søknadsdata -> søknadsdata.data }
             .toTopic(config.kafka.søknadsdataTopic)
 
         return builder.build()

@@ -21,7 +21,7 @@ class DummyJournalpostArkiv() : JournalpostArkiv {
         )
     }
 
-    override fun hentSøknadsdata(journalpost: Journalpost): String {
-        return "{}"
+    override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata {
+        return Søknadsdata("data")
     }
 }
