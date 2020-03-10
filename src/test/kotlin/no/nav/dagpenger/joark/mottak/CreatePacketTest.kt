@@ -34,7 +34,7 @@ class CreatePacketTest {
             dokumenter = listOf(DokumentInfo("tittel", "infoId", "NAV 04-01.03"))
         )
 
-        val packetCreator = InnløpPacketCreator(personOppslagMock)
+        val packetCreator = PacketCreator(personOppslagMock)
         val packet = packetCreator.createPacket(journalpost)
 
         verify { personOppslagMock.hentPerson("1111", BrukerType.AKTOERID) }
@@ -47,7 +47,7 @@ class CreatePacketTest {
 
     @Test
     fun `skal gi hovedskjema`() {
-        val packetCreator = InnløpPacketCreator(personOppslagMock)
+        val packetCreator = PacketCreator(personOppslagMock)
 
         val journalpost = dummyJournalpost(
             dokumenter = listOf(DokumentInfo("tittel", "infoId", "NAV 04-01.04"))
@@ -60,7 +60,7 @@ class CreatePacketTest {
 
     @Test
     fun `skal legge dokumentliste på pakken i JSON-format`() {
-        val packetCreator = InnløpPacketCreator(personOppslagMock)
+        val packetCreator = PacketCreator(personOppslagMock)
 
         val journalpost = dummyJournalpost(
             dokumenter = listOf(DokumentInfo("Søknad", "infoId", "NAV 04-01.04"))
@@ -90,7 +90,7 @@ class CreatePacketTest {
             diskresjonskode = "SPSF"
         )
 
-        val packetCreator = InnløpPacketCreator(personOppslagMedDiskresjonskode)
+        val packetCreator = PacketCreator(personOppslagMedDiskresjonskode)
         val packet = packetCreator.createPacket(dummyJournalpost())
 
         packet.getStringValue("behandlendeEnhet") shouldBe "2103"
@@ -98,7 +98,7 @@ class CreatePacketTest {
 
     @Test
     fun `nye søknader (ikke permitering) skal havne på benk 4450`() {
-        val packetCreator = InnløpPacketCreator(personOppslagMock)
+        val packetCreator = PacketCreator(personOppslagMock)
 
         val journalpost = dummyJournalpost(
             dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.03"))
@@ -110,7 +110,7 @@ class CreatePacketTest {
 
     @Test
     fun `nye søknader ved permitering skal havne på benk 4455`() {
-        val packetCreator = InnløpPacketCreator(personOppslagMock)
+        val packetCreator = PacketCreator(personOppslagMock)
 
         val journalpost = dummyJournalpost(
             dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.04"))

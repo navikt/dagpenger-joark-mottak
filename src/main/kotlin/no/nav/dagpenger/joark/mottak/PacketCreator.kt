@@ -5,7 +5,7 @@ import no.nav.dagpenger.events.Packet
 
 private val logger = KotlinLogging.logger {}
 
-class InnløpPacketCreator(
+class PacketCreator(
     val personOppslag: PersonOppslag
 ) {
     fun createPacket(journalpost: Journalpost) = Packet().apply {

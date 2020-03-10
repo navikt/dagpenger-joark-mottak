@@ -39,8 +39,7 @@ class JoarkMottakComponentTest {
             withSecurity = true,
             topicInfos = listOf(
                 KafkaEnvironment.TopicInfo("aapen-dok-journalfoering-v1"),
-                KafkaEnvironment.TopicInfo("privat-dagpenger-journalpost-mottatt-v1"),
-                KafkaEnvironment.TopicInfo("privat-dagpenger-soknadsdata-v1")
+                KafkaEnvironment.TopicInfo("privat-dagpenger-journalpost-mottatt-v1")
             )
         )
 
@@ -73,7 +72,7 @@ class JoarkMottakComponentTest {
         val joarkMottak = JoarkMottak(
             configuration,
             DummyJournalpostArkiv(),
-            InnløpPacketCreator(PersonOppslag(configuration.application.personOppslagBaseUrl, stsOidcClient, ""))
+            PacketCreator(PersonOppslag(configuration.application.personOppslagBaseUrl, stsOidcClient, ""))
         )
 
         @BeforeAll
@@ -154,9 +153,10 @@ class JoarkMottakComponentTest {
             dummyJoarkProducer.produceEvent(journalpostId = id, tema = tema, hendelsesType = "MidlertidigJournalført")
         }
 
+        Thread.sleep(300)
+
         val behovConsumer: KafkaConsumer<String, Packet> = behovConsumer(configuration)
 
-        Thread.sleep(1000)
         val behov = behovConsumer.poll(Duration.ofSeconds(5)).toList()
 
         behov.size shouldBe kjoarkEvents.filterValues { it == "DAG" }.size

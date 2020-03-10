@@ -20,8 +20,4 @@ class DummyJournalpostArkiv() : JournalpostArkiv {
             dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.04"))
         )
     }
-
-    override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata {
-        return Søknadsdata("data")
-    }
 }

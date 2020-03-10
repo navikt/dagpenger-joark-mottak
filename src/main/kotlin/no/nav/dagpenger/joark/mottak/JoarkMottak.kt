@@ -57,10 +57,10 @@ internal object PacketKeys {
 class JoarkMottak(
     val config: Configuration,
     val journalpostArkiv: JournalpostArkiv,
-    val innløpPacketCreator: InnløpPacketCreator
+    val packetCreator: PacketCreator
 ) : Service() {
     override val healthChecks: List<HealthCheck> =
-        listOf(journalpostArkiv as HealthCheck, innløpPacketCreator.personOppslag as HealthCheck)
+        listOf(journalpostArkiv as HealthCheck, packetCreator.personOppslag as HealthCheck)
 
     override val SERVICE_APP_ID =
         "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
@@ -77,7 +77,7 @@ class JoarkMottak(
             config.kafka.joarkTopic, config.kafka.schemaRegisterUrl
         )
 
-        val journalpostStream = inngåendeJournalposter
+        inngåendeJournalposter
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
             .peek { _, record ->
                 logger.info(
@@ -94,10 +94,8 @@ class JoarkMottak(
             }
             .peek { _, journalpost -> journalpost.journalstatus.let { if (it != Journalstatus.MOTTATT) logger.warn { "Mottok journalpost ${journalpost.journalpostId} med annen status enn mottatt: $it " } } }
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
-
-        journalpostStream
             .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
-            .mapValues { _, journalpost -> innløpPacketCreator.createPacket(journalpost) }
+            .mapValues { _, journalpost -> packetCreator.createPacket(journalpost) }
             .peek { _, _ -> jpMottatCounter.inc() }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
             .peek { _, packet ->
@@ -108,12 +106,6 @@ class JoarkMottak(
                 }
             }
             .toTopic(config.kafka.dagpengerJournalpostTopic)
-
-        journalpostStream
-            .mapValues { _, journalpost -> journalpostArkiv.hentSøknadsdata(journalpost) }
-            .filter { _, søknadsdata -> søknadsdata != emptySøknadsdata }
-            .mapValues { _, søknadsdata -> søknadsdata.data }
-            .toTopic(config.kafka.søknadsdataTopic)
 
         return builder.build()
     }
@@ -181,7 +173,7 @@ fun main(args: Array<String>) {
         config.application.graphQlApiKey
     )
 
-    val packetCreator = InnløpPacketCreator(personOppslag)
+    val packetCreator = PacketCreator(personOppslag)
 
     val service = JoarkMottak(config, journalpostArkiv, packetCreator)
     service.start()
