@@ -113,7 +113,7 @@ class JoarkMottak(
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         journalpostStream
-            .filter { _, _ -> toggle.isEnabled("dagpenger-joark-mottak.søknadstopic") }
+            .filter { _, _ -> toggle.isEnabled("dagpenger-joark-mottak.soknadstopic") }
             .filter { _, journalpost -> journalpost.henvendelsestype == Henvendelsestype.NY_SØKNAD }
             .mapValues { _, journalpost -> journalpostArkiv.hentSøknadsdata(journalpost) }
             .filter { _, søknadsdata -> søknadsdata != emptySøknadsdata }
