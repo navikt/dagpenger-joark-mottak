@@ -118,6 +118,7 @@ class JoarkMottak(
             .mapValues { _, journalpost -> journalpostArkiv.hentSøknadsdata(journalpost) }
             .filter { _, søknadsdata -> søknadsdata != emptySøknadsdata }
             .mapValues { _, søknadsdata -> søknadsdata.data }
+            .peek { key, _ -> logger.info { "Producing søknadsdata for $key " }}
             .toTopic(config.kafka.søknadsdataTopic)
 
         return builder.build()
