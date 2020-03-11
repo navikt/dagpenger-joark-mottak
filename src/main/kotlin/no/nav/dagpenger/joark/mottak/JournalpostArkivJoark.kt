@@ -9,7 +9,7 @@ import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthStatus
 
 class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcClient: OidcClient) :
-        JournalpostArkiv {
+    JournalpostArkiv {
 
     override fun status(): HealthStatus {
         val (_, _, result) = with("${joarkBaseUrl}isAlive".httpGet()) {
@@ -31,17 +31,38 @@ class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcCl
 
         return when (result) {
             is Result.Failure -> throw JournalpostArkivException(
-                    response.statusCode,
-                    "Failed to fetch journalpost id: $journalpostId. Response message ${response.responseMessage}",
-                    result.getException()
+                response.statusCode,
+                "Failed to fetch journalpost id: $journalpostId. Response message ${response.responseMessage}",
+                result.getException()
             )
             is Result.Success -> result.get().data.journalpost
+        }
+    }
+
+    override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata {
+        val journalpostId = journalpost.journalpostId
+        val dokumentId = journalpost.dokumenter.firstOrNull()?.dokumentInfoId ?: return emptySøknadsdata
+
+        val url = "${joarkBaseUrl}rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL"
+        val (_, response, result) = with(url.httpGet()) {
+            authentication().bearer(oidcClient.oidcToken().access_token)
+            header("Content-Type" to "application/json")
+            responseString()
+        }
+
+        return when (result) {
+            is Result.Failure -> throw JournalpostArkivException(
+                response.statusCode,
+                "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.responseMessage}",
+                result.getException()
+            )
+            is Result.Success -> Søknadsdata(result.get())
         }
     }
 }
 
 internal data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
-        query = """ 
+    query = """ 
             query {
                 journalpost(journalpostId: "$journalpostId") {
                     journalstatus
@@ -66,8 +87,8 @@ internal data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
                 }
             }
             """.trimIndent(),
-        variables = null
+    variables = null
 )
 
 class JournalpostArkivException(val statusCode: Int, override val message: String, override val cause: Throwable) :
-        RuntimeException(message, cause)
+    RuntimeException(message, cause)

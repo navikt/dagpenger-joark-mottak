@@ -48,6 +48,31 @@ class JournalpostArkivJoarkTest {
     }
 
     @Test
+    fun `henter søknadsdata for journalpost`() {
+        val journalpostId = "123"
+        val dokumentId = "666"
+        val url = "/rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL"
+
+        val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-søknadsdata-payload.json")
+            .readText()
+        stubFor(
+            get(urlEqualTo(url))
+                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .withHeader("Content-type", RegexPattern("application/json"))
+                .willReturn(
+                    aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                )
+        )
+
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
+        joarkClient.hentSøknadsdata(dummyJournalpost(journalpostId = journalpostId, dokumenter = listOf(DokumentInfo("Søknad", dokumentId, "brevkode"))))
+
+        verify(getRequestedFor(urlEqualTo(url)))
+    }
+
+    @Test
     fun `henter Journalpost med riktig spørring`() {
         val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-journalpost-payload.json")
             .readText()
