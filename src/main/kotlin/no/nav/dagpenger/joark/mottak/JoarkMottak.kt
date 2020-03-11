@@ -110,7 +110,15 @@ class JoarkMottak(
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         journalpostStream
-            .mapValues { _, journalpost -> journalpostArkiv.hentSøknadsdata(journalpost) }
+            .filter { _, journalpost -> journalpost.henvendelsestype == Henvendelsestype.NY_SØKNAD }
+            .mapValues { _, journalpost ->
+                try {
+                    journalpostArkiv.hentSøknadsdata(journalpost)
+                } catch (e: Exception) {
+                    logger.warn(e) { "Klarte ikke å hente søknadsdata" }
+                    emptySøknadsdata
+                }
+            }
             .filter { _, søknadsdata -> søknadsdata != emptySøknadsdata }
             .mapValues { _, søknadsdata -> søknadsdata.data }
             .toTopic(config.kafka.søknadsdataTopic)
