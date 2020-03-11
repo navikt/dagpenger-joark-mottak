@@ -43,7 +43,8 @@ class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcCl
         val journalpostId = journalpost.journalpostId
         val dokumentId = journalpost.dokumenter.firstOrNull()?.dokumentInfoId ?: return emptySøknadsdata
 
-        val (_, response, result) = with("$joarkBaseUrl$journalpostId/$dokumentId/ORIGINAL".httpGet()) {
+        val url = "${joarkBaseUrl}rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL"
+        val (_, response, result) = with(url.httpGet()) {
             authentication().bearer(oidcClient.oidcToken().access_token)
             header("Content-Type" to "application/json")
             responseString()
