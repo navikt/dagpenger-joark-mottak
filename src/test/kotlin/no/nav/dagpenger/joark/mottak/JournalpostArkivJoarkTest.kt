@@ -54,8 +54,9 @@ class JournalpostArkivJoarkTest {
 
         val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-søknadsdata-payload.json")
             .readText()
+        val url = "/rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL"
         stubFor(
-            get(urlEqualTo("/$journalpostId/$dokumentId/ORIGINAL"))
+            get(urlEqualTo(url))
                 .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
                 .withHeader("Content-type", RegexPattern("application/json"))
                 .willReturn(
@@ -68,7 +69,7 @@ class JournalpostArkivJoarkTest {
         val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         joarkClient.hentSøknadsdata(dummyJournalpost(journalpostId = journalpostId, dokumenter = listOf(DokumentInfo("Søknad", dokumentId, "brevkode"))))
 
-        verify(getRequestedFor(urlEqualTo("/$journalpostId/$dokumentId/ORIGINAL")))
+        verify(getRequestedFor(urlEqualTo(url)))
     }
 
     @Test
