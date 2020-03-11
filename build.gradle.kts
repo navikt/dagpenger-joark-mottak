@@ -77,6 +77,8 @@ dependencies {
 
     implementation(Ktor.serverNetty)
 
+    implementation("no.finn.unleash:unleash-client-java:3.2.9")
+
     testImplementation(kotlin("test"))
     testImplementation(Junit5.api)
     testImplementation(Junit5.kotlinRunner)

@@ -1,0 +1,836 @@
+{
+  "soknadId": 10620,
+  "soknadsType": "dagpenger.ordinaer",
+  "skjemaNummer": "NAV 04-01.03",
+  "versjon": null,
+  "uuid": "099b9f3e-44cd-422f-8afa-02ef74ada1d1",
+  "brukerBehandlingId": "1000S63GT",
+  "behandlingskjedeId": null,
+  "fakta": [
+    {
+      "faktumId": 774715,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "bolker",
+      "value": null,
+      "faktumEgenskaper": [
+        {
+          "faktumId": 774715,
+          "soknadId": 10620,
+          "key": "reellarbeidssoker",
+          "value": "true",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774715,
+          "soknadId": 10620,
+          "key": "egennaering",
+          "value": "true",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774715,
+          "soknadId": 10620,
+          "key": "personalia",
+          "value": "true",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774715,
+          "soknadId": 10620,
+          "key": "utdanning",
+          "value": "true",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774715,
+          "soknadId": 10620,
+          "key": "ytelser",
+          "value": "true",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774715,
+          "soknadId": 10620,
+          "key": "verneplikt",
+          "value": "true",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774715,
+          "soknadId": 10620,
+          "key": "barnetillegg",
+          "value": "true",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774715,
+          "soknadId": 10620,
+          "key": "tilleggsopplysninger",
+          "value": "true",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774715,
+          "soknadId": 10620,
+          "key": "arbeidsforhold",
+          "value": "true",
+          "systemEgenskap": 0
+        }
+      ],
+      "properties": {
+        "personalia": "true",
+        "tilleggsopplysninger": "true",
+        "utdanning": "true",
+        "reellarbeidssoker": "true",
+        "barnetillegg": "true",
+        "egennaering": "true",
+        "arbeidsforhold": "true",
+        "ytelser": "true",
+        "verneplikt": "true"
+      },
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774716,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "personalia",
+      "value": null,
+      "faktumEgenskaper": [
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "statsborgerskapType",
+          "value": "norsk",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "sekundarAdresseType",
+          "value": "BOSTEDSADRESSE",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "fnr",
+          "value": "00000000000",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "alder",
+          "value": "39",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "sekundarAdresseGyldigTil",
+          "value": null,
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "gjeldendeAdresseType",
+          "value": "POSTADRESSE",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "gjeldendeAdresse",
+          "value": "Navn Navnesen, Sted 123 Oslo",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "mellomnavn",
+          "value": null,
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "sekundarAdresseGyldigFra",
+          "value": null,
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "sekundarAdresse",
+          "value": "Tullested",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "kontonummer",
+          "value": null,
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "kjonn",
+          "value": "m",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "utenlandskKontoLand",
+          "value": null,
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "fornavn",
+          "value": "Fake Navn",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "gjeldendeAdresseGyldigFra",
+          "value": null,
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "erUtenlandskBankkonto",
+          "value": "false",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "diskresjonskode",
+          "value": null,
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "epost",
+          "value": "julenissen@nordpolen.no",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "gjeldendeAdresseLandkode",
+          "value": "NOR",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "utenlandskKontoBanknavn",
+          "value": null,
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "etternavn",
+          "value": "navn",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "navn",
+          "value": "Fake Navn",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "statsborgerskap",
+          "value": "NOR",
+          "systemEgenskap": 1
+        },
+        {
+          "faktumId": 774716,
+          "soknadId": 10620,
+          "key": "gjeldendeAdresseGyldigTil",
+          "value": null,
+          "systemEgenskap": 1
+        }
+      ],
+      "properties": {
+        "gjeldendeAdresseLandkode": "NOR",
+        "statsborgerskapType": "norsk",
+        "statsborgerskap": "NOR",
+        "mellomnavn": null,
+        "utenlandskKontoBanknavn": null,
+        "erUtenlandskBankkonto": "false",
+        "kjonn": "m",
+        "epost": "julenissen@nordpolen.no",
+        "sekundarAdresseType": "BOSTEDSADRESSE",
+        "gjeldendeAdresse": "Fake sted",
+        "fnr": "00000000",
+        "fornavn": "Fake",
+        "alder": "39",
+        "sekundarAdresseGyldigTil": null,
+        "utenlandskKontoLand": null,
+        "kontonummer": null,
+        "sekundarAdresse": "F",
+        "sekundarAdresseGyldigFra": null,
+        "etternavn": "asdfasfd",
+        "gjeldendeAdresseType": "POSTADRESSE",
+        "diskresjonskode": null,
+        "navn": "asfasf",
+        "gjeldendeAdresseGyldigTil": null,
+        "gjeldendeAdresseGyldigFra": null
+      },
+      "type": "SYSTEMREGISTRERT"
+    },
+    {
+      "faktumId": 774717,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "utslagskriterier.fortsettlikevel",
+      "value": "true",
+      "faktumEgenskaper": [
+        {
+          "faktumId": 774717,
+          "soknadId": 10620,
+          "key": "1",
+          "value": "Jeg vil søke om dagpenger likevel, og er klar over at jeg mest sannsynlig vil få avslag på søknaden.",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774717,
+          "soknadId": 10620,
+          "key": "0",
+          "value": "Du må registrere deg som arbeidssøker for å ha rett til dagpenger\n\nDu kan tidligst få dagpenger fra datoen du både har registrert deg som arbeidssøker og sendt søknad om dagpenger.",
+          "systemEgenskap": 0
+        }
+      ],
+      "properties": {
+        "0": "Du må registrere deg som arbeidssøker for å ha rett til dagpenger\n\nDu kan tidligst få dagpenger fra datoen du både har registrert deg som arbeidssøker og sendt søknad om dagpenger.",
+        "1": "Jeg vil søke om dagpenger likevel, og er klar over at jeg mest sannsynlig vil få avslag på søknaden."
+      },
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774718,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "utslagskriterier.dagpenger.utbetaling",
+      "value": "nei",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774719,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "informasjonsside",
+      "value": null,
+      "faktumEgenskaper": [
+        {
+          "faktumId": 774719,
+          "soknadId": 10620,
+          "key": "0",
+          "value": "Viktig informasjon",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774719,
+          "soknadId": 10620,
+          "key": "1",
+          "value": "<h3>For å ha rett til dagpenger må du</h3><ul><li>være registrert som arbeidssøker</li><li>sende meldekort hver 14. dag selv om du ikke har fått svar på søknaden</li><li>være aktiv arbeidssøker</li><li>som hovedregel oppholde deg i Norge</li></ul><h3>Vedlegg</h3><p>Vedleggene du får beskjed om å sende inn kan du legge ved søknaden. Hvis du har vedlegg på papir kan du ta <a target=\"_blank\" href=\"https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/Ta+bilde+av+vedleggene+med+mobilen.424119.cms\" title=\"Lenke til artikkel som beskriver hvordan man kan ta bilde av vedlegg med telefonen\">bilde med for eksempel mobiltelefon</a>. De kan også ettersendes elektronisk.</p><h3>Personvern</h3><p>For å kunne behandle søknaden din, henter vi opplysninger fra flere offentlige og private virksomheter, blant annet folkeregister- og inntektsopplysninger fra Skatteetaten. Vi kan også sende opplysninger til andre offentlige og private virksomheter som Statens lånekasse, pensjonskasser, Skatteetaten m.fl. <a href=\"https://www.nav.no/personvern\" target=\"_blank\" title=\"Les om hvordan NAV behandler personopplysninger\">Les om hvordan NAV behandler personopplysninger</a></p>",
+          "systemEgenskap": 0
+        }
+      ],
+      "properties": {
+        "0": "Viktig informasjon",
+        "1": "<h3>For å ha rett til dagpenger må du</h3><ul><li>være registrert som arbeidssøker</li><li>sende meldekort hver 14. dag selv om du ikke har fått svar på søknaden</li><li>være aktiv arbeidssøker</li><li>som hovedregel oppholde deg i Norge</li></ul><h3>Vedlegg</h3><p>Vedleggene du får beskjed om å sende inn kan du legge ved søknaden. Hvis du har vedlegg på papir kan du ta <a target=\"_blank\" href=\"https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/Ta+bilde+av+vedleggene+med+mobilen.424119.cms\" title=\"Lenke til artikkel som beskriver hvordan man kan ta bilde av vedlegg med telefonen\">bilde med for eksempel mobiltelefon</a>. De kan også ettersendes elektronisk.</p><h3>Personvern</h3><p>For å kunne behandle søknaden din, henter vi opplysninger fra flere offentlige og private virksomheter, blant annet folkeregister- og inntektsopplysninger fra Skatteetaten. Vi kan også sende opplysninger til andre offentlige og private virksomheter som Statens lånekasse, pensjonskasser, Skatteetaten m.fl. <a href=\"https://www.nav.no/personvern\" target=\"_blank\" title=\"Les om hvordan NAV behandler personopplysninger\">Les om hvordan NAV behandler personopplysninger</a></p>"
+      },
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774720,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "informasjonsside.lestbrosjyre",
+      "value": "true",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774721,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "reellarbeidssoker.villigdeltid",
+      "value": "true",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774722,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "reellarbeidssoker.villigpendle",
+      "value": "false",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774723,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "reellarbeidssoker.villighelse",
+      "value": "true",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774724,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "reellarbeidssoker.villigjobb",
+      "value": "true",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774725,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "arbeidsforhold.datodagpenger",
+      "value": "0101-01-01",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774726,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "arbeidsforhold.arbeidstilstand",
+      "value": "fastArbeidstid",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774728,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "egennaering.driveregennaering",
+      "value": "true",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774729,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "egennaering.gardsbruk",
+      "value": "true",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774730,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "egennaering.fangstogfiske",
+      "value": "true",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774731,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "ikkeavtjentverneplikt",
+      "value": "true",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774732,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "utdanning",
+      "value": "ikkeUtdanning",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774733,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "andreytelser.ytelser",
+      "value": null,
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774734,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "andreytelser.ikkeavtale",
+      "value": "true",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774735,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "barn.leggtil",
+      "value": null,
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774736,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "tilleggsopplysninger.fritekst",
+      "value": null,
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774745,
+      "soknadId": 10620,
+      "parrentFaktum": 774722,
+      "key": "reellarbeidssoker.villigpendle.grunn",
+      "value": null,
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774746,
+      "soknadId": 10620,
+      "parrentFaktum": 774745,
+      "key": "reellarbeidssoker.villigpendle.grunn.reduserthelse",
+      "value": null,
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774747,
+      "soknadId": 10620,
+      "parrentFaktum": 774745,
+      "key": "reellarbeidssoker.villigpendle.grunn.omsorgbarnunder1aar",
+      "value": null,
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774748,
+      "soknadId": 10620,
+      "parrentFaktum": 774745,
+      "key": "reellarbeidssoker.villigpendle.grunn.eneansvarbarnunder5skoleaar",
+      "value": null,
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774749,
+      "soknadId": 10620,
+      "parrentFaktum": 774745,
+      "key": "reellarbeidssoker.villigpendle.grunn.eneansvarbarnopptil18aar",
+      "value": null,
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774750,
+      "soknadId": 10620,
+      "parrentFaktum": 774745,
+      "key": "reellarbeidssoker.villigpendle.grunn.omsorgansvar",
+      "value": null,
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774751,
+      "soknadId": 10620,
+      "parrentFaktum": 774745,
+      "key": "reellarbeidssoker.villigpendle.grunn.annensituasjon",
+      "value": "true",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774794,
+      "soknadId": 10620,
+      "parrentFaktum": 774733,
+      "key": "andreytelser.ytelser.offentligtjenestepensjon",
+      "value": "false",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774796,
+      "soknadId": 10620,
+      "parrentFaktum": 774733,
+      "key": "andreytelser.ytelser.privattjenestepensjon",
+      "value": "false",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774798,
+      "soknadId": 10620,
+      "parrentFaktum": 774733,
+      "key": "andreytelser.ytelser.stonadfisker",
+      "value": "false",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774800,
+      "soknadId": 10620,
+      "parrentFaktum": 774733,
+      "key": "andreytelser.ytelser.garantilott",
+      "value": "false",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774802,
+      "soknadId": 10620,
+      "parrentFaktum": 774733,
+      "key": "andreytelser.ytelser.etterlonn",
+      "value": "false",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774804,
+      "soknadId": 10620,
+      "parrentFaktum": 774733,
+      "key": "andreytelser.ytelser.vartpenger",
+      "value": "false",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774806,
+      "soknadId": 10620,
+      "parrentFaktum": 774733,
+      "key": "andreytelser.ytelser.dagpengereos",
+      "value": "false",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774808,
+      "soknadId": 10620,
+      "parrentFaktum": 774733,
+      "key": "andreytelser.ytelser.annenytelse",
+      "value": "false",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774811,
+      "soknadId": 10620,
+      "parrentFaktum": 774733,
+      "key": "andreytelser.ytelser.ingenytelse",
+      "value": "true",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774819,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "skjema.sprak",
+      "value": "nb_NO",
+      "faktumEgenskaper": [],
+      "properties": {},
+      "type": "BRUKERREGISTRERT"
+    },
+    {
+      "faktumId": 774820,
+      "soknadId": 10620,
+      "parrentFaktum": null,
+      "key": "arbeidsforhold",
+      "value": null,
+      "faktumEgenskaper": [
+        {
+          "faktumId": 774820,
+          "soknadId": 10620,
+          "key": "datofra",
+          "value": "0101-01-01",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774820,
+          "soknadId": 10620,
+          "key": "type",
+          "value": "avskjediget",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774820,
+          "soknadId": 10620,
+          "key": "skalHaT8VedleggForKontraktUtgaatt",
+          "value": "false",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774820,
+          "soknadId": 10620,
+          "key": "avskjedigetGrunn",
+          "value": "klj",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774820,
+          "soknadId": 10620,
+          "key": "land",
+          "value": "NOR",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774820,
+          "soknadId": 10620,
+          "key": "datotil",
+          "value": "0101-01-01",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774820,
+          "soknadId": 10620,
+          "key": "eosland",
+          "value": "false",
+          "systemEgenskap": 0
+        },
+        {
+          "faktumId": 774820,
+          "soknadId": 10620,
+          "key": "arbeidsgivernavn",
+          "value": "lm",
+          "systemEgenskap": 0
+        }
+      ],
+      "properties": {
+        "arbeidsgivernavn": "lm",
+        "eosland": "false",
+        "datotil": "0101-01-01",
+        "skalHaT8VedleggForKontraktUtgaatt": "false",
+        "datofra": "0101-01-01",
+        "avskjedigetGrunn": "klj",
+        "land": "NOR",
+        "type": "avskjediget"
+      },
+      "type": "BRUKERREGISTRERT"
+    }
+  ],
+  "status": "UNDER_ARBEID",
+  "aktoerId": "00000",
+  "opprettetDato": "2020-03-06T13:26:37.863Z",
+  "sistLagret": "2020-03-06T13:28:48.850Z",
+  "delstegStatus": "VEDLEGG_VALIDERT",
+  "vedlegg": [
+    {
+      "vedleggId": 18470,
+      "soknadId": 10620,
+      "faktumId": 774820,
+      "skjemaNummer": "O2",
+      "skjemanummerTillegg": "avskjediget",
+      "innsendingsvalg": "SendesSenere",
+      "opprinneligInnsendingsvalg": null,
+      "navn": "lm",
+      "storrelse": 0,
+      "opprettetDato": 1583501300000,
+      "fillagerReferanse": "2458c0f5-c2aa-4731-999a-80fd92cef3cf",
+      "urls": {},
+      "tittel": null,
+      "aarsak": "dfg",
+      "filnavn": null,
+      "mimetype": null
+    },
+    {
+      "vedleggId": 18469,
+      "soknadId": 10620,
+      "faktumId": 774820,
+      "skjemaNummer": "T8",
+      "skjemanummerTillegg": "avskjediget",
+      "innsendingsvalg": "SendesSenere",
+      "opprinneligInnsendingsvalg": null,
+      "navn": "lm",
+      "storrelse": 0,
+      "opprettetDato": 1583501300000,
+      "fillagerReferanse": "d572d1eb-1894-4ab0-8a5a-2c5c64b6b349",
+      "urls": {},
+      "tittel": null,
+      "aarsak": "dfgb",
+      "filnavn": null,
+      "mimetype": null
+    },
+    {
+      "vedleggId": 18471,
+      "soknadId": 10620,
+      "faktumId": null,
+      "skjemaNummer": "Y2",
+      "skjemanummerTillegg": null,
+      "innsendingsvalg": "SendesSenere",
+      "opprinneligInnsendingsvalg": null,
+      "navn": null,
+      "storrelse": 0,
+      "opprettetDato": 1583501300000,
+      "fillagerReferanse": "3f5aa34d-008c-40e4-9303-3d831cb7cbff",
+      "urls": {},
+      "tittel": null,
+      "aarsak": "dfg",
+      "filnavn": null,
+      "mimetype": null
+    }
+  ],
+  "journalforendeEnhet": null,
+  "soknadPrefix": "dagpenger.ordinaer",
+  "soknadUrl": "/soknaddagpenger/NAV04-01.03",
+  "fortsettSoknadUrl": "/soknaddagpenger/utslagskriterier"
+}

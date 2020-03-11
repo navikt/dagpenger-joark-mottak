@@ -7,6 +7,7 @@ import com.natpryce.konfig.Key
 import com.natpryce.konfig.intType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
+import no.finn.unleash.util.UnleashConfig
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.PacketDeserializer
@@ -94,6 +95,11 @@ data class Configuration(
             keySerde = Serdes.String(),
             valueSerde = Serdes.serdeFrom(PacketSerializer(), PacketDeserializer())
         ),
+        val søknadsdataTopic: Topic<String, String> = Topic(
+            "privat-dagpenger-soknadsdata-v1",
+            keySerde = Serdes.String(),
+            valueSerde = Serdes.String()
+        ),
         val brokers: String = config()[Key("kafka.bootstrap.servers", stringType)],
         val schemaRegisterUrl: String = config()[Key("kafka.schema.registry.url", stringType)],
         val user: String = config()[Key("srvdagpenger.joark.mottak.username", stringType)],
@@ -105,6 +111,11 @@ data class Configuration(
     }
 
     data class Application(
+        val unleashConfig: UnleashConfig = UnleashConfig.builder()
+            .appName(config().getOrElse(Key("app.name", stringType), "dagpenger-journalforing-ferdigstill"))
+            .instanceId(getHostname())
+            .unleashAPI(config()[Key("unleash.url", stringType)])
+            .build(),
         val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) },
         val httpPort: Int = config()[Key("application.httpPort", intType)],
         val oidcStsUrl: String = config()[Key("oidc.sts.issuerurl", stringType)],
