@@ -115,6 +115,7 @@ class JoarkMottak(
         journalpostStream
             .filter { _, _ -> toggle.isEnabled("dagpenger-joark-mottak.soknadstopic") }
             .filter { _, journalpost -> journalpost.henvendelsestype == Henvendelsestype.NY_SØKNAD }
+            .filter { _, journalpost -> journalpost.kanal == "NAV_NO" }
             .mapValues { _, journalpost -> journalpostArkiv.hentSøknadsdata(journalpost) }
             .filter { _, søknadsdata -> søknadsdata != emptySøknadsdata }
             .mapValues { _, søknadsdata -> søknadsdata.data }

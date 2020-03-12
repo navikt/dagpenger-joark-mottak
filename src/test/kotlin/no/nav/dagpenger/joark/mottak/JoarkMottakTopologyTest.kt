@@ -87,6 +87,7 @@ class JoarkMottakTopologyTest {
 
         every { journalpostarkiv.hentInngåendeJournalpost(journalpostId.toString()) } returns dummyJournalpost(
             journalstatus = Journalstatus.MOTTATT,
+            kanal = "NAV_NO",
             dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAV 04-01.04", tittel = "søknad"))
         )
 
