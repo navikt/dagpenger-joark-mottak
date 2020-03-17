@@ -91,7 +91,7 @@ data class Configuration(
         ),
         val processingGuarantee: String = config()[Key("kafka.processing.guarantee", stringType)],
         val dagpengerJournalpostTopic: Topic<String, Packet> = Topic(
-            "privat-dagpenger-journalpost-mottatt-v1",
+            "privat-dagpenger-journalpost-mottatt-v2",
             keySerde = Serdes.String(),
             valueSerde = Serdes.serdeFrom(PacketSerializer(), PacketDeserializer())
         ),

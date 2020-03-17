@@ -40,7 +40,7 @@ class JoarkMottakComponentTest {
             withSecurity = true,
             topicInfos = listOf(
                 KafkaEnvironment.TopicInfo("aapen-dok-journalfoering-v1"),
-                KafkaEnvironment.TopicInfo("privat-dagpenger-journalpost-mottatt-v1"),
+                KafkaEnvironment.TopicInfo("privat-dagpenger-journalpost-mottatt-v2"),
                 KafkaEnvironment.TopicInfo("privat-dagpenger-soknadsdata-v1")
             )
         )
