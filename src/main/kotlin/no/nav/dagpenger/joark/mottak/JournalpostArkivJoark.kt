@@ -8,7 +8,11 @@ import com.github.kittinunf.result.Result
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthStatus
 
-class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcClient: OidcClient) :
+class JournalpostArkivJoark(
+    private val joarkBaseUrl: String,
+    private val oidcClient: OidcClient,
+    private val profile: Profile
+) :
     JournalpostArkiv {
 
     override fun status(): HealthStatus {
@@ -50,14 +54,22 @@ class JournalpostArkivJoark(private val joarkBaseUrl: String, private val oidcCl
             responseString()
         }
 
-        return when (result) {
-            is Result.Failure -> throw JournalpostArkivException(
-                response.statusCode,
-                "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.responseMessage}",
-                result.getException()
-            )
-            is Result.Success -> Søknadsdata(result.get())
-        }
+        return result.fold(
+            {
+                Søknadsdata(it)
+            },
+            { error ->
+                if (error.response.statusCode == 404 && profile == Profile.DEV) {
+                    return emptySøknadsdata
+                } else {
+                    throw JournalpostArkivException(
+                        response.statusCode,
+                        "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.responseMessage}",
+                        error.exception
+                    )
+                }
+            }
+        )
     }
 }
 
