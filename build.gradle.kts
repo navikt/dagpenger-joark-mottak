@@ -81,7 +81,8 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(Junit5.api)
-    testImplementation(Junit5.kotlinRunner)
+    testImplementation(KoTest.runner)
+    testImplementation(KoTest.assertions)
     testRuntimeOnly(Junit5.engine)
     testImplementation(Wiremock.standalone)
     testImplementation(KafkaEmbedded.env)

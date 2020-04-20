@@ -1,7 +1,7 @@
 package no.nav.dagpenger.joark.mottak
 
 import com.squareup.moshi.Types
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

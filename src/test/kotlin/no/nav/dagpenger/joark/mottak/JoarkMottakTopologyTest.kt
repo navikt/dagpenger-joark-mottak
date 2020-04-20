@@ -2,10 +2,10 @@ package no.nav.dagpenger.joark.mottak
 
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde
-import io.kotlintest.matchers.doubles.shouldBeGreaterThan
-import io.kotlintest.matchers.withClue
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
+import io.kotest.assertions.withClue
+import io.kotest.matchers.doubles.shouldBeGreaterThan
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.prometheus.client.CollectorRegistry
