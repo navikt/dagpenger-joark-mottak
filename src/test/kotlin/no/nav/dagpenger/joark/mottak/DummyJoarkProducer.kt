@@ -2,6 +2,9 @@ package no.nav.dagpenger.joark.mottak
 
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
+import java.util.Properties
+import java.util.Random
+import java.util.concurrent.TimeUnit
 import mu.KotlinLogging
 import no.nav.dagpenger.streams.Topics.JOARK_EVENTS
 import org.apache.avro.generic.GenericData
@@ -14,9 +17,6 @@ import org.apache.kafka.clients.producer.RecordMetadata
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.streams.StreamsConfig
-import java.util.Properties
-import java.util.Random
-import java.util.concurrent.TimeUnit
 
 class DummyJoarkProducer(properties: Properties) {
 

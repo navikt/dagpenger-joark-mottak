@@ -1,6 +1,7 @@
 package no.nav.dagpenger.joark.mottak
 
 import io.prometheus.client.Counter
+import java.util.Properties
 import mu.KotlinLogging
 import no.finn.unleash.DefaultUnleash
 import no.finn.unleash.Unleash
@@ -13,7 +14,6 @@ import no.nav.dagpenger.streams.toTopic
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.Topology
-import java.util.Properties
 
 private val logger = KotlinLogging.logger {}
 const val DAGPENGER_NAMESPACE = "dagpenger"

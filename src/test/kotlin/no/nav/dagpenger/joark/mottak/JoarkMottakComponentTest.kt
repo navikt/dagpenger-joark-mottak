@@ -6,6 +6,10 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.kotest.matchers.shouldBe
+import java.time.Duration
+import java.util.Properties
+import java.util.Random
+import kotlin.test.assertEquals
 import no.finn.unleash.FakeUnleash
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
@@ -22,10 +26,6 @@ import org.apache.kafka.streams.StreamsConfig
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import java.time.Duration
-import java.util.Properties
-import java.util.Random
-import kotlin.test.assertEquals
 
 class JoarkMottakComponentTest {
 
