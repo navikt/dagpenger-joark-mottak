@@ -171,6 +171,7 @@ class JoarkMottak(
 class UnsupportedBehandlendeEnhetException(override val message: String) : RuntimeException(message)
 
 fun main(args: Array<String>) {
+
     val config = Configuration()
     val oidcClient = StsOidcClient(
         config.application.oidcStsUrl,
