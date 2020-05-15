@@ -3,7 +3,6 @@ package no.nav.dagpenger.joark.mottak
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
-import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthStatus

@@ -1,6 +1,7 @@
 {
   "data": {
     "journalpost": {
+      "journalpostId": "id",
       "tittel": "MASKERT_FELT",
       "journalstatus": "UKJENT_BRUKER",
       "journalfoerendeEnhet": "2950",
@@ -31,7 +32,8 @@
       "skjerming": null,
       "relevanteDatoer": [
         {
-          "dato": "2019-06-17T00:00"
+          "dato": "2019-06-17T00:00",
+          "datotype": "DATO_SENDT_PRINT"
         }
       ],
       "behandlingstema": null,

@@ -3,7 +3,6 @@ package no.nav.dagpenger.joark.mottak
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
-import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthCheck
@@ -27,7 +26,8 @@ class PersonOppslag(private val personOppslagBaseUrl: String, private val oidcCl
             header("X-API-KEY" to apiKey)
             body(
                 adapter.toJson(
-                    PersonQuery(id, mapBrukerTypeTilIdType[brukerType] ?: throw PersonOppslagException(message = "Failed to map $brukerType"))
+                    PersonQuery(id, mapBrukerTypeTilIdType[brukerType]
+                        ?: throw PersonOppslagException(message = "Failed to map $brukerType"))
                 )
             )
             responseObject<GraphQlPersonResponse>()
@@ -36,9 +36,10 @@ class PersonOppslag(private val personOppslagBaseUrl: String, private val oidcCl
         return when (result) {
             is Result.Failure ->
                 throw PersonOppslagException(
-                response.statusCode,
-                "Failed to fetch person. Response message ${response.responseMessage}. Payload from server ${response.body().asString("application/json")}"
-            )
+                    response.statusCode,
+                    "Failed to fetch person. Response message ${response.responseMessage}. Payload from server ${response.body().asString("application/json")}",
+                    result.error
+                )
             is Result.Success -> result.get().data.person
         }
     }
