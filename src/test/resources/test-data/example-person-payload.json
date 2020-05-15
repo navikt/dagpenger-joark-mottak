@@ -1,6 +1,7 @@
 {
     "data": {
         "person": {
+            "navn": "Navn",
             "aktoerId": "789",
             "naturligIdent": "123",
             "behandlendeEnheter": [
