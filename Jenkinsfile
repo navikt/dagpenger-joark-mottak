@@ -17,17 +17,8 @@ pipeline {
       }
 
       steps {
-        sh label: 'Install dependencies', script: """
-          ./gradlew assemble
-        """
 
-        // Should run a set of tests like: unit, functional, component,
-        // coverage, contract, lint, mutation.
-        sh label: 'Test code', script: """
-          ./gradlew test
-        """
-
-        sh label: 'Build artifact', script: """
+        sh label: 'Build, test and assemble artifact', script: """
           ./gradlew build
         """
 
