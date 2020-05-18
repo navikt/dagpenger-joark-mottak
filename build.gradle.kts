@@ -100,10 +100,6 @@ spotless {
     }
 }
 
-tasks.named("compileKotlin") {
-    dependsOn("spotlessCheck")
-}
-
 tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
@@ -112,4 +108,16 @@ tasks.withType<Test> {
         exceptionFormat = TestExceptionFormat.FULL
         events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
     }
+}
+
+tasks.named("shadowJar") {
+    dependsOn("test")
+}
+
+tasks.named("jar") {
+    dependsOn("test")
+}
+
+tasks.named("compileKotlin") {
+    dependsOn("spotlessCheck")
 }
