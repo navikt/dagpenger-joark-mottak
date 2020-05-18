@@ -76,6 +76,10 @@ dependencies {
     implementation(Kafka.Confluent.avroStreamSerdes)
 
     implementation(Ktor.serverNetty)
+    implementation(Ktor.library("client-okhttp"))
+    implementation(Ktor.library("client-json-jvm"))
+    implementation(Ktor.library("client-jackson"))
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.7")
 
     implementation("no.finn.unleash:unleash-client-java:3.2.9")
 

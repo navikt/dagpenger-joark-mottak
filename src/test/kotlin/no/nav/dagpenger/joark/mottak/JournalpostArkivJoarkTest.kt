@@ -5,11 +5,11 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
-import com.github.tomakehurst.wiremock.client.WireMock.notFound
 import com.github.tomakehurst.wiremock.client.WireMock.ok
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.serverError
+import com.github.tomakehurst.wiremock.client.WireMock.status
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.verify
@@ -66,8 +66,14 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
-        joarkClient.hentSøknadsdata(dummyJournalpost(journalpostId = journalpostId, dokumenter = listOf(DokumentInfo("Søknad", dokumentId, "brevkode"))))
+        val joarkClient = JournalpostArkivJoark(server.url("/"), DummyOidcClient(), Profile.PROD)
+
+        joarkClient.hentSøknadsdata(
+            dummyJournalpost(
+                journalpostId = journalpostId,
+                dokumenter = listOf(DokumentInfo("Søknad", dokumentId, "brevkode"))
+            )
+        )
 
         verify(getRequestedFor(urlEqualTo(url)))
     }
@@ -95,8 +101,9 @@ class JournalpostArkivJoarkTest {
 
     @Test
     fun `håndterer statuskode 200 med errors og uten Journalpost`() {
-        val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-journalpost-error-payload.json")
-            .readText()
+        val body =
+            JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-journalpost-error-payload.json")
+                .readText()
         stubFor(
             post(urlEqualTo("/graphql"))
                 .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
@@ -116,43 +123,25 @@ class JournalpostArkivJoarkTest {
     }
 
     @Test
-    fun `håndterer 4xx-feil`() {
-
-        stubFor(
-            post(urlEqualTo("/graphql"))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
-                .willReturn(
-                    notFound()
-                )
-        )
-
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
-
-        val result = runCatching { joarkClient.hentInngåendeJournalpost("-1") }
-        assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is JournalpostArkivException)
-        verify(postRequestedFor(urlEqualTo("/graphql")))
-    }
-
-    @Test
     fun `helsestatus settes korrekt om joark er oppe`() {
         stubFor(
-                get(urlEqualTo("/isAlive"))
-                        .willReturn(
-                                ok()
-                        )
+            get(urlEqualTo("/isAlive"))
+                .willReturn(
+                    ok()
+                )
         )
         val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
         joarkClient.status() shouldBe HealthStatus.UP
         verify(getRequestedFor(urlEqualTo("/isAlive")))
     }
+
     @Test
     fun `helsestatus settes korrekt om joark er nede`() {
         stubFor(
-                get(urlEqualTo("/isAlive"))
-                        .willReturn(
-                                serverError()
-                        )
+            get(urlEqualTo("/isAlive"))
+                .willReturn(
+                    serverError()
+                )
         )
         val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
         joarkClient.status() shouldBe HealthStatus.DOWN
