@@ -1,6 +1,3 @@
-# Adds namespace to all resources.
-namespace: default
-
 # Labels to add to all resources and selectors.
 commonLabels:
   app: dagpenger-joark-mottak
