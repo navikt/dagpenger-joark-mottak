@@ -1,9 +1,21 @@
 package no.nav.dagpenger.joark.mottak
 
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.fuel.httpPost
-import com.github.kittinunf.result.Result
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import io.ktor.client.HttpClient
+import io.ktor.client.features.json.JacksonSerializer
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode.Companion.NotFound
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
+import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthStatus
 
@@ -13,62 +25,58 @@ class JournalpostArkivJoark(
     private val profile: Profile
 ) :
     JournalpostArkiv {
+    private val httpClient = HttpClient {
+        install(JsonFeature) {
+            serializer = JacksonSerializer() {
+                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                registerModule(JavaTimeModule())
+            }
+        }
+    }
 
     override fun status(): HealthStatus {
-        val (_, _, result) = with("${joarkBaseUrl}isAlive".httpGet()) {
-            responseString()
-        }
-        return when (result) {
-            is Result.Failure -> HealthStatus.DOWN
-            else -> HealthStatus.UP
+        return runBlocking {
+            val response = httpClient.get<HttpResponse>("${joarkBaseUrl}isAlive")
+
+            if (response.status.isSuccess()) HealthStatus.UP else HealthStatus.DOWN
         }
     }
 
     override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {
-        val (_, response, result) = with("${joarkBaseUrl}graphql".httpPost()) {
-            authentication().bearer(oidcClient.oidcToken().access_token)
-            header("Content-Type" to "application/json")
-            body(adapter.toJson(JournalPostQuery(journalpostId)))
-            responseObject<GraphQlJournalpostResponse>()
-        }
+        return runBlocking {
+            val response: GraphQlJournalpostResponse = httpClient.post("${joarkBaseUrl}graphql") {
+                header("Authorization", "Bearer ${oidcClient.oidcToken().access_token}")
+                contentType(ContentType.Application.Json)
+                body = JournalPostQuery(journalpostId)
+            }
 
-        return when (result) {
-            is Result.Failure -> throw JournalpostArkivException(
-                response.statusCode,
-                "Failed to fetch journalpost id: $journalpostId. Response message ${response.responseMessage}",
-                result.getException()
-            )
-            is Result.Success -> result.get().data.journalpost
+            return@runBlocking response.data?.journalpost ?: throw JournalpostArkivException(
+                null,
+                response.errors?.joinToString { it.message } ?: "Ukjent feil")
         }
     }
 
     override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata {
         val journalpostId = journalpost.journalpostId
         val dokumentId = journalpost.dokumenter.firstOrNull()?.dokumentInfoId ?: return emptySøknadsdata
-
         val url = "${joarkBaseUrl}rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL"
-        val (_, response, result) = with(url.httpGet()) {
-            authentication().bearer(oidcClient.oidcToken().access_token)
-            header("Content-Type" to "application/json")
-            responseString()
-        }
 
-        return result.fold(
-            {
-                Søknadsdata(it)
-            },
-            { error ->
-                if (error.response.statusCode == 404 && profile == Profile.DEV) {
-                    return emptySøknadsdata
-                } else {
-                    throw JournalpostArkivException(
-                        response.statusCode,
-                        "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.responseMessage}",
-                        error.exception
-                    )
+        return runBlocking {
+            val response: HttpResponse =
+                httpClient.get(url) {
+                    header("Authorization", "Bearer ${oidcClient.oidcToken().access_token}")
                 }
+
+            return@runBlocking when {
+                response.status.isSuccess() -> Søknadsdata(response.readText())
+                response.status == NotFound && profile == Profile.DEV -> emptySøknadsdata
+                else -> throw JournalpostArkivException(
+                    response.status.value,
+                    "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.readText()}"
+                )
             }
-        )
+        }
     }
 }
 
@@ -101,5 +109,5 @@ internal data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
     variables = null
 )
 
-class JournalpostArkivException(val statusCode: Int, override val message: String, override val cause: Throwable) :
-    RuntimeException(message, cause)
+class JournalpostArkivException(val statusCode: Int?, override val message: String) :
+    RuntimeException(message)
