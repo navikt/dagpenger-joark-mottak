@@ -72,7 +72,6 @@ dependencies {
     implementation(Ktor.serverNetty)
     implementation(Ktor.library("client-cio"))
     implementation(Ktor.library("client-json-jvm"))
-    implementation(Ktor.library("client-logging-jvm"))
     implementation(Ktor.library("client-jackson"))
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.7")
 
