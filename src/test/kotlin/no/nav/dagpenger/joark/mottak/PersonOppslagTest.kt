@@ -97,7 +97,7 @@ internal class PersonOppslagTest {
         val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
         val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
         assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() != null)
+        assertTrue(result.exceptionOrNull() is PersonOppslagException)
         WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))
     }
 
@@ -119,7 +119,7 @@ internal class PersonOppslagTest {
         val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
         val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
         assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() != null)
+        assertTrue(result.exceptionOrNull() is PersonOppslagException)
         WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))
     }
     @Test

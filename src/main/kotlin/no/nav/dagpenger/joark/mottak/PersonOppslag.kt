@@ -1,61 +1,46 @@
 package no.nav.dagpenger.joark.mottak
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import io.ktor.client.HttpClient
-import io.ktor.client.features.json.JacksonSerializer
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.http.isSuccess
-import kotlinx.coroutines.runBlocking
+import com.github.kittinunf.fuel.core.extensions.authentication
+import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.result.Result
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.HealthStatus
 
-class PersonOppslag(
-    private val personOppslagBaseUrl: String,
-    private val oidcClient: OidcClient,
-    private val apiKey: String
-) : HealthCheck {
-    private val httpClient = HttpClient {
-        install(JsonFeature) {
-            serializer = JacksonSerializer {
-                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                registerModule(JavaTimeModule())
-            }
-        }
-    }
-
+class PersonOppslag(private val personOppslagBaseUrl: String, private val oidcClient: OidcClient, private val apiKey: String) : HealthCheck {
     override fun status(): HealthStatus {
-        return runBlocking {
-            val response = httpClient.get<HttpResponse>("${personOppslagBaseUrl}isAlive")
-
-            if (response.status.isSuccess()) HealthStatus.UP else HealthStatus.DOWN
+        val (_, _, result) = with("${personOppslagBaseUrl}isAlive".httpGet()) {
+            responseString()
+        }
+        return when (result) {
+            is Result.Failure -> HealthStatus.DOWN
+            else -> HealthStatus.UP
         }
     }
 
     fun hentPerson(id: String, brukerType: BrukerType): Person {
-        return runBlocking {
-            val response: GraphQlPersonResponse = httpClient.post("${personOppslagBaseUrl}graphql") {
-                header("Authorization", "Bearer ${oidcClient.oidcToken().access_token}")
-                header("X-API-KEY", apiKey)
-                contentType(ContentType.Application.Json)
-                body = PersonQuery(
-                    id,
-                    mapBrukerTypeTilIdType[brukerType]
-                        ?: throw PersonOppslagException(message = "Failed to map $brukerType")
+        val (_, response, result) = with("${personOppslagBaseUrl}graphql".httpPost()) {
+            authentication().bearer(oidcClient.oidcToken().access_token)
+            header("Content-Type" to "application/json")
+            header("X-API-KEY" to apiKey)
+            body(
+                adapter.toJson(
+                    PersonQuery(id, mapBrukerTypeTilIdType[brukerType]
+                        ?: throw PersonOppslagException(message = "Failed to map $brukerType"))
                 )
-            }
+            )
+            responseObject<GraphQlPersonResponse>()
+        }
 
-            return@runBlocking response.data?.person ?: throw PersonOppslagException(message = response.errors?.joinToString { it.message }
-                ?: "Ukjent feil")
+        return when (result) {
+            is Result.Failure ->
+                throw PersonOppslagException(
+                    response.statusCode,
+                    "Failed to fetch person. Response message ${response.responseMessage}. Payload from server ${response.body().asString("application/json")}",
+                    result.error
+                )
+            is Result.Success -> result.get().data.person
         }
     }
 }
@@ -84,9 +69,5 @@ internal data class PersonQuery(val id: String, val idType: IdType) : GraphqlQue
     variables = null
 )
 
-class PersonOppslagException(
-    val statusCode: Int = 500,
-    override val message: String,
-    override val cause: Throwable? = null
-) :
+class PersonOppslagException(val statusCode: Int = 500, override val message: String, override val cause: Throwable? = null) :
     RuntimeException(message, cause)

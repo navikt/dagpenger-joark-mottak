@@ -1,12 +1,8 @@
 package no.nav.dagpenger.joark.mottak
 
-data class GraphQlJournalpostResponse(val data: Data?, val errors: List<GraphQlError>?) {
+data class GraphQlJournalpostResponse(val data: Data, val errors: List<String>?) {
     class Data(val journalpost: Journalpost)
 }
-
-data class GraphQlError(
-    val message: String
-)
 
 data class Journalpost(
     val journalstatus: Journalstatus?,

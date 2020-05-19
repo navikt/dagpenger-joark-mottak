@@ -59,6 +59,12 @@ dependencies {
 
     implementation(Konfig.konfig)
 
+    implementation(Fuel.fuel)
+    implementation(Fuel.library("moshi"))
+    implementation(Moshi.moshi)
+    implementation(Moshi.moshiKotlin)
+    implementation(Moshi.moshiAdapters)
+
     implementation(Log4j2.api)
     implementation(Log4j2.core)
     implementation(Log4j2.slf4j)
@@ -70,10 +76,6 @@ dependencies {
     implementation(Kafka.Confluent.avroStreamSerdes)
 
     implementation(Ktor.serverNetty)
-    implementation(Ktor.library("client-cio"))
-    implementation(Ktor.library("client-json-jvm"))
-    implementation(Ktor.library("client-jackson"))
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.7")
 
     implementation("no.finn.unleash:unleash-client-java:3.2.9")
 
