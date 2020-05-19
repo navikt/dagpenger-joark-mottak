@@ -51,7 +51,9 @@ class JournalpostArkivJoark(
                 body = JournalPostQuery(journalpostId)
             }
 
-            return@runBlocking response.data?.journalpost ?: throw JournalpostArkivException(null, response.errors?.joinToString() ?: "Ukjent feil")
+            return@runBlocking response.data?.journalpost ?: throw JournalpostArkivException(
+                null,
+                response.errors?.joinToString { it.message } ?: "Ukjent feil")
         }
     }
 
@@ -61,24 +63,18 @@ class JournalpostArkivJoark(
         val url = "${joarkBaseUrl}rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL"
 
         return runBlocking {
-            try {
-                val response: HttpResponse =
-                    httpClient.get(url) {
-                        header("Authorization", "Bearer ${oidcClient.oidcToken().access_token}")
-                        contentType(ContentType.Application.Json)
-                    }
-
-                return@runBlocking when {
-                    response.status.isSuccess() -> Søknadsdata(response.readText())
-                    response.status == NotFound && profile == Profile.DEV -> emptySøknadsdata
-                    else -> throw JournalpostArkivException(
-                        response.status.value,
-                        "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.readText()}"
-                    )
+            val response: HttpResponse =
+                httpClient.get(url) {
+                    header("Authorization", "Bearer ${oidcClient.oidcToken().access_token}")
                 }
-            } catch (e: Exception) {
-                println(e)
-                throw e
+
+            return@runBlocking when {
+                response.status.isSuccess() -> Søknadsdata(response.readText())
+                response.status == NotFound && profile == Profile.DEV -> emptySøknadsdata
+                else -> throw JournalpostArkivException(
+                    response.status.value,
+                    "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.readText()}"
+                )
             }
         }
     }

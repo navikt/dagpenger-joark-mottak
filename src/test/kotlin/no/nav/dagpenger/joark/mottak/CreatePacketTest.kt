@@ -1,12 +1,9 @@
 package no.nav.dagpenger.joark.mottak
 
-import com.squareup.moshi.Types
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.dagpenger.events.Packet
-import no.nav.dagpenger.events.moshiInstance
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
@@ -56,27 +53,6 @@ class CreatePacketTest {
 
         packet.getStringValue("hovedskjemaId") shouldBe "NAV 04-01.04"
         packet.getStringValue("henvendelsestype") shouldBe "NY_SØKNAD"
-    }
-
-    @Test
-    fun `skal legge dokumentliste på pakken i JSON-format`() {
-        val packetCreator = InnløpPacketCreator(personOppslagMock)
-
-        val journalpost = dummyJournalpost(
-            dokumenter = listOf(DokumentInfo("Søknad", "infoId", "NAV 04-01.04"))
-        )
-        val packet = packetCreator.createPacket(journalpost)
-
-        val adapter = moshiInstance.adapter<List<DokumentInfo>>(
-            Types.newParameterizedType(
-                List::class.java,
-                DokumentInfo::class.java
-            )
-        )
-
-        val dokumentListe = Packet(packet.toJson()!!).getObjectValue("dokumenter") { adapter.fromJsonValue(it)!! }
-        dokumentListe.size shouldBe 1
-        dokumentListe.first().tittel shouldBe "Søknad"
     }
 
     @Test

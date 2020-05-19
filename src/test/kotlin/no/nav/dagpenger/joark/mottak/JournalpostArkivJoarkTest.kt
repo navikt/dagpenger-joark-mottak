@@ -55,10 +55,10 @@ class JournalpostArkivJoarkTest {
 
         val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-søknadsdata-payload.json")
             .readText()
+
         stubFor(
             get(urlEqualTo(url))
                 .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
-                .withHeader("Content-type", RegexPattern("application/json"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -66,7 +66,7 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url("/"), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
 
         joarkClient.hentSøknadsdata(
             dummyJournalpost(
