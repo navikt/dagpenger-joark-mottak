@@ -21,7 +21,7 @@ internal inline fun <reified T : Any> Request.responseObject() = response(moshiD
 
 private val jsonMapAdapter = moshiInstance.adapter<Map<String, Any?>>(
     Types.newParameterizedType(Map::class.java, String::class.java, Any::class.java)
-)
+).serializeNulls()
 
 internal fun merge(map: Map<String, Any?>, json: String): String {
     val mutableMap = jsonMapAdapter.fromJson(json)?.toMutableMap()?.also {

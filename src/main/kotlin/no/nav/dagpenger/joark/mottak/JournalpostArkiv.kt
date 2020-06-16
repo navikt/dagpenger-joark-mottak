@@ -7,6 +7,6 @@ interface JournalpostArkiv : HealthCheck {
     fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata
 }
 
-data class Søknadsdata(val data: String)
+data class Søknadsdata(val data: String, val journalpostId: String)
 
-val emptySøknadsdata = Søknadsdata("")
+val emptySøknadsdata = Søknadsdata("", "")
