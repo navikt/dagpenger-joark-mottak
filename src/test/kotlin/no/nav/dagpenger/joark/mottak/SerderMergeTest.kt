@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test
 
 internal class SerderMergeTest {
     @Test
-    fun `preserves null values`() {
-        merge(mapOf("nullable" to null), """{"prot1": null }""") shouldBe """{"prot1":null,"nullable":null}"""
+    fun `does not preserve null values`() {
+        merge(mapOf("nullable" to null), """{"prot1": null }""") shouldBe """{}"""
     }
 
     @Test
