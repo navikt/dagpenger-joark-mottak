@@ -117,7 +117,7 @@ class JoarkMottak(
             .filter { _, journalpost -> journalpost.kanal == "NAV_NO" }
             .mapValues { _, journalpost -> journalpostArkiv.hentSøknadsdata(journalpost) }
             .filter { _, søknadsdata -> søknadsdata != emptySøknadsdata }
-            .mapValues { _, søknadsdata -> merge(mapOf("journalpostId" to søknadsdata.journalpostId), søknadsdata.data) }
+            .mapValues { _, søknadsdata -> søknadsdata.serialize() }
             .peek { key, _ -> logger.info { "Producing søknadsdata for $key " } }
             .toTopic(config.kafka.søknadsdataTopic)
 

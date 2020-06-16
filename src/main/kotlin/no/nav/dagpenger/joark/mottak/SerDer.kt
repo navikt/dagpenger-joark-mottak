@@ -19,7 +19,7 @@ internal fun <T : Any> moshiDeserializerOf(clazz: Class<T>) = object : ResponseD
 
 internal inline fun <reified T : Any> Request.responseObject() = response(moshiDeserializerOf(T::class.java))
 
-private val jsonMapAdapter = moshiInstance.adapter<Map<String, Any?>>(
+internal val jsonMapAdapter = moshiInstance.adapter<Map<String, Any?>>(
     Types.newParameterizedType(Map::class.java, String::class.java, Any::class.java)
 ).serializeNulls()
 
