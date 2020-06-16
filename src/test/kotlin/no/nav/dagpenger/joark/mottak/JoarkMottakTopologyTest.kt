@@ -75,7 +75,9 @@ class JoarkMottakTopologyTest {
         this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
     }
 
-    val journalpostarkiv = mockk<JournalpostArkivJoark>(relaxed = true)
+    val journalpostarkiv = mockk<JournalpostArkivJoark>(relaxed = true).also {
+        every { it.hentSøknadsdata(any()) } returns Søknadsdata("""{}""")
+    }
     val packetCreator = InnløpPacketCreator(personOppslagMock)
     val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator, FakeUnleash())
 
