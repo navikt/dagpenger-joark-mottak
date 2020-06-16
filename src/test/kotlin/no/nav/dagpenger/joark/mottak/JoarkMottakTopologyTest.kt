@@ -75,7 +75,9 @@ class JoarkMottakTopologyTest {
         this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
     }
 
-    val journalpostarkiv = mockk<JournalpostArkivJoark>(relaxed = true)
+    val journalpostarkiv = mockk<JournalpostArkivJoark>(relaxed = true).also {
+        every { it.hentSøknadsdata(any()) } returns Søknadsdata("""{"søknadsId": "id"}""")
+    }
     val packetCreator = InnløpPacketCreator(personOppslagMock)
     val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator, FakeUnleash())
 
@@ -92,7 +94,7 @@ class JoarkMottakTopologyTest {
         )
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
-            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            val inputRecord = factory.create("aapen-dok-journalfoering-v1", journalpostId.toString(), lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
             topologyTestDriver.pipeInput(inputRecord)
 
             val utInnløp = readOutputInnløp(topologyTestDriver)
@@ -103,6 +105,10 @@ class JoarkMottakTopologyTest {
             }
             withClue("Publiserte ikke søknadsdata:") {
                 utSøkndadsdata shouldNotBe null
+            }
+
+            withClue("Feil format på søknadsdata") {
+                utSøkndadsdata!!.value() shouldBe """{"søknadsId":"id","journalpostId":"123"}"""
             }
         }
     }
