@@ -7,11 +7,15 @@ interface JournalpostArkiv : HealthCheck {
     fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata
 }
 
-data class Søknadsdata(val data: String, val journalpostId: String) {
+data class Søknadsdata(
+    val data: String,
+    val journalpostId: String,
+    val registrertDato: String?
+) {
     fun serialize() = when (this == emptySøknadsdata) {
         true -> "{}"
-        false -> merge(mapOf("journalpostId" to journalpostId), data)
+        false -> merge(mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato), data)
     }
 }
 
-val emptySøknadsdata = Søknadsdata("", "")
+val emptySøknadsdata = Søknadsdata("", "", null)

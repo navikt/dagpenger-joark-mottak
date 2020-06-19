@@ -75,7 +75,10 @@ class JoarkMottakTopologyTest {
         this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
     }
 
-    val søknadsdata = Søknadsdata("""{"søknadsId": "id"}""", "123")
+    val søknadsdata = Søknadsdata(
+        """{"søknadsId": "id"}""",
+        "123",
+        "2020-06-19")
     val journalpostarkiv = mockk<JournalpostArkivJoark>(relaxed = true).also {
         every { it.hentSøknadsdata(any()) } returns søknadsdata
     }
@@ -106,6 +109,7 @@ class JoarkMottakTopologyTest {
             }
             withClue("Publiserte ikke søknadsdata:") {
                 utSøkndadsdata shouldNotBe null
+                utSøkndadsdata?.value() shouldBe """{"søknadsId":"id","journalpostId":"123","journalRegistrertDato":"2020-06-19"}"""
             }
 
             withClue("Feil format på søknadsdata") {
