@@ -55,7 +55,8 @@ class JournalpostArkivJoark(
 
         return result.fold(
             {
-                Søknadsdata(it, journalpost.journalpostId)
+                Søknadsdata(it, journalpost.journalpostId, journalpost.registrertDato()
+                )
             },
             { error ->
                 if (error.response.statusCode == 404 && profile == Profile.DEV) {

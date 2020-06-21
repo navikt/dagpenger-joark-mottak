@@ -19,8 +19,8 @@ class InnløpPacketCreator(
 
         this.putValue(PacketKeys.HENVENDELSESTYPE, journalpost.henvendelsestype)
 
-        journalpost.relevanteDatoer.find { it.datotype == Datotype.DATO_REGISTRERT }?.let {
-            this.putValue(PacketKeys.DATO_REGISTRERT, it.dato)
+        journalpost.registrertDato()?.let {
+            this.putValue(PacketKeys.DATO_REGISTRERT, it)
         }
 
         if (null != journalpost.bruker) {

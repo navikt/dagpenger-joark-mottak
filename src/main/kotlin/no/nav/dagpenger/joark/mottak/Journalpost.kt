@@ -20,6 +20,8 @@ data class Journalpost(
         get() = HenvendelsesTypeMapper.getHenvendelsesType(this.dokumenter.first().brevkode)
 }
 
+internal fun Journalpost.registrertDato(): String? = this.relevanteDatoer.find { dato -> dato.datotype == Datotype.DATO_REGISTRERT }?.dato
+
 class DokumentInfo(tittel: String?, dokumentInfoId: String, brevkode: String?) {
     val tittel = tittel
         get() = field ?: HenvendelsesTypeMapper.allKnownTypes.getOrDefault(brevkode, "Ukjent dokumenttittel")
