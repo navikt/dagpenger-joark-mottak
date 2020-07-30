@@ -16,13 +16,13 @@ import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.matching.RegexPattern
 import io.kotest.matchers.shouldBe
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import no.nav.dagpenger.streams.HealthStatus
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class JournalpostArkivJoarkTest {
 
@@ -137,10 +137,10 @@ class JournalpostArkivJoarkTest {
     @Test
     fun `helsestatus settes korrekt om joark er oppe`() {
         stubFor(
-                get(urlEqualTo("/isAlive"))
-                        .willReturn(
-                                ok()
-                        )
+            get(urlEqualTo("/isAlive"))
+                .willReturn(
+                    ok()
+                )
         )
         val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
         joarkClient.status() shouldBe HealthStatus.UP
@@ -149,10 +149,10 @@ class JournalpostArkivJoarkTest {
     @Test
     fun `helsestatus settes korrekt om joark er nede`() {
         stubFor(
-                get(urlEqualTo("/isAlive"))
-                        .willReturn(
-                                serverError()
-                        )
+            get(urlEqualTo("/isAlive"))
+                .willReturn(
+                    serverError()
+                )
         )
         val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
         joarkClient.status() shouldBe HealthStatus.DOWN

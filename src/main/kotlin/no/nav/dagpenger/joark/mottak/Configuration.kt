@@ -7,8 +7,6 @@ import com.natpryce.konfig.Key
 import com.natpryce.konfig.intType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
-import java.net.InetAddress
-import java.net.UnknownHostException
 import no.finn.unleash.util.UnleashConfig
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.KafkaCredential
@@ -19,6 +17,8 @@ import no.nav.dagpenger.streams.Topics
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsConfig
+import java.net.InetAddress
+import java.net.UnknownHostException
 
 private val localProperties = ConfigurationMap(
     mapOf(
@@ -84,10 +84,12 @@ data class Configuration(
 ) {
     data class Kafka(
         val joarkTopic: Topic<String, GenericRecord> = Topics.JOARK_EVENTS.copy(
-            name = config()[Key(
-                "kafka.aapen.dok.journalfoering.topic",
-                stringType
-            )]
+            name = config()[
+                Key(
+                    "kafka.aapen.dok.journalfoering.topic",
+                    stringType
+                )
+            ]
         ),
         val processingGuarantee: String = config()[Key("kafka.processing.guarantee", stringType)],
         val dagpengerJournalpostTopic: Topic<String, Packet> = Topic(

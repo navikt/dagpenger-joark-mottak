@@ -55,7 +55,8 @@ class JournalpostArkivJoark(
 
         return result.fold(
             {
-                Søknadsdata(it, journalpost.journalpostId, journalpost.registrertDato()
+                Søknadsdata(
+                    it, journalpost.journalpostId, journalpost.registrertDato()
                 )
             },
             { error ->
@@ -74,7 +75,8 @@ class JournalpostArkivJoark(
 }
 
 internal data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
-    query = """ 
+    query =
+        """ 
             query {
                 journalpost(journalpostId: "$journalpostId") {
                     journalstatus
@@ -98,7 +100,7 @@ internal data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
                     }
                 }
             }
-            """.trimIndent(),
+        """.trimIndent(),
     variables = null
 )
 

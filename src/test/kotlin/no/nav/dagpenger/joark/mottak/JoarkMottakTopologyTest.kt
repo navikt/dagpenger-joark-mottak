@@ -9,7 +9,6 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.prometheus.client.CollectorRegistry
-import java.util.Properties
 import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.Topics
@@ -21,6 +20,7 @@ import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.test.ConsumerRecordFactory
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import java.util.Properties
 
 class JoarkMottakTopologyTest {
     companion object {
@@ -78,7 +78,8 @@ class JoarkMottakTopologyTest {
     val søknadsdata = Søknadsdata(
         """{"søknadsId": "id"}""",
         "123",
-        "2020-06-19")
+        "2020-06-19"
+    )
     val journalpostarkiv = mockk<JournalpostArkivJoark>(relaxed = true).also {
         every { it.hentSøknadsdata(any()) } returns søknadsdata
     }
