@@ -10,13 +10,13 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.matching.RegexPattern
 import io.kotest.matchers.shouldBe
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import no.nav.dagpenger.streams.HealthStatus
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class PersonOppslagTest {
     companion object {
@@ -47,7 +47,7 @@ internal class PersonOppslagTest {
         stubFor(
             post(urlEqualTo("/graphql"))
                 .withHeader("Content-type", RegexPattern("application/json"))
-                    .withHeader("X-API-KEY", RegexPattern("hunter2"))
+                .withHeader("X-API-KEY", RegexPattern("hunter2"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -68,7 +68,7 @@ internal class PersonOppslagTest {
         stubFor(
             post(urlEqualTo("/graphql"))
                 .withHeader("Content-type", RegexPattern("application/json"))
-                    .withHeader("X-API-KEY", RegexPattern("hunter2"))
+                .withHeader("X-API-KEY", RegexPattern("hunter2"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -88,7 +88,7 @@ internal class PersonOppslagTest {
         stubFor(
             post(urlEqualTo("/graphql"))
                 .withHeader("Content-type", RegexPattern("application/json"))
-                    .withHeader("X-API-KEY", RegexPattern("hunter2"))
+                .withHeader("X-API-KEY", RegexPattern("hunter2"))
                 .willReturn(
                     notFound()
                 )
@@ -125,10 +125,10 @@ internal class PersonOppslagTest {
     @Test
     fun `helsestatus settes korrekt om dp-graphql er oppe`() {
         stubFor(
-                WireMock.get(urlEqualTo("/isAlive"))
-                        .willReturn(
-                                WireMock.ok()
-                        )
+            WireMock.get(urlEqualTo("/isAlive"))
+                .willReturn(
+                    WireMock.ok()
+                )
         )
         val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
         personOppslag.status() shouldBe HealthStatus.UP
@@ -137,10 +137,10 @@ internal class PersonOppslagTest {
     @Test
     fun `helsestatus settes korrekt om dp-graphql er nede`() {
         stubFor(
-                WireMock.get(urlEqualTo("/isAlive"))
-                        .willReturn(
-                                WireMock.serverError()
-                        )
+            WireMock.get(urlEqualTo("/isAlive"))
+                .willReturn(
+                    WireMock.serverError()
+                )
         )
         val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
         personOppslag.status() shouldBe HealthStatus.DOWN

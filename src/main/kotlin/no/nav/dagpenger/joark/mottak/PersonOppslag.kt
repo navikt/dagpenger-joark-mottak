@@ -26,8 +26,11 @@ class PersonOppslag(private val personOppslagBaseUrl: String, private val oidcCl
             header("X-API-KEY" to apiKey)
             body(
                 adapter.toJson(
-                    PersonQuery(id, mapBrukerTypeTilIdType[brukerType]
-                        ?: throw PersonOppslagException(message = "Failed to map $brukerType"))
+                    PersonQuery(
+                        id,
+                        mapBrukerTypeTilIdType[brukerType]
+                            ?: throw PersonOppslagException(message = "Failed to map $brukerType")
+                    )
                 )
             )
             responseObject<GraphQlPersonResponse>()
@@ -56,7 +59,8 @@ enum class IdType {
 }
 
 internal data class PersonQuery(val id: String, val idType: IdType) : GraphqlQuery(
-    query = """ 
+    query =
+        """ 
             query {
                 person(id: "$id", idType: ${idType.name}) {
                     navn
@@ -65,7 +69,7 @@ internal data class PersonQuery(val id: String, val idType: IdType) : GraphqlQue
                     diskresjonskode
                 }
             }
-            """.trimIndent(),
+        """.trimIndent(),
     variables = null
 )
 

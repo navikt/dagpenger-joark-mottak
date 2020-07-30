@@ -6,10 +6,6 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.kotest.matchers.shouldBe
-import java.time.Duration
-import java.util.Properties
-import java.util.Random
-import kotlin.test.assertEquals
 import no.finn.unleash.FakeUnleash
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
@@ -26,6 +22,10 @@ import org.apache.kafka.streams.StreamsConfig
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import java.time.Duration
+import java.util.Properties
+import java.util.Random
+import kotlin.test.assertEquals
 
 class JoarkMottakComponentTest {
 
@@ -115,7 +115,7 @@ class JoarkMottakComponentTest {
                         }
                     }
                 }
-                """.trimIndent()
+                        """.trimIndent()
                     )
                 )
                 .build()
@@ -131,7 +131,7 @@ class JoarkMottakComponentTest {
                      "token_type": "Bearer",
                      "expires_in": 3600
                     } 
-                """.trimIndent()
+                        """.trimIndent()
                     )
                 )
                 .build()
@@ -165,26 +165,28 @@ class JoarkMottakComponentTest {
     }
 
     private fun behovConsumer(config: Configuration): KafkaConsumer<String, Packet> {
-        val consumer: KafkaConsumer<String, Packet> = KafkaConsumer(Properties().apply {
-            put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, config.kafka.schemaRegisterUrl)
-            put(ConsumerConfig.GROUP_ID_CONFIG, "dummy-dagpenger-innkomne-jp")
-            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.kafka.brokers)
-            put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
-            put(
-                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                configuration.kafka.dagpengerJournalpostTopic.keySerde.deserializer().javaClass.name
-            )
-            put(
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                configuration.kafka.dagpengerJournalpostTopic.valueSerde.deserializer().javaClass.name
-            )
-            put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
-            put(SaslConfigs.SASL_MECHANISM, "PLAIN")
-            put(
-                SaslConfigs.SASL_JAAS_CONFIG,
-                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${config.kafka.user}\" password=\"${config.kafka.password}\";"
-            )
-        })
+        val consumer: KafkaConsumer<String, Packet> = KafkaConsumer(
+            Properties().apply {
+                put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, config.kafka.schemaRegisterUrl)
+                put(ConsumerConfig.GROUP_ID_CONFIG, "dummy-dagpenger-innkomne-jp")
+                put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.kafka.brokers)
+                put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+                put(
+                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                    configuration.kafka.dagpengerJournalpostTopic.keySerde.deserializer().javaClass.name
+                )
+                put(
+                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                    configuration.kafka.dagpengerJournalpostTopic.valueSerde.deserializer().javaClass.name
+                )
+                put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
+                put(SaslConfigs.SASL_MECHANISM, "PLAIN")
+                put(
+                    SaslConfigs.SASL_JAAS_CONFIG,
+                    "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${config.kafka.user}\" password=\"${config.kafka.password}\";"
+                )
+            }
+        )
 
         consumer.subscribe(listOf(config.kafka.dagpengerJournalpostTopic.name))
         return consumer

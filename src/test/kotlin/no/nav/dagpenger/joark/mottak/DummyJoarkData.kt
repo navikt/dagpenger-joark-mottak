@@ -4,7 +4,8 @@ import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 
 // From https://stash.adeo.no/projects/BOAF/repos/dok-avro/browse/dok-journalfoering-hendelse-v1/src/main/avro/schema/v1/JournalfoeringHendelse.avsc
-private val joarkjournalfoeringhendelserSchema = """
+private val joarkjournalfoeringhendelserSchema =
+    """
 
             {
               "namespace" : "no.nav.joarkjournalfoeringhendelser",
@@ -24,7 +25,7 @@ private val joarkjournalfoeringhendelserSchema = """
               ]
             }
 
-            """.trimIndent()
+    """.trimIndent()
 
 val joarkjournalfoeringhendelserAvroSchema = Schema.Parser().parse(joarkjournalfoeringhendelserSchema)
 

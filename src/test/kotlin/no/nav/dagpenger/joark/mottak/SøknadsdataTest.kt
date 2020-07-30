@@ -9,7 +9,8 @@ internal class SøknadsdataTest {
         Søknadsdata(
             """{"key": "value"}""",
             "jpid",
-            "2020-06-19")
+            "2020-06-19"
+        )
             .serialize() shouldBe """{"key":"value","journalpostId":"jpid","journalRegistrertDato":"2020-06-19"}"""
 
         emptySøknadsdata.serialize() shouldBe "{}"
