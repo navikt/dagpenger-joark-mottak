@@ -59,7 +59,9 @@ class JoarkMottakComponentTest {
                 user = username
             ),
             application = Configuration.Application(
-                httpPort = getAvailablePort(), oidcStsUrl = wireMock.baseUrl(), personOppslagBaseUrl = "${wireMock.baseUrl()}/"
+                httpPort = getAvailablePort(),
+                oidcStsUrl = wireMock.baseUrl(),
+                personOppslagBaseUrl = "${wireMock.baseUrl()}/"
             )
 
         )

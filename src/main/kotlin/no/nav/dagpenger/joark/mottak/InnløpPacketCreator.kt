@@ -14,7 +14,8 @@ class InnløpPacketCreator(
         this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
         this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
         this.putValue(
-            PacketKeys.DOKUMENTER, journalpost.dokumenter
+            PacketKeys.DOKUMENTER,
+            journalpost.dokumenter
         )
 
         this.putValue(PacketKeys.HENVENDELSESTYPE, journalpost.henvendelsestype)

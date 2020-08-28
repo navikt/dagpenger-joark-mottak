@@ -77,7 +77,8 @@ class JoarkMottak(
         logger.info { "Consuming topic ${config.kafka.joarkTopic.name}" }
 
         val inngåendeJournalposter = builder.consumeGenericTopic(
-            config.kafka.joarkTopic, config.kafka.schemaRegisterUrl
+            config.kafka.joarkTopic,
+            config.kafka.schemaRegisterUrl
         )
 
         val journalpostStream = inngåendeJournalposter
@@ -174,7 +175,8 @@ fun main(args: Array<String>) {
     val config = Configuration()
     val oidcClient = StsOidcClient(
         config.application.oidcStsUrl,
-        config.kafka.user, config.kafka.password
+        config.kafka.user,
+        config.kafka.password
     )
 
     val journalpostArkiv = JournalpostArkivJoark(

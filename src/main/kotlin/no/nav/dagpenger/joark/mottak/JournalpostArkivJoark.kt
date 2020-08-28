@@ -56,7 +56,9 @@ class JournalpostArkivJoark(
         return result.fold(
             {
                 Søknadsdata(
-                    it, journalpost.journalpostId, journalpost.registrertDato()
+                    it,
+                    journalpost.journalpostId,
+                    journalpost.registrertDato()
                 )
             },
             { error ->
