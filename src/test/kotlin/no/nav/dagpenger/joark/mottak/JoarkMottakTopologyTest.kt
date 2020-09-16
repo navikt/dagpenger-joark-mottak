@@ -80,9 +80,12 @@ class JoarkMottakTopologyTest {
         "123",
         "2020-06-19"
     )
+
     val journalpostarkiv = mockk<JournalpostArkivJoark>(relaxed = true).also {
         every { it.hentSøknadsdata(any()) } returns søknadsdata
+        every { it.hentSøknadsdataV2(any()) } returns søknadsdata
     }
+
     val packetCreator = InnløpPacketCreator(personOppslagMock)
     val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator, FakeUnleash())
 
@@ -282,6 +285,30 @@ class JoarkMottakTopologyTest {
             val ut = readOutputInnløp(topologyTestDriver)
 
             ut shouldBe null
+        }
+    }
+
+    @Test
+    fun `Skal legge på søknadsdata `() {
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
+
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val journalpostId: Long = 123
+            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutputInnløp(topologyTestDriver)
+
+            ut shouldNotBe null
+            val packet = ut!!.value()
+
+            packet.hasField("søknadsdata") shouldBe true
+            packet.getMapValue("søknadsdata") shouldBe mapOf(
+                "søknadsId" to "id",
+                "journalpostId" to "123",
+                "journalRegistrertDato" to "2020-06-19"
+
+            )
         }
     }
 

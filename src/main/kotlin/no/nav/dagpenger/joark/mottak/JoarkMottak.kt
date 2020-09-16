@@ -102,7 +102,7 @@ class JoarkMottak(
 
         journalpostStream
             .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
-            .mapValues { _, journalpost -> journalpostArkiv.hentSøknadsdataV2(journalpost) }
+            .mapValues { _, journalpost -> Pair(journalpost, journalpostArkiv.hentSøknadsdataV2(journalpost)) }
             .mapValues { _, journalpost -> innløpPacketCreator.createPacket(journalpost) }
             .peek { _, _ -> jpMottatCounter.inc() }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }

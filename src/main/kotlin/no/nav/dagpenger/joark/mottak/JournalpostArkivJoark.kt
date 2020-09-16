@@ -75,11 +75,11 @@ class JournalpostArkivJoark(
         )
     }
 
-    override fun hentSøknadsdataV2(journalpost: Journalpost): Pair<Journalpost, Søknadsdata?> {
+    override fun hentSøknadsdataV2(journalpost: Journalpost): Søknadsdata? {
         return if (journalpost.henvendelsestype == Henvendelsestype.NY_SØKNAD && journalpost.kanal == "NAV_NO") {
-            Pair(journalpost, kotlin.runCatching { hentSøknadsdata(journalpost) }.getOrNull())
+            kotlin.runCatching { hentSøknadsdata(journalpost) }.getOrNull()
         } else {
-            Pair(journalpost, null)
+            null
         }
     }
 }

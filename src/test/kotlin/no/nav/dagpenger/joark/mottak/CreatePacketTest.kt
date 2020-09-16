@@ -9,6 +9,7 @@ import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.moshiInstance
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class CreatePacketTest {
 
@@ -131,5 +132,20 @@ class CreatePacketTest {
         val packet = packetCreator.createPacket(Pair(journalpost, søknadsdata))
 
         packet.getMapValue(PacketKeys.SØKNADSDATA) shouldBe søknadsdata.toMap()
+    }
+
+    @Test
+    fun `Skal ikke legge på søknads data hvis det ikke finnes `() {
+        val packetCreator = InnløpPacketCreator(personOppslagMock)
+
+        val journalpost = dummyJournalpost(
+            dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.04"))
+        )
+
+        val packet = packetCreator.createPacket(Pair(journalpost, null))
+
+        assertThrows<IllegalArgumentException> {
+            packet.getMapValue(PacketKeys.SØKNADSDATA)
+        }
     }
 }
