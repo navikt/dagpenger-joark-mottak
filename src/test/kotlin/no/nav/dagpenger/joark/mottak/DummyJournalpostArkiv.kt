@@ -22,6 +22,10 @@ class DummyJournalpostArkiv() : JournalpostArkiv {
     }
 
     override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata {
-        return Søknadsdata("data", "id", "2020-06-19")
+        return Søknadsdata(
+            """{"søknadsId": "id"}""",
+            "123",
+            "2020-06-19"
+        )
     }
 }

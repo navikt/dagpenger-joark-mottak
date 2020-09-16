@@ -4,7 +4,7 @@ import no.nav.dagpenger.streams.HealthCheck
 
 interface JournalpostArkiv : HealthCheck {
     fun hentInngåendeJournalpost(journalpostId: String): Journalpost
-    fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata
+    fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata?
 }
 
 data class Søknadsdata(
@@ -15,6 +15,12 @@ data class Søknadsdata(
     fun serialize() = when (this == emptySøknadsdata) {
         true -> "{}"
         false -> merge(mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato), data)
+    }
+
+    fun toMap(): Map<String, Any?>? {
+        return jsonMapAdapter.fromJson(data)?.toMap()?.let {
+            it + mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato)
+        }
     }
 }
 

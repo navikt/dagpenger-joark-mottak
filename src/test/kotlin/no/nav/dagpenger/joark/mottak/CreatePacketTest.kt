@@ -9,6 +9,7 @@ import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.moshiInstance
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class CreatePacketTest {
 
@@ -35,7 +36,7 @@ class CreatePacketTest {
         )
 
         val packetCreator = InnløpPacketCreator(personOppslagMock)
-        val packet = packetCreator.createPacket(journalpost)
+        val packet = packetCreator.createPacket(Pair(journalpost, null))
 
         verify { personOppslagMock.hentPerson("1111", BrukerType.AKTOERID) }
 
@@ -52,7 +53,7 @@ class CreatePacketTest {
         val journalpost = dummyJournalpost(
             dokumenter = listOf(DokumentInfo("tittel", "infoId", "NAV 04-01.04"))
         )
-        val packet = packetCreator.createPacket(journalpost)
+        val packet = packetCreator.createPacket(Pair(journalpost, null))
 
         packet.getStringValue("hovedskjemaId") shouldBe "NAV 04-01.04"
         packet.getStringValue("henvendelsestype") shouldBe "NY_SØKNAD"
@@ -65,7 +66,7 @@ class CreatePacketTest {
         val journalpost = dummyJournalpost(
             dokumenter = listOf(DokumentInfo("Søknad", "infoId", "NAV 04-01.04"))
         )
-        val packet = packetCreator.createPacket(journalpost)
+        val packet = packetCreator.createPacket(Pair(journalpost, null))
 
         val adapter = moshiInstance.adapter<List<DokumentInfo>>(
             Types.newParameterizedType(
@@ -91,7 +92,7 @@ class CreatePacketTest {
         )
 
         val packetCreator = InnløpPacketCreator(personOppslagMedDiskresjonskode)
-        val packet = packetCreator.createPacket(dummyJournalpost())
+        val packet = packetCreator.createPacket(Pair(dummyJournalpost(), null))
 
         packet.getStringValue("behandlendeEnhet") shouldBe "2103"
     }
@@ -103,7 +104,7 @@ class CreatePacketTest {
         val journalpost = dummyJournalpost(
             dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.03"))
         )
-        val packet = packetCreator.createPacket(journalpost)
+        val packet = packetCreator.createPacket(Pair(journalpost, null))
 
         packet.getStringValue("behandlendeEnhet") shouldBe "4450"
     }
@@ -115,8 +116,36 @@ class CreatePacketTest {
         val journalpost = dummyJournalpost(
             dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.04"))
         )
-        val packet = packetCreator.createPacket(journalpost)
+        val packet = packetCreator.createPacket(Pair(journalpost, null))
 
         packet.getStringValue("behandlendeEnhet") shouldBe "4455"
+    }
+
+    @Test
+    fun `Skal legge på søknads data`() {
+        val packetCreator = InnløpPacketCreator(personOppslagMock)
+
+        val journalpost = dummyJournalpost(
+            dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.04"))
+        )
+        val søknadsdata = Søknadsdata("""{}""", "id", null)
+        val packet = packetCreator.createPacket(Pair(journalpost, søknadsdata))
+
+        packet.getMapValue(PacketKeys.SØKNADSDATA) shouldBe søknadsdata.toMap()
+    }
+
+    @Test
+    fun `Skal ikke legge på søknads data hvis det ikke finnes `() {
+        val packetCreator = InnløpPacketCreator(personOppslagMock)
+
+        val journalpost = dummyJournalpost(
+            dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.04"))
+        )
+
+        val packet = packetCreator.createPacket(Pair(journalpost, null))
+
+        assertThrows<IllegalArgumentException> {
+            packet.getMapValue(PacketKeys.SØKNADSDATA)
+        }
     }
 }
