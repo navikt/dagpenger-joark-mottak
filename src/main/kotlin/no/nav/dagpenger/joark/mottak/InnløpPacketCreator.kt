@@ -8,7 +8,10 @@ private val logger = KotlinLogging.logger {}
 class InnløpPacketCreator(
     val personOppslag: PersonOppslag
 ) {
-    fun createPacket(journalpost: Journalpost) = Packet().apply {
+    fun createPacket(journalpostOgSøknadsdata: Pair<Journalpost, Søknadsdata?>) = Packet().apply {
+
+        val (journalpost, søknadsdata) = journalpostOgSøknadsdata
+
         this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_SØKNAD, true)
 
         this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
