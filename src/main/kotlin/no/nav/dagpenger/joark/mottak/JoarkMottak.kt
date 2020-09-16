@@ -54,6 +54,7 @@ internal object PacketKeys {
     const val NATURLIG_IDENT: String = "naturligIdent"
     const val TOGGLE_BEHANDLE_NY_SØKNAD: String = "toggleBehandleNySøknad"
     const val HENVENDELSESTYPE: String = "henvendelsestype"
+    const val SØKNADSDATA: String = "søknadsdata"
 }
 
 class JoarkMottak(

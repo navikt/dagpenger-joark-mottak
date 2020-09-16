@@ -24,4 +24,8 @@ class DummyJournalpostArkiv() : JournalpostArkiv {
     override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata {
         return Søknadsdata("data", "id", "2020-06-19")
     }
+
+    override fun hentSøknadsdataV2(journalpost: Journalpost): Pair<Journalpost, Søknadsdata?> {
+        return Pair(journalpost, null)
+    }
 }
