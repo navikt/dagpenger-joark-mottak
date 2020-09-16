@@ -127,9 +127,9 @@ class CreatePacketTest {
         val journalpost = dummyJournalpost(
             dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-01.04"))
         )
-        val søknadsdata = Søknadsdata(""" {}""", "id", null)
+        val søknadsdata = Søknadsdata("""{}""", "id", null)
         val packet = packetCreator.createPacket(Pair(journalpost, søknadsdata))
 
-        packet.getStringValue(PacketKeys.SØKNADSDATA) shouldBe søknadsdata.serialize()
+        packet.getMapValue(PacketKeys.SØKNADSDATA) shouldBe søknadsdata.toMap()
     }
 }

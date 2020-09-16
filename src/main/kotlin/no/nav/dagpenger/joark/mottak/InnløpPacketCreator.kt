@@ -14,7 +14,7 @@ class InnløpPacketCreator(
 
         this.putValue(PacketKeys.TOGGLE_BEHANDLE_NY_SØKNAD, true)
 
-        søknadsdata?.let { this.putValue(PacketKeys.SØKNADSDATA, søknadsdata.serialize()) }
+        søknadsdata?.toMap()?.let { this.putValue(PacketKeys.SØKNADSDATA, it) }
 
         this.putValue(PacketKeys.JOURNALPOST_ID, journalpost.journalpostId)
         this.putValue(PacketKeys.HOVEDSKJEMA_ID, journalpost.dokumenter.first().brevkode ?: "ukjent")
