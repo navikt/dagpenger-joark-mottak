@@ -67,7 +67,7 @@ class JournalpostArkivJoarkTest {
         )
 
         val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
-        joarkClient.hentSøknadsdata(dummyJournalpost(journalpostId = journalpostId, dokumenter = listOf(DokumentInfo("Søknad", dokumentId, "brevkode"))))
+        joarkClient.hentSøknadsdata(dummyJournalpost(journalpostId = journalpostId, kanal = "NAV_NO", dokumenter = listOf(DokumentInfo("Søknad", dokumentId, "NAV 04-01.03"))))
 
         verify(getRequestedFor(urlEqualTo(url)))
     }

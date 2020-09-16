@@ -28,8 +28,4 @@ class DummyJournalpostArkiv() : JournalpostArkiv {
             "2020-06-19"
         )
     }
-
-    override fun hentSøknadsdataV2(journalpost: Journalpost): Søknadsdata? {
-        return hentSøknadsdata(journalpost)
-    }
 }

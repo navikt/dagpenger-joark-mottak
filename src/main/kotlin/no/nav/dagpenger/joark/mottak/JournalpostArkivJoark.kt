@@ -42,7 +42,7 @@ class JournalpostArkivJoark(
         }
     }
 
-    override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata {
+    private fun _hentSøknadsdata(journalpost: Journalpost): Søknadsdata {
         val journalpostId = journalpost.journalpostId
         val dokumentId = journalpost.dokumenter.firstOrNull()?.dokumentInfoId ?: return emptySøknadsdata
 
@@ -62,22 +62,18 @@ class JournalpostArkivJoark(
                 )
             },
             { error ->
-                if (error.response.statusCode == 404 && profile == Profile.DEV) {
-                    return emptySøknadsdata
-                } else {
-                    throw JournalpostArkivException(
-                        response.statusCode,
-                        "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.responseMessage}",
-                        error.exception
-                    )
-                }
+                throw JournalpostArkivException(
+                    response.statusCode,
+                    "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.responseMessage}",
+                    error.exception
+                )
             }
         )
     }
 
-    override fun hentSøknadsdataV2(journalpost: Journalpost): Søknadsdata? {
+    override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata? {
         return if (journalpost.henvendelsestype == Henvendelsestype.NY_SØKNAD && journalpost.kanal == "NAV_NO") {
-            kotlin.runCatching { hentSøknadsdata(journalpost) }.getOrNull()
+            _hentSøknadsdata(journalpost)
         } else {
             null
         }

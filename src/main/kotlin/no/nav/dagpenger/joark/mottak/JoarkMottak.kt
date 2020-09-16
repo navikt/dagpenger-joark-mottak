@@ -99,28 +99,27 @@ class JoarkMottak(
             }
             .peek { _, journalpost -> journalpost.journalstatus.let { if (it != Journalstatus.MOTTATT) logger.info { "Mottok journalpost ${journalpost.journalpostId} med annen status enn mottatt: $it " } } }
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
+            .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
+            .mapValues { _, journalpost -> Pair(journalpost, journalpostArkiv.hentSøknadsdata(journalpost)) }
 
         journalpostStream
-            .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
-            .mapValues { _, journalpost -> Pair(journalpost, journalpostArkiv.hentSøknadsdataV2(journalpost)) }
             .mapValues { _, journalpost -> innløpPacketCreator.createPacket(journalpost) }
             .peek { _, _ -> jpMottatCounter.inc() }
             .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
             .peek { _, packet ->
                 logger.info {
-                    "Producing packet with journalpostid ${packet.getStringValue(PacketKeys.JOURNALPOST_ID)} and henvendelsestype: ${packet.getStringValue(
+                    "Producing packet with journalpostid ${packet.getStringValue(PacketKeys.JOURNALPOST_ID)} and henvendelsestype: ${
+                    packet.getStringValue(
                         PacketKeys.HENVENDELSESTYPE
-                    )}"
+                    )
+                    }"
                 }
             }
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         journalpostStream
-            .filter { _, journalpost -> journalpost.henvendelsestype == Henvendelsestype.NY_SØKNAD }
-            .filter { _, journalpost -> journalpost.kanal == "NAV_NO" }
-            .mapValues { _, journalpost -> journalpostArkiv.hentSøknadsdata(journalpost) }
-            .filter { _, søknadsdata -> søknadsdata != emptySøknadsdata }
-            .mapValues { _, søknadsdata -> søknadsdata.serialize() }
+            .filter { _, søknadsdata -> søknadsdata != null }
+            .mapValues { _, (_, søknadsdata) -> søknadsdata!!.serialize() }
             .peek { key, _ -> logger.info { "Producing søknadsdata for $key " } }
             .toTopic(config.kafka.søknadsdataTopic)
 

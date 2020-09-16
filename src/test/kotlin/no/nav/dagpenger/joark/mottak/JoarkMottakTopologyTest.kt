@@ -83,7 +83,6 @@ class JoarkMottakTopologyTest {
 
     val journalpostarkiv = mockk<JournalpostArkivJoark>(relaxed = true).also {
         every { it.hentSøknadsdata(any()) } returns søknadsdata
-        every { it.hentSøknadsdataV2(any()) } returns søknadsdata
     }
 
     val packetCreator = InnløpPacketCreator(personOppslagMock)

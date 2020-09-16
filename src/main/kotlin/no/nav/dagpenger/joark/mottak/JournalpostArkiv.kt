@@ -4,8 +4,7 @@ import no.nav.dagpenger.streams.HealthCheck
 
 interface JournalpostArkiv : HealthCheck {
     fun hentInngåendeJournalpost(journalpostId: String): Journalpost
-    fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata
-    fun hentSøknadsdataV2(journalpost: Journalpost): Søknadsdata?
+    fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata?
 }
 
 data class Søknadsdata(
