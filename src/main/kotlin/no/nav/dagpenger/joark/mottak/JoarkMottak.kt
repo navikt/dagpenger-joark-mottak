@@ -118,7 +118,7 @@ class JoarkMottak(
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         journalpostStream
-            .filter { _, (jp, søknadsdata) -> søknadsdata != null }
+            .filter { _, (_, søknadsdata) -> søknadsdata != null }
             .mapValues { _, (_, søknadsdata) -> søknadsdata!!.serialize() }
             .peek { key, _ -> logger.info { "Producing søknadsdata for $key " } }
             .toTopic(config.kafka.søknadsdataTopic)

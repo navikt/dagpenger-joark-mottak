@@ -24,4 +24,4 @@ data class Søknadsdata(
     }
 }
 
-val emptySøknadsdata = Søknadsdata("", "", null)
+val emptySøknadsdata = Søknadsdata("{}", "", null)

@@ -4,15 +4,17 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
+import mu.KotlinLogging
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthStatus
+
+private val logger = KotlinLogging.logger { }
 
 class JournalpostArkivJoark(
     private val joarkBaseUrl: String,
     private val oidcClient: OidcClient,
     private val profile: Profile
-) :
-    JournalpostArkiv {
+) : JournalpostArkiv {
 
     override fun status(): HealthStatus {
         val (_, _, result) = with("${joarkBaseUrl}isAlive".httpGet()) {
@@ -62,11 +64,16 @@ class JournalpostArkivJoark(
                 )
             },
             { error ->
-                throw JournalpostArkivException(
-                    response.statusCode,
-                    "Failed to fetch søknadsdata for id: $journalpostId. Response message ${response.responseMessage}",
-                    error.exception
-                )
+                if (profile == Profile.DEV && error.response.statusCode == 404) {
+                    logger.warn { "Fant ikke søknadsdata fra journalpost id $journalpostId" }
+                    return emptySøknadsdata
+                } else {
+                    throw JournalpostArkivException(
+                        response.statusCode,
+                        "Feilet å hente søknadsdata fra journalpostid: $journalpostId. Melding fra responseØ ${response.responseMessage}",
+                        error.exception
+                    )
+                }
             }
         )
     }
