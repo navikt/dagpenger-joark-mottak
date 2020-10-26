@@ -15,4 +15,14 @@ internal class SøknadsdataTest {
 
         emptySøknadsdata.serialize() shouldBe "{}"
     }
+
+    @Test
+    fun `to map`() {
+        Søknadsdata(
+            """{"key": "value"}""",
+            "jpid",
+            "2020-06-19"
+        )
+            .toMap() shouldBe mapOf("key" to "value", "journalpostId" to "jpid", "journalRegistrertDato" to "2020-06-19")
+    }
 }

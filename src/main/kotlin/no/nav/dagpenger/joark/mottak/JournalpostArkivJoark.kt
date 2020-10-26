@@ -44,7 +44,7 @@ class JournalpostArkivJoark(
         }
     }
 
-    private fun _hentSøknadsdata(journalpost: Journalpost): Søknadsdata {
+    private fun _hentSøknadsdata(journalpost: Journalpost): Søknadsdata? {
         val journalpostId = journalpost.journalpostId
         val dokumentId = journalpost.dokumenter.firstOrNull()?.dokumentInfoId ?: return emptySøknadsdata
 
@@ -66,7 +66,7 @@ class JournalpostArkivJoark(
             { error ->
                 if (profile == Profile.DEV && error.response.statusCode == 404) {
                     logger.warn { "Fant ikke søknadsdata fra journalpost id $journalpostId" }
-                    return emptySøknadsdata
+                    return null
                 } else {
                     throw JournalpostArkivException(
                         response.statusCode,
