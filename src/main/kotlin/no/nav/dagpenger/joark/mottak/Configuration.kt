@@ -17,6 +17,7 @@ import no.nav.dagpenger.streams.Topics
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsConfig
+import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler
 import java.net.InetAddress
 import java.net.UnknownHostException
 
@@ -51,7 +52,8 @@ private val devProperties = ConfigurationMap(
         "personoppslag.url" to "https://dp-graphql.nais.preprod.local/",
         "graphql.apikey" to "hunter2",
         "unleash.url" to "http://unleash.default.svc.nais.local/api",
-        "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE
+        "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE,
+        "deserialization.exception.handler" to LogAndContinueExceptionHandler::class.java.name
     )
 )
 private val prodProperties = ConfigurationMap(
@@ -102,6 +104,8 @@ data class Configuration(
             keySerde = Serdes.String(),
             valueSerde = Serdes.String()
         ),
+
+        val deseralizationExceptionHandler: String? = config().getOrNull(Key("deserialization.exception.handler", stringType)),
         val brokers: String = config()[Key("kafka.bootstrap.servers", stringType)],
         val schemaRegisterUrl: String = config()[Key("kafka.schema.registry.url", stringType)],
         val user: String = config()[Key("srvdagpenger.joark.mottak.username", stringType)],

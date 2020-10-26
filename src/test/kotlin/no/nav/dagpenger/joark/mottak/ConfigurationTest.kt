@@ -10,6 +10,7 @@ internal class ConfigurationTest {
             with(Configuration()) {
                 this.application.profile shouldBe Profile.DEV
                 this.kafka.joarkTopic.name shouldBe "aapen-dok-journalfoering-v1-q1"
+                this.kafka.deseralizationExceptionHandler shouldBe "org.apache.kafka.streams.errors.LogAndContinueExceptionHandler"
             }
         }
 
@@ -17,6 +18,7 @@ internal class ConfigurationTest {
             with(Configuration()) {
                 this.application.profile shouldBe Profile.PROD
                 this.kafka.joarkTopic.name shouldBe "aapen-dok-journalfoering-v1-p"
+                this.kafka.deseralizationExceptionHandler shouldBe null
             }
         }
     }

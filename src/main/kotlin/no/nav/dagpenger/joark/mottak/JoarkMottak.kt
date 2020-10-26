@@ -165,6 +165,9 @@ class JoarkMottak(
             credential = config.kafka.credential()
         )
         properties[StreamsConfig.PROCESSING_GUARANTEE_CONFIG] = config.kafka.processingGuarantee
+        config.kafka.deseralizationExceptionHandler?.let {
+            properties[StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG] = it
+        }
         return properties
     }
 }
