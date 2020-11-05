@@ -10,6 +10,7 @@ import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.streamConfig
 import no.nav.dagpenger.streams.toTopic
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.Topology
@@ -165,6 +166,7 @@ class JoarkMottak(
             credential = config.kafka.credential()
         )
         properties[StreamsConfig.PROCESSING_GUARANTEE_CONFIG] = config.kafka.processingGuarantee
+        properties[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "none"
         config.kafka.deseralizationExceptionHandler?.let {
             properties[StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG] = it
         }
