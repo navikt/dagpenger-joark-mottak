@@ -113,9 +113,9 @@ class JoarkMottak(
                 .peek { _, packet ->
                     logger.info {
                         "Producing packet with journalpostid ${packet.getStringValue(PacketKeys.JOURNALPOST_ID)} and henvendelsestype: ${
-                            packet.getStringValue(
-                                PacketKeys.HENVENDELSESTYPE
-                            )
+                        packet.getStringValue(
+                            PacketKeys.HENVENDELSESTYPE
+                        )
                         }"
                     }
                 }
