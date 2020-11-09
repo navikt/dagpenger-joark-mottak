@@ -83,46 +83,53 @@ class JoarkMottak(
             config.kafka.schemaRegisterUrl
         )
 
-        val journalpostStream = inngåendeJournalposter
-            .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
-            .peek { _, record ->
-                logger.info(
-                    "Received journalpost with journalpost id: ${record[PacketKeys.JOURNALPOST_ID]} and tema: ${record["temaNytt"]}, hendelsesType: ${record["hendelsesType"]}, mottakskanal, ${record["mottaksKanal"]} "
-                )
-            }
-            .filter { _, journalpostHendelse -> "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString() }
-            .mapValues { _, record ->
-                val journalpostId = record.get(PacketKeys.JOURNALPOST_ID).toString()
-
-                journalpostArkiv.hentInngåendeJournalpost(journalpostId)
-                    .also { logger.info { "Journalpost --> $it" } }
-                    .also { registerMetrics(it) }
-            }
-            .peek { _, journalpost -> journalpost.journalstatus.let { if (it != Journalstatus.MOTTATT) logger.info { "Mottok journalpost ${journalpost.journalpostId} med annen status enn mottatt: $it " } } }
-            .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
-            .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
-            .mapValues { _, journalpost -> Pair(journalpost, journalpostArkiv.hentSøknadsdata(journalpost)) }
-
-        journalpostStream
-            .mapValues { _, journalpost -> innløpPacketCreator.createPacket(journalpost) }
-            .peek { _, _ -> jpMottatCounter.inc() }
-            .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
-            .peek { _, packet ->
-                logger.info {
-                    "Producing packet with journalpostid ${packet.getStringValue(PacketKeys.JOURNALPOST_ID)} and henvendelsestype: ${
-                    packet.getStringValue(
-                        PacketKeys.HENVENDELSESTYPE
+        try {
+            val journalpostStream = inngåendeJournalposter
+                .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
+                .peek { _, record ->
+                    logger.info(
+                        "Received journalpost with journalpost id: ${record[PacketKeys.JOURNALPOST_ID]} and tema: ${record["temaNytt"]}, hendelsesType: ${record["hendelsesType"]}, mottakskanal, ${record["mottaksKanal"]} "
                     )
-                    }"
                 }
-            }
-            .toTopic(config.kafka.dagpengerJournalpostTopic)
+                .filter { _, journalpostHendelse ->
+                    "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString()
+                }
+                .mapValues { _, record ->
+                    val journalpostId = record.get(PacketKeys.JOURNALPOST_ID).toString()
 
-        journalpostStream
-            .filter { _, (_, søknadsdata) -> søknadsdata != null }
-            .mapValues { _, (_, søknadsdata) -> søknadsdata!!.serialize() }
-            .peek { key, _ -> logger.info { "Producing søknadsdata for $key " } }
-            .toTopic(config.kafka.søknadsdataTopic)
+                    journalpostArkiv.hentInngåendeJournalpost(journalpostId)
+                        .also { logger.info { "Journalpost --> $it" } }
+                        .also { registerMetrics(it) }
+                }
+                .peek { _, journalpost -> journalpost.journalstatus.let { if (it != Journalstatus.MOTTATT) logger.info { "Mottok journalpost ${journalpost.journalpostId} med annen status enn mottatt: $it " } } }
+                .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
+                .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
+                .mapValues { _, journalpost -> Pair(journalpost, journalpostArkiv.hentSøknadsdata(journalpost)) }
+
+            journalpostStream
+                .mapValues { _, journalpost -> innløpPacketCreator.createPacket(journalpost) }
+                .peek { _, _ -> jpMottatCounter.inc() }
+                .selectKey { _, value -> value.getStringValue(PacketKeys.JOURNALPOST_ID) }
+                .peek { _, packet ->
+                    logger.info {
+                        "Producing packet with journalpostid ${packet.getStringValue(PacketKeys.JOURNALPOST_ID)} and henvendelsestype: ${
+                            packet.getStringValue(
+                                PacketKeys.HENVENDELSESTYPE
+                            )
+                        }"
+                    }
+                }
+                .toTopic(config.kafka.dagpengerJournalpostTopic)
+
+            journalpostStream
+                .filter { _, (_, søknadsdata) -> søknadsdata != null }
+                .mapValues { _, (_, søknadsdata) -> søknadsdata!!.serialize() }
+                .peek { key, _ -> logger.info { "Producing søknadsdata for $key " } }
+                .toTopic(config.kafka.søknadsdataTopic)
+        } catch (e: Exception) {
+            logger.error { "En feil oppstod i lesinga av meldinga: ${e.message}" }
+            throw e
+        }
 
         return builder.build()
     }
