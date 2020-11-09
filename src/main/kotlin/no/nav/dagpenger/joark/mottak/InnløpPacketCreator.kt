@@ -30,14 +30,20 @@ class InnløpPacketCreator(
         }
 
         if (null != journalpost.bruker) {
-            personOppslag.hentPerson(journalpost.bruker.id, journalpost.bruker.type).let {
-                this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
-                this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
-                this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)
-                this.putValue(
-                    PacketKeys.BEHANDLENDE_ENHET,
-                    behandlendeEnhetFrom(it.diskresjonskode, journalpost.dokumenter.first().brevkode ?: "ukjent")
-                )
+            try {
+                personOppslag.hentPerson(journalpost.bruker.id, journalpost.bruker.type).let {
+                    this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
+                    this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
+                    this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)
+                    this.putValue(
+                        PacketKeys.BEHANDLENDE_ENHET,
+                        behandlendeEnhetFrom(it.diskresjonskode, journalpost.dokumenter.first().brevkode ?: "ukjent")
+                    )
+                }
+            } catch (e: Exception) {
+                logger.error { "Feil i oppslag av person" }
+                logger.error { "Feilen var ${e.message}" }
+                throw e
             }
         } else {
             logger.warn { "Journalpost: ${journalpost.journalpostId} er ikke tilknyttet bruker" }
