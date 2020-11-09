@@ -35,26 +35,26 @@ class InnløpPacketCreator(
                     this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
                     this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
                     this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)
-                    this.putValue(
-                        PacketKeys.BEHANDLENDE_ENHET,
-                        behandlendeEnhetFrom(it.diskresjonskode, journalpost.dokumenter.first().brevkode ?: "ukjent")
-                    )
+                    leggPåBehandlendeEnhet(journalpost = journalpost, it.diskresjonskode)
                 }
-            } catch (e: Exception) {
-                logger.error { "Feil i oppslag av person" }
-                logger.error { "Feilen var ${e.message}" }
-                throw e
+            } catch (e: PersonOppslagException) {
+                logger.error { "Kunne ikke slå opp personen. Feilen fra PDL var ${e.message}" }
+                leggPåBehandlendeEnhet(journalpost = journalpost)
             }
         } else {
             logger.warn { "Journalpost: ${journalpost.journalpostId} er ikke tilknyttet bruker" }
-            this.putValue(
-                PacketKeys.BEHANDLENDE_ENHET,
-                behandlendeEnhetFrom(
-                    diskresjonskode = null,
-                    brevkode = journalpost.dokumenter.first().brevkode ?: "ukjent"
-                )
-            )
+            leggPåBehandlendeEnhet(journalpost = journalpost)
         }
+    }
+
+    private fun Packet.leggPåBehandlendeEnhet(journalpost: Journalpost, diskresjonskode: String? = null) {
+        this.putValue(
+            PacketKeys.BEHANDLENDE_ENHET,
+            behandlendeEnhetFrom(
+                diskresjonskode = diskresjonskode,
+                brevkode = journalpost.dokumenter.first().brevkode ?: "ukjent"
+            )
+        )
     }
 
     private fun behandlendeEnhetFrom(diskresjonskode: String?, brevkode: String): String {
