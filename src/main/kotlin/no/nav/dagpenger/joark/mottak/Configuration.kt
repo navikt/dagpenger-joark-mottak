@@ -67,7 +67,7 @@ private val prodProperties = ConfigurationMap(
         "oidc.sts.issuerurl" to "https://security-token-service.nais.adeo.no",
         "personoppslag.url" to "https://dp-graphql.nais.adeo.no/",
         "graphql.apikey" to "hunter2",
-        "unleash.url" to "https://unleash.nais.adeo.no/api/",
+        "unleash.url" to "https://unleash.nais.io/api/",
         "kafka.processing.guarantee" to StreamsConfig.EXACTLY_ONCE
     )
 )
