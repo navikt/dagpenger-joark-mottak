@@ -112,9 +112,9 @@ class JoarkMottak(
             .peek { _, packet ->
                 logger.info {
                     "Producing packet with journalpostid ${packet.getStringValue(PacketKeys.JOURNALPOST_ID)} and henvendelsestype: ${
-                        packet.getStringValue(
-                            PacketKeys.HENVENDELSESTYPE
-                        )
+                    packet.getStringValue(
+                        PacketKeys.HENVENDELSESTYPE
+                    )
                     }"
                 }
             }
@@ -125,7 +125,6 @@ class JoarkMottak(
             .mapValues { _, (_, søknadsdata) -> søknadsdata!!.serialize() }
             .peek { key, _ -> logger.info { "Producing søknadsdata for $key " } }
             .toTopic(config.kafka.søknadsdataTopic)
-
 
         return builder.build()
     }
