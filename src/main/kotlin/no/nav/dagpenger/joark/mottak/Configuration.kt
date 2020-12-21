@@ -51,7 +51,7 @@ private val devProperties = ConfigurationMap(
         "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local",
         "personoppslag.url" to "https://dp-graphql.nais.preprod.local/",
         "graphql.apikey" to "hunter2",
-        "unleash.url" to "http://unleash.aura.svc.nais.local/api",
+        "unleash.url" to "https://unleash.nais.io/api/",
         "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE,
         "deserialization.exception.handler" to LogAndContinueExceptionHandler::class.java.name
     )
