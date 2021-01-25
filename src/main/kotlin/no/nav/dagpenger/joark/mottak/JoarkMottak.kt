@@ -130,11 +130,12 @@ class JoarkMottak(
     }
 
     private fun Henvendelsestype.erStøttet() = this in listOf(
-        Henvendelsestype.NY_SØKNAD,
-        Henvendelsestype.UTDANNING,
-        Henvendelsestype.GJENOPPTAK,
-        Henvendelsestype.ETABLERING,
-        Henvendelsestype.KLAGE_ANKE
+            Henvendelsestype.NY_SØKNAD,
+            Henvendelsestype.UTDANNING,
+            Henvendelsestype.GJENOPPTAK,
+            Henvendelsestype.ETABLERING,
+            Henvendelsestype.KLAGE_ANKE,
+            Henvendelsestype.ETTERSENDELSE
     )
 
     private fun registerMetrics(journalpost: Journalpost) {

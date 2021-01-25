@@ -261,33 +261,6 @@ class JoarkMottakTopologyTest {
     }
 
     @Test
-    fun `skal ikke ta vare på packets som er ettersendinger`() {
-        val journalpostId: Long = 123
-
-        every { journalpostarkiv.hentInngåendeJournalpost(journalpostId.toString()) } returns Journalpost(
-            journalstatus = Journalstatus.MOTTATT,
-            journalpostId = "123",
-            bruker = Bruker(BrukerType.AKTOERID, "123"),
-            tittel = "Kul tittel",
-            kanal = "NAV.no",
-            datoOpprettet = "2019-05-05",
-            kanalnavn = "DAG",
-            journalforendeEnhet = "Uvisst",
-            relevanteDatoer = listOf(RelevantDato(dato = "2018-01-01T12:00:00", datotype = Datotype.DATO_REGISTRERT)),
-            dokumenter = listOf(DokumentInfo(dokumentInfoId = "9", brevkode = "NAVe 04-01.04", tittel = "søknad"))
-        )
-
-        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
-            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
-            topologyTestDriver.pipeInput(inputRecord)
-
-            val ut = readOutputInnløp(topologyTestDriver)
-
-            ut shouldBe null
-        }
-    }
-
-    @Test
     fun `Skal legge på søknadsdata `() {
         val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
 
