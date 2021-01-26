@@ -16,15 +16,15 @@ class HenvendelsesTypeMapperTest {
     }
 
     @Test
-    fun ` unknown skjemaId gets mapped to Annet`() {
+    fun ` unknown skjemaId gets mapped to Manuell`() {
         val type = HenvendelsesTypeMapper.getHenvendelsesType("xxx")
-        assertEquals(type, Henvendelsestype.ANNET)
+        assertEquals(type, Henvendelsestype.MANUELL)
     }
 
     @Test
-    fun ` no skjemaId gets mapped to Annet`() {
+    fun ` no skjemaId gets mapped to Manuell`() {
         val type = HenvendelsesTypeMapper.getHenvendelsesType(null)
-        assertEquals(type, Henvendelsestype.ANNET)
+        assertEquals(type, Henvendelsestype.MANUELL)
     }
 
     @Test
