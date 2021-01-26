@@ -49,29 +49,21 @@ object HenvendelsesTypeMapper {
     )
 
     private val brevkodeTilHenvendelsestype = mapOf(
-            "NAV 04-01.03" to Henvendelsestype.NY_SØKNAD,
-            "NAV 04-01.04" to Henvendelsestype.NY_SØKNAD,
-            "NAV 04-16.03" to Henvendelsestype.GJENOPPTAK,
-            "NAV 04-16.04" to Henvendelsestype.GJENOPPTAK,
-            "NAV 04-06.05" to Henvendelsestype.UTDANNING,
-            "NAV 04-06.08" to Henvendelsestype.ETABLERING,
-            "NAV 90-00.08" to Henvendelsestype.KLAGE_ANKE,
-            "NAVe 04-02.05" to Henvendelsestype.ETTERSENDELSE,
-            "NAVe 04-08.03" to Henvendelsestype.ETTERSENDELSE,
-            "NAVe 04-08.04" to Henvendelsestype.ETTERSENDELSE,
-            "NAVe 04-16.04" to Henvendelsestype.ETTERSENDELSE,
-            "NAVe 04-02.01" to Henvendelsestype.ETTERSENDELSE,
-            "NAVe 04-06.05" to Henvendelsestype.ETTERSENDELSE,
-            "NAVe 04-06.08" to Henvendelsestype.ETTERSENDELSE,
-            "NAVe 04-16.03" to Henvendelsestype.ETTERSENDELSE,
-            "NAVe 04-03.07" to Henvendelsestype.ETTERSENDELSE,
-            "NAVe 04-03.08" to Henvendelsestype.ETTERSENDELSE,
-            "NAVe 04-01.03" to Henvendelsestype.ETTERSENDELSE,
-            "NAVe 04-01.04" to Henvendelsestype.ETTERSENDELSE
+        "NAV 04-01.03" to Henvendelsestype.NY_SØKNAD,
+        "NAV 04-01.04" to Henvendelsestype.NY_SØKNAD,
+        "NAV 04-16.03" to Henvendelsestype.GJENOPPTAK,
+        "NAV 04-16.04" to Henvendelsestype.GJENOPPTAK,
+        "NAV 04-06.05" to Henvendelsestype.UTDANNING,
+        "NAV 04-06.08" to Henvendelsestype.ETABLERING,
+        "NAV 90-00.08" to Henvendelsestype.KLAGE_ANKE,
+        "NAVe 04-16.04" to Henvendelsestype.ETTERSENDELSE,
+        "NAVe 04-16.03" to Henvendelsestype.ETTERSENDELSE,
+        "NAVe 04-01.03" to Henvendelsestype.ETTERSENDELSE,
+        "NAVe 04-01.04" to Henvendelsestype.ETTERSENDELSE
     )
 
     fun getHenvendelsesType(navSkjemaId: String?): Henvendelsestype {
-        return brevkodeTilHenvendelsestype.getOrDefault(navSkjemaId.orEmpty(), Henvendelsestype.ANNET)
+        return brevkodeTilHenvendelsestype.getOrDefault(navSkjemaId.orEmpty(), Henvendelsestype.MANUELL)
     }
 
     fun isKnownSkjemaId(navSkjemaId: String): Boolean {
@@ -82,7 +74,7 @@ object HenvendelsesTypeMapper {
 enum class Henvendelsestype {
     NY_SØKNAD,
     GJENOPPTAK,
-    ANNET,
+    MANUELL,
     UTDANNING,
     ETABLERING,
     KLAGE_ANKE,

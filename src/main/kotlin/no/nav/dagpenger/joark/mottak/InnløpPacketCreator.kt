@@ -57,29 +57,21 @@ class InnløpPacketCreator(
         )
     }
 
+    private val PERMITTERING_BREVKODER =
+        listOf(
+            "NAV 04-01.04",
+            "NAVe 04-01.04",
+            "NAVe 04-16.03",
+            "NAV 04-16.04",
+            "NAVe 04-08.04",
+            "NAV 04-08.04"
+        )
+
     private fun behandlendeEnhetFrom(diskresjonskode: String?, brevkode: String): String {
         return when {
             diskresjonskode == "SPSF" -> "2103"
-            brevkode == "NAV 04-01.03" -> "4450"
-            brevkode == "NAV 04-01.04" -> "4455"
-            brevkode == "NAV 04-16.03" -> "4450"
-            brevkode == "NAV 04-16.04" -> "4455"
-            brevkode == "NAV 04-06.05" -> "4450"
-            brevkode == "NAV 04-06.08" -> "4450"
-            brevkode == "NAV 90-00.08" -> "4450"
-            brevkode == "NAVe 04-16.03" -> "4455"
-            brevkode == "NAVe 04-01.04" -> "4455"
-            brevkode == "NAVe 04-02.05" -> "4450"
-            brevkode == "NAVe 04-08.03" -> "4450"
-            brevkode == "NAVe 04-08.04" -> "4450"
-            brevkode == "NAVe 04-16.04" -> "4450"
-            brevkode == "NAVe 04-02.01" -> "4450"
-            brevkode == "NAVe 04-06.05" -> "4450"
-            brevkode == "NAVe 04-06.08" -> "4450"
-            brevkode == "NAVe 04-03.07" -> "4450"
-            brevkode == "NAVe 04-03.08" -> "4450"
-            brevkode == "NAVe 04-01.03" -> "4450"
-            else -> throw UnsupportedBehandlendeEnhetException("Cannot find behandlende enhet for brevkode $brevkode")
+            brevkode in PERMITTERING_BREVKODER -> "4455"
+            else -> "4450"
         }
     }
 }

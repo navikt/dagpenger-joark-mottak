@@ -102,7 +102,6 @@ class JoarkMottak(
             }
             .peek { _, journalpost -> journalpost.journalstatus.let { if (it != Journalstatus.MOTTATT) logger.info { "Mottok journalpost ${journalpost.journalpostId} med annen status enn mottatt: $it " } } }
             .filter { _, journalpost -> journalpost.journalstatus == Journalstatus.MOTTATT }
-            .filter { _, journalpost -> journalpost.henvendelsestype.erStøttet() }
             .mapValues { _, journalpost -> Pair(journalpost, journalpostArkiv.hentSøknadsdata(journalpost)) }
 
         journalpostStream
@@ -128,15 +127,6 @@ class JoarkMottak(
 
         return builder.build()
     }
-
-    private fun Henvendelsestype.erStøttet() = this in listOf(
-            Henvendelsestype.NY_SØKNAD,
-            Henvendelsestype.UTDANNING,
-            Henvendelsestype.GJENOPPTAK,
-            Henvendelsestype.ETABLERING,
-            Henvendelsestype.KLAGE_ANKE,
-            Henvendelsestype.ETTERSENDELSE
-    )
 
     private fun registerMetrics(journalpost: Journalpost) {
         val skjemaId = journalpost.dokumenter.firstOrNull()?.brevkode ?: "ukjent"
