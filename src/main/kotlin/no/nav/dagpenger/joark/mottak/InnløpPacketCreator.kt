@@ -36,6 +36,7 @@ class InnløpPacketCreator(
                     this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
                     this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)
                     leggPåBehandlendeEnhet(journalpost = journalpost, it.diskresjonskode)
+                    logger.info { it.geografiskTilknytning }
                 }
             } catch (e: PersonOppslagException) {
                 logger.error { "Kunne ikke slå opp personen. Feilen fra PDL var ${e.message}" }
@@ -67,11 +68,14 @@ class InnløpPacketCreator(
             "NAV 04-08.04"
         )
 
+    private val UTLAND_BREVKODER =
+        listOf("NAV 04-02.01", "NAVe 04-02.01", "NAV 04-02.03", "NAV 04-02.05", "NAVe 04-02.05")
+
     private fun behandlendeEnhetFrom(diskresjonskode: String?, brevkode: String): String {
         return when {
             diskresjonskode == "SPSF" -> "2103"
             brevkode in PERMITTERING_BREVKODER -> "4455"
-            brevkode in listOf("NAV 04-02.05", "NAVe 04-02.05") -> "4470"
+            brevkode in UTLAND_BREVKODER -> "4470"
             else -> "4450"
         }
     }

@@ -33,7 +33,8 @@ class JoarkMottakTopologyTest {
                 navn = "Proffen",
                 aktoerId = "1111",
                 naturligIdent = "1234",
-                diskresjonskode = null
+                diskresjonskode = null,
+                geografiskTilknytning = "norge"
             )
         }
     }

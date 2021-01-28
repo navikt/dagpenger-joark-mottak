@@ -23,7 +23,8 @@ class CreatePacketTest {
                 navn = "Proffen",
                 aktoerId = "1111",
                 naturligIdent = "1234",
-                diskresjonskode = null
+                diskresjonskode = null,
+                geografiskTilknytning = "norge"
             )
         }
     }
@@ -88,7 +89,8 @@ class CreatePacketTest {
             navn = "Proffen",
             aktoerId = "1111",
             naturligIdent = "1234",
-            diskresjonskode = "SPSF"
+            diskresjonskode = "SPSF",
+            geografiskTilknytning = "norge"
         )
 
         val packetCreator = InnløpPacketCreator(personOppslagMedDiskresjonskode)

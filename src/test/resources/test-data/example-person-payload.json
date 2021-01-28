@@ -9,7 +9,8 @@
                     "enhetId": "abc",
                     "enhetNavn": "Enhet 1"
                 }
-            ]
+            ],
+            "geografiskTilknytning": "Norge"
         }
     }
 }

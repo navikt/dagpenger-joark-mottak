@@ -96,6 +96,7 @@ internal data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
                     journalpostId
                     journalfoerendeEnhet
                     datoOpprettet
+                    behandlingstema
                     bruker {
                       type
                       id

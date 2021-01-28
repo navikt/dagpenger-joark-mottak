@@ -8,5 +8,6 @@ data class Person(
     val navn: String,
     val aktoerId: String,
     val naturligIdent: String,
+    val geografiskTilknytning: String,
     val diskresjonskode: String?
 )
