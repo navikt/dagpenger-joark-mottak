@@ -71,6 +71,7 @@ class InnløpPacketCreator(
         return when {
             diskresjonskode == "SPSF" -> "2103"
             brevkode in PERMITTERING_BREVKODER -> "4455"
+            brevkode in listOf("NAV 04-02.05", "NAVe 04-02.05") -> "4470"
             else -> "4450"
         }
     }

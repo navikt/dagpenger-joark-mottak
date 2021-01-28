@@ -108,6 +108,17 @@ class CreatePacketTest {
 
         packet.getStringValue("behandlendeEnhet") shouldBe "4450"
     }
+    @Test
+    fun `søknader om pd u1 skal havne på benk 4470`() {
+        val packetCreator = InnløpPacketCreator(personOppslagMock)
+
+        val journalpost = dummyJournalpost(
+            dokumenter = listOf(DokumentInfo(tittel = "Søknad", dokumentInfoId = "9", brevkode = "NAV 04-02.05"))
+        )
+        val packet = packetCreator.createPacket(Pair(journalpost, null))
+
+        packet.getStringValue("behandlendeEnhet") shouldBe "4470"
+    }
 
     @Test
     fun `nye søknader ved permitering skal havne på benk 4455`() {
