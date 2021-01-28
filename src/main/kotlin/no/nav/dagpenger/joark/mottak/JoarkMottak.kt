@@ -91,6 +91,9 @@ class JoarkMottak(
                 )
             }
             .filter { _, journalpostHendelse ->
+                journalpostHendelse["mottaksKanal"].toString() != "EESSI"
+            }
+            .filter { _, journalpostHendelse ->
                 "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString()
             }
             .mapValues { _, record ->

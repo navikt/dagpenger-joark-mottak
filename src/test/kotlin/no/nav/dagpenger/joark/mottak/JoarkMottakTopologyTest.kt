@@ -247,6 +247,19 @@ class JoarkMottakTopologyTest {
     }
 
     @Test
+    fun `Skal ikke prosessere hendelser fra kanalen EESSI`() {
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+            val inputRecord = factory.create(lagJoarkHendelse(123, "DAG", "MidlertidigJournalført", "EESSI"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutputInnløp(topologyTestDriver)
+
+            ut shouldBe null
+        }
+    }
+
+    @Test
     fun `Skal ikke prosessere inkomne journalposter med tema DAG og hendelses type Ferdigstilt `() {
         val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
