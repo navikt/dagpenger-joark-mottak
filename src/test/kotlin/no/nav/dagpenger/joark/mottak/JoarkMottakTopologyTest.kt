@@ -140,7 +140,6 @@ class JoarkMottakTopologyTest {
             ut shouldNotBe null
         }
     }
-
     @Test
     fun `Skal prosessere innkommende journalposter med tema DAG og hendelses type MidlertidigJournalført `() {
         val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())

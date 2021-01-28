@@ -100,6 +100,37 @@ class CreatePacketTest {
     }
 
     @Test
+    fun `brukere uten geografisk tilknytning til norge som søker om permittering skal til 4465`() {
+        val personoppslag = mockk<PersonOppslag>()
+
+        every { personoppslag.hentPerson(any(), any()) } returns Person(
+            navn = "Proffen",
+            aktoerId = "1111",
+            naturligIdent = "1234",
+            diskresjonskode = null,
+            norskTilknytning = false
+        )
+
+        val packetCreator = InnløpPacketCreator(personoppslag)
+        val packet = packetCreator.createPacket(
+            Pair(
+                dummyJournalpost(
+                    dokumenter = listOf(
+                        DokumentInfo(
+                            "whatever",
+                            brevkode = "NAV 04-01.04",
+                            dokumentInfoId = "asd"
+                        )
+                    )
+                ),
+                null
+            )
+        )
+
+        packet.getStringValue("behandlendeEnhet") shouldBe "4465"
+    }
+
+    @Test
     fun `nye søknader (ikke permitering) skal havne på benk 4450`() {
         val packetCreator = InnløpPacketCreator(personOppslagMock)
 
@@ -110,6 +141,7 @@ class CreatePacketTest {
 
         packet.getStringValue("behandlendeEnhet") shouldBe "4450"
     }
+
     @Test
     fun `søknader om pd u1 skal havne på benk 4470`() {
         val packetCreator = InnløpPacketCreator(personOppslagMock)
