@@ -67,7 +67,7 @@ internal data class PersonQuery(val id: String, val idType: IdType) : GraphqlQue
                     aktoerId
                     naturligIdent
                     diskresjonskode
-                    geografiskTilknytning
+                    norskTilknytning
                 }
             }
         """.trimIndent(),

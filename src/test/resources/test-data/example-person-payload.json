@@ -10,7 +10,7 @@
                     "enhetNavn": "Enhet 1"
                 }
             ],
-            "geografiskTilknytning": "Norge"
+            "norskTilknytning": true
         }
     }
 }

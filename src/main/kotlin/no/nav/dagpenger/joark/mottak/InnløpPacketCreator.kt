@@ -36,7 +36,7 @@ class InnløpPacketCreator(
                     this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
                     this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)
                     leggPåBehandlendeEnhet(journalpost = journalpost, it.diskresjonskode)
-                    logger.info { it.geografiskTilknytning }
+                    logger.info { "norsk tilknytning: $it.norskTilknytning" }
                 }
             } catch (e: PersonOppslagException) {
                 logger.error { "Kunne ikke slå opp personen. Feilen fra PDL var ${e.message}" }
