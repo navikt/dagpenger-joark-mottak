@@ -29,7 +29,7 @@ private val joarkjournalfoeringhendelserSchema =
 
 val joarkjournalfoeringhendelserAvroSchema = Schema.Parser().parse(joarkjournalfoeringhendelserSchema)
 
-fun lagJoarkHendelse(journalpostId: Long, tema: String, hendelsesType: String): GenericData.Record {
+fun lagJoarkHendelse(journalpostId: Long, tema: String, hendelsesType: String, mottakskanal: String = "mottakskanal"): GenericData.Record {
     return GenericData.Record(joarkjournalfoeringhendelserAvroSchema).apply {
         put("journalpostId", journalpostId)
         put("hendelsesId", journalpostId.toString())
@@ -38,7 +38,7 @@ fun lagJoarkHendelse(journalpostId: Long, tema: String, hendelsesType: String): 
         put("journalpostStatus", "journalpostStatus")
         put("temaGammelt", tema)
         put("temaNytt", tema)
-        put("mottaksKanal", "mottaksKanal")
+        put("mottaksKanal", mottakskanal)
         put("kanalReferanseId", "kanalReferanseId")
         put("behandlingstema", tema)
     }

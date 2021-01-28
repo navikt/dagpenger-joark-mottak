@@ -90,8 +90,8 @@ class JoarkMottak(
                     "Received journalpost with journalpost id: ${record[PacketKeys.JOURNALPOST_ID]} and tema: ${record["temaNytt"]}, hendelsesType: ${record["hendelsesType"]}, mottakskanal, ${record["mottaksKanal"]} "
                 )
             }
-            .filterNot { _, journalpostHendelse ->
-                journalpostHendelse["mottaksKanal"] == "EESSI"
+            .filter { _, journalpostHendelse ->
+                journalpostHendelse["mottaksKanal"].toString() != "EESSI"
             }
             .filter { _, journalpostHendelse ->
                 "MidlertidigJournalført" == journalpostHendelse.get("hendelsesType").toString()
