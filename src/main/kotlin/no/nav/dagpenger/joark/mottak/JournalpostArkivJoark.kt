@@ -80,7 +80,7 @@ class JournalpostArkivJoark(
 
     override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata? {
         return if (
-            (journalpost.henvendelsestype in listOf(Henvendelsestype.NY_SØKNAD,Henvendelsestype.GJENOPPTAK) && journalpost.kanal == "NAV_NO")
+            (journalpost.henvendelsestype in listOf(Henvendelsestype.NY_SØKNAD, Henvendelsestype.GJENOPPTAK) && journalpost.kanal == "NAV_NO")
         ) {
             _hentSøknadsdata(journalpost)
         } else {
