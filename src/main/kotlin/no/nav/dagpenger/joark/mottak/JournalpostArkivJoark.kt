@@ -70,7 +70,7 @@ class JournalpostArkivJoark(
                 } else {
                     throw JournalpostArkivException(
                         response.statusCode,
-                        "Feilet å hente søknadsdata fra journalpostid: $journalpostId. Melding fra responseØ ${response.responseMessage}",
+                        "Feilet å hente søknadsdata fra journalpostid: $journalpostId. Melding fra response ${response.responseMessage}",
                         error.exception
                     )
                 }
