@@ -80,11 +80,11 @@ class JournalpostArkivJoark(
 
     override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata? {
         return if (
-            (journalpost.henvendelsestype == Henvendelsestype.NY_SØKNAD && journalpost.kanal == "NAV_NO")
-            || (profile == Profile.DEV && journalpost.henvendelsestype == Henvendelsestype.GJENOPPTAK && journalpost.kanal == "NAV_NO")) {
+            (journalpost.henvendelsestype == Henvendelsestype.NY_SØKNAD && journalpost.kanal == "NAV_NO") ||
+            (profile == Profile.DEV && journalpost.henvendelsestype == Henvendelsestype.GJENOPPTAK && journalpost.kanal == "NAV_NO")
+        ) {
             _hentSøknadsdata(journalpost)
-        }
-        else {
+        } else {
             null
         }
     }
