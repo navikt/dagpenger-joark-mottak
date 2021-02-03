@@ -52,6 +52,9 @@ dependencies {
     implementation(Dagpenger.Streams)
     implementation(Dagpenger.Events)
 
+    implementation(Jackson.core)
+    implementation(Jackson.kotlin)
+
     implementation(Dagpenger.Biblioteker.stsKlient)
 
     implementation(Prometheus.common)

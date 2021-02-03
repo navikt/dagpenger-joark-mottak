@@ -1,16 +1,29 @@
 {
     "data": {
-        "person": {
-            "navn": "Navn",
-            "aktoerId": "789",
-            "naturligIdent": "123",
-            "behandlendeEnheter": [
+        "hentPerson": {
+            "navn": [
                 {
-                    "enhetId": "abc",
-                    "enhetNavn": "Enhet 1"
+                    "fornavn": "LITEN",
+                    "mellomnavn": "DRØVTYGGENDE",
+                    "etternavn": "BRANNHYDRANT"
                 }
             ],
-            "norskTilknytning": true
+            "adressebeskyttelse": []
+        },
+        "hentGeografiskTilknytning": {
+            "gtLand": null
+        },
+        "hentIdenter": {
+            "identer": [
+                {
+                    "ident": "13086824072",
+                    "gruppe": "FOLKEREGISTERIDENT"
+                },
+                {
+                    "ident": "2797593735308",
+                    "gruppe": "AKTORID"
+                }
+            ]
         }
     }
 }

@@ -33,7 +33,16 @@ class PersonOppslag(private val personOppslagBaseUrl: String, private val oidcCl
                     )
                 )
             )
-            responseObject<GraphQlPersonResponse>()
+            //responseObject<GraphQlPersonResponse>()
+            val node = jacksonJsonAdapter.readTree(response.second.body().asString())
+            Person(
+                navn=node["data"]["hentPerson"]["navn"][0]["fornavn"].asText(),
+                aktoerId= node["data"]["hentIdenter"]["identer"][1]["ident"].asText(),
+                naturligIdent= node["data"]["hentIdenter"]["identer"][0]["ident"].asText(),
+                norskTilknytning = node["data"]["hentGeografiskTilknytning"]["gtLand"].isNull,
+                diskresjonskode = node["data"]["hentPerson"]["navn"][0]["fornavn"].asText(),
+
+                )
         }
 
         return when (result) {

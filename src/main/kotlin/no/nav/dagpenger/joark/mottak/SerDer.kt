@@ -1,5 +1,6 @@
 package no.nav.dagpenger.joark.mottak
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.core.ResponseDeserializable
 import com.github.kittinunf.fuel.core.response
@@ -29,3 +30,5 @@ internal fun merge(map: Map<String, Any?>, json: String): String {
     } ?: throw JsonDataException("Unable to merge $map with $json")
     return jsonMapAdapter.toJson(mutableMap) ?: throw JsonDataException("Unable to deserialize $mutableMap")
 }
+
+internal val jacksonJsonAdapter = jacksonObjectMapper()
