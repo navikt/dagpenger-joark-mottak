@@ -2,6 +2,7 @@ package no.nav.dagpenger.joark.mottak
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -35,7 +36,9 @@ internal fun merge(map: Map<String, Any?>, json: String): String {
     return jsonMapAdapter.toJson(mutableMap) ?: throw JsonDataException("Unable to deserialize $mutableMap")
 }
 
-internal val jacksonJsonAdapter = jacksonObjectMapper()
+internal val jacksonJsonAdapter = jacksonObjectMapper().also {
+    it.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+}
 
 internal fun JsonNode.personNavn(): String {
     return findValue("navn").first().let { node ->

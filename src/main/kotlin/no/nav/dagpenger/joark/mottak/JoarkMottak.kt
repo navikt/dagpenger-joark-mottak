@@ -187,7 +187,6 @@ fun main(args: Array<String>) {
     val journalpostArkiv = JournalpostArkivJoark(
         config.application.joarkJournalpostArkivBaseUrl,
         oidcClient,
-        config.application.profile
     )
 
     val personOppslag = PersonOppslag(

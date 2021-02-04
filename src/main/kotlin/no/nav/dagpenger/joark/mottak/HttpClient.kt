@@ -10,7 +10,10 @@ import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.logging.LogLevel
 import io.ktor.client.features.logging.Logging
+import io.ktor.client.request.get
 import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.runBlocking
+import no.nav.dagpenger.streams.HealthStatus
 import java.time.Duration
 
 @KtorExperimentalAPI
@@ -43,5 +46,16 @@ internal fun httpClient(
                 }
             }
         }
+    }
+}
+
+fun HttpClient.healthStatus(urlString: String): HealthStatus {
+    return runBlocking {
+        kotlin.runCatching {
+            this@healthStatus.get<String>(urlString)
+        }.fold(
+            onSuccess = { HealthStatus.UP },
+            onFailure = { HealthStatus.DOWN }
+        )
     }
 }

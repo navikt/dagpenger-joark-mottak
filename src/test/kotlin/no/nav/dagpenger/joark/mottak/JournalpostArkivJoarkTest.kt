@@ -60,7 +60,6 @@ class JournalpostArkivJoarkTest {
         stubFor(
             get(urlEqualTo(url))
                 .withHeader("Authorization", RegexPattern("Bearer hunter2"))
-                .withHeader("Content-type", RegexPattern("application/json"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -68,7 +67,7 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         joarkClient.hentSøknadsdata(dummyJournalpost(journalpostId = journalpostId, kanal = "NAV_NO", dokumenter = listOf(DokumentInfo("Søknad", dokumentId, "NAV 04-01.03"))))
 
         verify(getRequestedFor(urlEqualTo(url)))
@@ -89,7 +88,7 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
         assertEquals("MASKERT_FELT", journalPost.tittel)
         verify(postRequestedFor(urlEqualTo("/graphql")))
@@ -110,7 +109,7 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         val result = runCatching { joarkClient.hentInngåendeJournalpost("2") }
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is JournalpostArkivException)
@@ -128,7 +127,7 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
 
         val result = runCatching { joarkClient.hentInngåendeJournalpost("-1") }
         assertTrue(result.isFailure)
@@ -144,7 +143,7 @@ class JournalpostArkivJoarkTest {
                     ok()
                 )
         )
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         joarkClient.status() shouldBe HealthStatus.UP
         verify(getRequestedFor(urlEqualTo("/isAlive")))
     }
@@ -156,7 +155,7 @@ class JournalpostArkivJoarkTest {
                     serverError()
                 )
         )
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         joarkClient.status() shouldBe HealthStatus.DOWN
         verify(getRequestedFor(urlEqualTo("/isAlive")))
     }

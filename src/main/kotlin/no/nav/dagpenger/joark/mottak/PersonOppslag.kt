@@ -19,14 +19,7 @@ class PersonOppslag(
     private val httpClient: HttpClient = httpClient()
 ) : HealthCheck {
     override fun status(): HealthStatus {
-        return runBlocking {
-            kotlin.runCatching {
-                httpClient.get<String>("${personOppslagBaseUrl}internal/health/readiness")
-            }.fold(
-                onSuccess = { HealthStatus.UP },
-                onFailure = { HealthStatus.DOWN }
-            )
-        }
+        return httpClient.healthStatus("${personOppslagBaseUrl}internal/health/readiness")
     }
 
     fun hentPerson(id: String): Person {
