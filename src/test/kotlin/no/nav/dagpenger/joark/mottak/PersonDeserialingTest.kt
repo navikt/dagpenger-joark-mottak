@@ -5,6 +5,7 @@ import no.nav.dagpenger.joark.mottak.PersonDeserializer.aktoerId
 import no.nav.dagpenger.joark.mottak.PersonDeserializer.diskresjonsKode
 import no.nav.dagpenger.joark.mottak.PersonDeserializer.naturligIdent
 import no.nav.dagpenger.joark.mottak.PersonDeserializer.norskTilknyting
+import no.nav.dagpenger.joark.mottak.PersonDeserializer.personNavn
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 

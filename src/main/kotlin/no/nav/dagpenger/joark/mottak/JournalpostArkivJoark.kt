@@ -9,7 +9,6 @@ import io.ktor.client.statement.readText
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import no.nav.dagpenger.oidc.OidcClient
-import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthStatus
 import kotlin.time.ExperimentalTime
 
@@ -139,5 +138,3 @@ class JournalpostArkivException(
     override val cause: Throwable
 ) :
     RuntimeException(message, cause)
-
-
