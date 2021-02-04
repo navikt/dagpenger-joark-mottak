@@ -8,7 +8,11 @@
                     "etternavn": "BRANNHYDRANT"
                 }
             ],
-            "adressebeskyttelse": []
+            "adressebeskyttelse": [
+                {
+                    "gradering" : "STRENGT_FORTROLIG_UTLAND"
+                }
+            ]
         },
         "hentGeografiskTilknytning": {
             "gtLand": null

@@ -19,7 +19,7 @@ class CreatePacketTest {
         @BeforeAll
         @JvmStatic
         fun setUp() {
-            every { personOppslagMock.hentPerson(any(), any()) } returns Person(
+            every { personOppslagMock.hentPerson(any()) } returns Person(
                 navn = "Proffen",
                 aktoerId = "1111",
                 naturligIdent = "1234",
@@ -39,7 +39,7 @@ class CreatePacketTest {
         val packetCreator = InnløpPacketCreator(personOppslagMock)
         val packet = packetCreator.createPacket(Pair(journalpost, null))
 
-        verify { personOppslagMock.hentPerson("1111", BrukerType.AKTOERID) }
+        verify { personOppslagMock.hentPerson("1111") }
 
         packet.getStringValue("aktørId") shouldBe "1111"
         packet.getStringValue("naturligIdent") shouldBe "1234"
@@ -85,7 +85,7 @@ class CreatePacketTest {
     fun `skal få riktig behandlende enhet ved kode 6`() {
         val personOppslagMedDiskresjonskode = mockk<PersonOppslag>()
 
-        every { personOppslagMedDiskresjonskode.hentPerson(any(), any()) } returns Person(
+        every { personOppslagMedDiskresjonskode.hentPerson(any()) } returns Person(
             navn = "Proffen",
             aktoerId = "1111",
             naturligIdent = "1234",
@@ -103,7 +103,7 @@ class CreatePacketTest {
     fun `brukere uten geografisk tilknytning til norge som søker om permittering skal til 4465`() {
         val personoppslag = mockk<PersonOppslag>()
 
-        every { personoppslag.hentPerson(any(), any()) } returns Person(
+        every { personoppslag.hentPerson(any()) } returns Person(
             navn = "Proffen",
             aktoerId = "1111",
             naturligIdent = "1234",

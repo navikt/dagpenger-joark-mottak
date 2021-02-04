@@ -56,8 +56,12 @@ internal class PersonOppslagTest {
         )
 
         val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
-        val person = personOppslag.hentPerson("789", BrukerType.AKTOERID)
-        assertEquals("789", person.aktoerId)
+        val person = personOppslag.hentPerson("789")
+        assertEquals("2797593735308", person.aktoerId)
+        assertEquals("13086824072", person.naturligIdent)
+        assertEquals("LITEN DRØVTYGGENDE BRANNHYDRANT", person.navn)
+        assertEquals(true, person.norskTilknytning)
+        assertEquals("STRENGT_FORTROLIG_UTLAND", person.diskresjonskode)
         WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))
     }
 
@@ -77,7 +81,7 @@ internal class PersonOppslagTest {
         )
 
         val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
-        val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
+        val result = runCatching { personOppslag.hentPerson("123") }
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is PersonOppslagException)
         WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))
@@ -95,7 +99,7 @@ internal class PersonOppslagTest {
         )
 
         val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
-        val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
+        val result = runCatching { personOppslag.hentPerson("123") }
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is PersonOppslagException)
         WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))
@@ -117,7 +121,7 @@ internal class PersonOppslagTest {
         )
 
         val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
-        val result = runCatching { personOppslag.hentPerson("123", BrukerType.FNR) }
+        val result = runCatching { personOppslag.hentPerson("123") }
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is PersonOppslagException)
         WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))

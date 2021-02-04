@@ -1,5 +1,6 @@
 package no.nav.dagpenger.joark.mottak
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.core.ResponseDeserializable
@@ -32,3 +33,46 @@ internal fun merge(map: Map<String, Any?>, json: String): String {
 }
 
 internal val jacksonJsonAdapter = jacksonObjectMapper()
+
+internal fun <T : Any> jacksonDeserializerOf(clazz: Class<T>) = object : ResponseDeserializable<T> {
+    override fun deserialize(content: String): T? {
+        return jacksonJsonAdapter.readValue(content, clazz)
+    }
+}
+
+internal fun JsonNode.personNavn(): String {
+    return findValue("navn").first().let { node ->
+        val fornavn = node.path("fornavn").asText()
+        val mellomnavn = node.path("mellomnavn").asText("")
+        val etternavn = node.path("etternavn").asText()
+
+        when (mellomnavn.isEmpty()) {
+            true -> "$fornavn $etternavn"
+            else -> "$fornavn $mellomnavn $etternavn"
+        }
+    }
+}
+
+internal fun JsonNode.aktoerId() = this.ident("AKTORID")
+internal fun JsonNode.naturligIdent() = this.ident("FOLKEREGISTERIDENT")
+internal fun JsonNode.norskTilknyting(): Boolean = findValue("gtLand").isNull
+internal fun JsonNode.diskresjonsKode(): String? {
+    return findValue("adressebeskyttelse").firstOrNull()?.path("gradering")?.asText(null)
+}
+
+private fun JsonNode.ident(type: String): String {
+    return findValue("identer").first { it.path("gruppe").asText() == type }.get("ident").asText()
+}
+
+object PersonDeserializer : ResponseDeserializable<Person> {
+    override fun deserialize(content: String): Person {
+        val node: JsonNode = jacksonJsonAdapter.readTree(content)
+        return Person(
+            navn = node.personNavn(),
+            aktoerId = node.aktoerId(),
+            naturligIdent = node.naturligIdent(),
+            norskTilknytning = node.norskTilknyting(),
+            diskresjonskode = node.diskresjonsKode()
+        )
+    }
+}

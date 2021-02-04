@@ -31,7 +31,7 @@ class InnløpPacketCreator(
 
         if (null != journalpost.bruker) {
             try {
-                personOppslag.hentPerson(journalpost.bruker.id, journalpost.bruker.type).let {
+                personOppslag.hentPerson(journalpost.bruker.id).let {
                     this.putValue(PacketKeys.AKTØR_ID, it.aktoerId)
                     this.putValue(PacketKeys.NATURLIG_IDENT, it.naturligIdent)
                     this.putValue(PacketKeys.AVSENDER_NAVN, it.navn)

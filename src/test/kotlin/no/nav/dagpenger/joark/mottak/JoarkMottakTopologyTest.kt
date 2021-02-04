@@ -29,7 +29,7 @@ class JoarkMottakTopologyTest {
         @BeforeAll
         @JvmStatic
         fun setUp() {
-            every { personOppslagMock.hentPerson(any(), any()) } returns Person(
+            every { personOppslagMock.hentPerson(any()) } returns Person(
                 navn = "Proffen",
                 aktoerId = "1111",
                 naturligIdent = "1234",
