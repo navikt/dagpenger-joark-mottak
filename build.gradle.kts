@@ -55,7 +55,9 @@ dependencies {
     implementation(Jackson.core)
     implementation(Jackson.kotlin)
 
-    implementation(Dagpenger.Biblioteker.stsKlient)
+//    implementation(Dagpenger.Biblioteker.stsKlient)
+//    todo Bruk global konstant
+    implementation("com.github.navikt.dp-biblioteker:sts-klient:2021.02.02-18.48.e40858a181b7")
 
     implementation(Prometheus.common)
     implementation(Prometheus.log4j2)
@@ -79,6 +81,10 @@ dependencies {
     implementation(Kafka.Confluent.avroStreamSerdes)
 
     implementation(Ktor.serverNetty)
+    implementation(Ktor.library("client-cio-jvm"))
+    implementation(Ktor.library("client-jackson"))
+    implementation(Ktor.library("client-logging"))
+    implementation(Ktor.library("client-auth-jvm"))
 
     implementation("no.finn.unleash:unleash-client-java:3.2.9")
 

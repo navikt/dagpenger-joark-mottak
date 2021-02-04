@@ -1,51 +1,58 @@
 package no.nav.dagpenger.joark.mottak
 
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.core.response
-import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.fuel.httpPost
-import com.github.kittinunf.result.Result
+import io.ktor.client.HttpClient
+import io.ktor.client.features.ResponseException
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.statement.readText
+import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.HealthStatus
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 class PersonOppslag(
     private val personOppslagBaseUrl: String,
     private val oidcClient: OidcClient,
+    private val httpClient: HttpClient = httpClient()
 ) : HealthCheck {
     override fun status(): HealthStatus {
-        val (_, _, result) = with("${personOppslagBaseUrl}internal/health/readiness".httpGet()) {
-            responseString()
-        }
-        return when (result) {
-            is Result.Failure -> HealthStatus.DOWN
-            else -> HealthStatus.UP
+        return runBlocking {
+            kotlin.runCatching {
+                httpClient.get<String>("${personOppslagBaseUrl}internal/health/readiness")
+            }.fold(
+                onSuccess = { HealthStatus.UP },
+                onFailure = { HealthStatus.DOWN }
+            )
         }
     }
 
     fun hentPerson(id: String): Person {
-        val token = oidcClient.oidcToken().access_token
-        val (_, response, result) = with("${personOppslagBaseUrl}graphql".httpPost()) {
-            authentication().bearer(token)
-            header("Content-Type" to "application/json")
-            header("accept" to "application/json")
-            header("TEMA" to "DAG")
-            header("Nav-Consumer-Token" to "Bearer $token")
-            body(
-                adapter.toJson(PersonQuery(id))
+        return runBlocking {
+            kotlin.runCatching {
+                val token = oidcClient.oidcToken().access_token
+                httpClient.post<Person>("${personOppslagBaseUrl}graphql") {
+                    header("Authorization", "Bearer $token")
+                    header("Content-Type", "application/json")
+                    header("TEMA", "DAG")
+                    header("Nav-Consumer-Token", "Bearer $token")
+                    body = PersonQuery(id)
+                }
+            }.fold(
+                onSuccess = { it },
+                onFailure = {
+                    when (it) {
+                        is ResponseException -> {
+                            throw PersonOppslagException(it.response?.status?.value, it.response?.readText(), it)
+                        }
+                        else -> {
+                            throw PersonOppslagException(cause = it)
+                        }
+                    }
+                }
             )
-            response(PersonDeserializer)
-        }
-        return when (result) {
-            is Result.Failure ->
-                throw PersonOppslagException(
-                    response.statusCode,
-                    "Failed to fetch person. Response message ${response.responseMessage}. Payload from server ${
-                    response.body().asString("application/json")
-                    }",
-                    result.error
-                )
-            is Result.Success -> result.get()
         }
     }
 }
@@ -79,8 +86,7 @@ internal data class PersonQuery(val id: String) : GraphqlQuery(
 )
 
 class PersonOppslagException(
-    val statusCode: Int = 500,
-    override val message: String,
+    val statusCode: Int? = 500,
+    override val message: String? = "",
     override val cause: Throwable? = null
-) :
-    RuntimeException(message, cause)
+) : RuntimeException(message, cause)

@@ -1,5 +1,8 @@
 package no.nav.dagpenger.joark.mottak
 
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.core.Request
@@ -53,20 +56,20 @@ internal fun JsonNode.personNavn(): String {
     }
 }
 
-internal fun JsonNode.aktoerId() = this.ident("AKTORID")
-internal fun JsonNode.naturligIdent() = this.ident("FOLKEREGISTERIDENT")
-internal fun JsonNode.norskTilknyting(): Boolean = findValue("gtLand").isNull
-internal fun JsonNode.diskresjonsKode(): String? {
-    return findValue("adressebeskyttelse").firstOrNull()?.path("gradering")?.asText(null)
-}
+object PersonDeserializer : JsonDeserializer<Person>() {
+    internal fun JsonNode.aktoerId() = this.ident("AKTORID")
+    internal fun JsonNode.naturligIdent() = this.ident("FOLKEREGISTERIDENT")
+    internal fun JsonNode.norskTilknyting(): Boolean = findValue("gtLand").isNull
+    internal fun JsonNode.diskresjonsKode(): String? {
+        return findValue("adressebeskyttelse").firstOrNull()?.path("gradering")?.asText(null)
+    }
 
-private fun JsonNode.ident(type: String): String {
-    return findValue("identer").first { it.path("gruppe").asText() == type }.get("ident").asText()
-}
+    private fun JsonNode.ident(type: String): String {
+        return findValue("identer").first { it.path("gruppe").asText() == type }.get("ident").asText()
+    }
 
-object PersonDeserializer : ResponseDeserializable<Person> {
-    override fun deserialize(content: String): Person {
-        val node: JsonNode = jacksonJsonAdapter.readTree(content)
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): Person {
+        val node: JsonNode = p.readValueAsTree()
         return Person(
             navn = node.personNavn(),
             aktoerId = node.aktoerId(),

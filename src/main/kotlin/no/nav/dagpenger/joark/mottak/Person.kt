@@ -1,9 +1,8 @@
 package no.nav.dagpenger.joark.mottak
 
-data class GraphQlPersonResponse(val data: Data, val errors: List<String>?) {
-    data class Data(val person: Person)
-}
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 
+@JsonDeserialize(using = PersonDeserializer::class)
 data class Person(
     val navn: String,
     val aktoerId: String,

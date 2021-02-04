@@ -1,6 +1,10 @@
 package no.nav.dagpenger.joark.mottak
 
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.joark.mottak.PersonDeserializer.aktoerId
+import no.nav.dagpenger.joark.mottak.PersonDeserializer.diskresjonsKode
+import no.nav.dagpenger.joark.mottak.PersonDeserializer.naturligIdent
+import no.nav.dagpenger.joark.mottak.PersonDeserializer.norskTilknyting
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 

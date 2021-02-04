@@ -21,7 +21,9 @@ import org.apache.kafka.streams.test.ConsumerRecordFactory
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.util.Properties
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 class JoarkMottakTopologyTest {
     companion object {
         val personOppslagMock = mockk<PersonOppslag>()

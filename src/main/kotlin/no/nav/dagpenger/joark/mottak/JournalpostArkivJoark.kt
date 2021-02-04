@@ -4,12 +4,15 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthStatus
+import kotlin.time.ExperimentalTime
 
 private val logger = KotlinLogging.logger { }
 
+@ExperimentalTime
 class JournalpostArkivJoark(
     private val joarkBaseUrl: String,
     private val oidcClient: OidcClient,
@@ -27,55 +30,59 @@ class JournalpostArkivJoark(
     }
 
     override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {
-        val (_, response, result) = with("${joarkBaseUrl}graphql".httpPost()) {
-            authentication().bearer(oidcClient.oidcToken().access_token)
-            header("Content-Type" to "application/json")
-            body(adapter.toJson(JournalPostQuery(journalpostId)))
-            responseObject<GraphQlJournalpostResponse>()
-        }
+        return runBlocking {
+            val (_, response, result) = with("${joarkBaseUrl}graphql".httpPost()) {
+                authentication().bearer(oidcClient.oidcToken().access_token)
+                header("Content-Type" to "application/json")
+                body(adapter.toJson(JournalPostQuery(journalpostId)))
+                responseObject<GraphQlJournalpostResponse>()
+            }
 
-        return when (result) {
-            is Result.Failure -> throw JournalpostArkivException(
-                response.statusCode,
-                "Failed to fetch journalpost id: $journalpostId. Response message ${response.responseMessage}",
-                result.getException()
-            )
-            is Result.Success -> result.get().data.journalpost
+            when (result) {
+                is Result.Failure -> throw JournalpostArkivException(
+                    response.statusCode,
+                    "Failed to fetch journalpost id: $journalpostId. Response message ${response.responseMessage}",
+                    result.getException()
+                )
+                is Result.Success -> result.get().data.journalpost
+            }
         }
     }
 
     private fun _hentSøknadsdata(journalpost: Journalpost): Søknadsdata? {
-        val journalpostId = journalpost.journalpostId
-        val dokumentId = journalpost.dokumenter.firstOrNull()?.dokumentInfoId ?: return emptySøknadsdata
+        return runBlocking {
+            val journalpostId = journalpost.journalpostId
+            val dokumentId = journalpost.dokumenter.firstOrNull()?.dokumentInfoId ?: return@runBlocking emptySøknadsdata
 
-        val url = "${joarkBaseUrl}rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL"
-        val (_, response, result) = with(url.httpGet()) {
-            authentication().bearer(oidcClient.oidcToken().access_token)
-            header("Content-Type" to "application/json")
-            responseString()
-        }
-
-        return result.fold(
-            {
-                Søknadsdata(
-                    it,
-                    journalpost.journalpostId,
-                    journalpost.registrertDato()
-                )
-            },
-            { error ->
-                if (profile == Profile.DEV && error.response.statusCode == 404) {
-                    logger.warn { "Fant ikke søknadsdata fra journalpost id $journalpostId" }
-                    return null
-                } else {
-                    throw JournalpostArkivException(
-                        response.statusCode,
-                        "Feilet å hente søknadsdata fra journalpostid: $journalpostId. Melding fra response ${response.responseMessage}",
-                        error.exception
-                    )
-                }
+            val url = "${joarkBaseUrl}rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL"
+            val (_, response, result) = with(url.httpGet()) {
+                authentication().bearer(oidcClient.oidcToken().access_token)
+                header("Content-Type" to "application/json")
+                responseString()
             }
-        )
+
+            result.fold(
+                {
+                    Søknadsdata(
+                        it,
+                        journalpost.journalpostId,
+                        journalpost.registrertDato()
+                    )
+                },
+                { error ->
+                    if (profile == Profile.DEV && error.response.statusCode == 404) {
+                        logger.warn { "Fant ikke søknadsdata fra journalpost id $journalpostId" }
+                        return@fold null
+                    } else {
+                        throw JournalpostArkivException(
+                            response.statusCode,
+                            "Feilet å hente søknadsdata fra journalpostid: $journalpostId. Melding fra response ${response.responseMessage}",
+                            error.exception
+                        )
+                    }
+                }
+            )
+        }
     }
 
     override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata? {

@@ -10,7 +10,9 @@ import no.nav.dagpenger.events.moshiInstance
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 class CreatePacketTest {
 
     companion object {

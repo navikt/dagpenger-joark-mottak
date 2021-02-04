@@ -2,9 +2,11 @@ package no.nav.dagpenger.joark.mottak
 
 import mu.KotlinLogging
 import no.nav.dagpenger.events.Packet
+import kotlin.time.ExperimentalTime
 
 private val logger = KotlinLogging.logger {}
 
+@ExperimentalTime
 class InnløpPacketCreator(
     val personOppslag: PersonOppslag
 ) {
