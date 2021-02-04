@@ -64,10 +64,6 @@ dependencies {
 
     implementation(Konfig.konfig)
 
-    implementation(Moshi.moshi)
-    implementation(Moshi.moshiKotlin)
-    implementation(Moshi.moshiAdapters)
-
     implementation(Log4j2.api)
     implementation(Log4j2.core)
     implementation(Log4j2.slf4j)

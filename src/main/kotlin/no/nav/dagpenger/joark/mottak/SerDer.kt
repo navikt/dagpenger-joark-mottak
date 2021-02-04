@@ -1,24 +1,19 @@
 package no.nav.dagpenger.joark.mottak
 
 import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.squareup.moshi.JsonDataException
-import com.squareup.moshi.Types
-import no.nav.dagpenger.events.moshiInstance
-
-internal val jsonMapAdapter = moshiInstance.adapter<Map<String, Any?>>(
-    Types.newParameterizedType(Map::class.java, String::class.java, Any::class.java)
-).serializeNulls()
 
 internal fun merge(map: Map<String, Any?>, json: String): String {
-    val mutableMap = jsonMapAdapter.fromJson(json)?.toMutableMap()?.also {
-        it.putAll(map)
-    } ?: throw JsonDataException("Unable to merge $map with $json")
-    return jsonMapAdapter.toJson(mutableMap) ?: throw JsonDataException("Unable to deserialize $mutableMap")
+    val mutableMap =
+        jacksonJsonAdapter.readValue(json, object : TypeReference<Map<String, Any?>>() {}).toMutableMap().also {
+            it.putAll(map)
+        }
+    return jacksonJsonAdapter.writeValueAsString(mutableMap)
 }
 
 internal val jacksonJsonAdapter = jacksonObjectMapper().also {
@@ -32,6 +27,7 @@ object PersonDeserializer : JsonDeserializer<Person>() {
     internal fun JsonNode.diskresjonsKode(): String? {
         return findValue("adressebeskyttelse").firstOrNull()?.path("gradering")?.asText(null)
     }
+
     internal fun JsonNode.personNavn(): String {
         return findValue("navn").first().let { node ->
             val fornavn = node.path("fornavn").asText()

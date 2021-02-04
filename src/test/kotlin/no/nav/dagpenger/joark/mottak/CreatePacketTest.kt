@@ -1,12 +1,11 @@
 package no.nav.dagpenger.joark.mottak
 
-import com.squareup.moshi.Types
+import com.fasterxml.jackson.core.type.TypeReference
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.dagpenger.events.Packet
-import no.nav.dagpenger.events.moshiInstance
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -71,14 +70,9 @@ class CreatePacketTest {
         )
         val packet = packetCreator.createPacket(Pair(journalpost, null))
 
-        val adapter = moshiInstance.adapter<List<DokumentInfo>>(
-            Types.newParameterizedType(
-                List::class.java,
-                DokumentInfo::class.java
-            )
-        )
-
-        val dokumentListe = Packet(packet.toJson()!!).getObjectValue("dokumenter") { adapter.fromJsonValue(it)!! }
+        val dokumentListe = Packet(packet.toJson()!!).getObjectValue("dokumenter") {
+            jacksonJsonAdapter.convertValue(it, object : TypeReference<List<DokumentInfo>>() {})
+        }
         dokumentListe.size shouldBe 1
         dokumentListe.first().tittel shouldBe "Søknad"
     }
