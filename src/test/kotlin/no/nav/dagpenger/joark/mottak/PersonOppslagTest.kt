@@ -41,13 +41,16 @@ internal class PersonOppslagTest {
     }
 
     @Test
-    fun `henter person med riktig spørring`() {
+    fun `henter person med riktig spørring og headers`() {
         val body = PersonOppslagTest::class.java.getResource("/test-data/example-person-payload.json")
             .readText()
         stubFor(
             post(urlEqualTo("/graphql"))
                 .withHeader("Content-type", RegexPattern("application/json"))
-                .withHeader("X-API-KEY", RegexPattern("hunter2"))
+                .withHeader("Authorization", RegexPattern("Bearer hunter2"))
+                .withHeader("Nav-Consumer-Token", RegexPattern("Bearer hunter2"))
+                .withHeader("accept", RegexPattern("application/json"))
+                .withHeader("TEMA", RegexPattern("DAG"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -55,7 +58,7 @@ internal class PersonOppslagTest {
                 )
         )
 
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
         val person = personOppslag.hentPerson("789")
         assertEquals("2797593735308", person.aktoerId)
         assertEquals("13086824072", person.naturligIdent)
@@ -71,8 +74,6 @@ internal class PersonOppslagTest {
             .readText()
         stubFor(
             post(urlEqualTo("/graphql"))
-                .withHeader("Content-type", RegexPattern("application/json"))
-                .withHeader("X-API-KEY", RegexPattern("hunter2"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -80,7 +81,7 @@ internal class PersonOppslagTest {
                 )
         )
 
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
         val result = runCatching { personOppslag.hentPerson("123") }
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is PersonOppslagException)
@@ -92,14 +93,12 @@ internal class PersonOppslagTest {
     fun `håndterer 400-statuskoder`() {
         stubFor(
             post(urlEqualTo("/graphql"))
-                .withHeader("Content-type", RegexPattern("application/json"))
-                .withHeader("X-API-KEY", RegexPattern("hunter2"))
                 .willReturn(
                     notFound()
                 )
         )
 
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
         val result = runCatching { personOppslag.hentPerson("123") }
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is PersonOppslagException)
@@ -114,7 +113,7 @@ internal class PersonOppslagTest {
                     WireMock.ok()
                 )
         )
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
         personOppslag.status() shouldBe HealthStatus.UP
         WireMock.verify(WireMock.getRequestedFor(urlEqualTo("/isAlive")))
     }
@@ -126,7 +125,7 @@ internal class PersonOppslagTest {
                     WireMock.serverError()
                 )
         )
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
+        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
         personOppslag.status() shouldBe HealthStatus.DOWN
         WireMock.verify(WireMock.getRequestedFor(urlEqualTo("/isAlive")))
     }

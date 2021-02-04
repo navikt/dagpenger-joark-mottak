@@ -57,7 +57,7 @@ class JournalpostArkivJoarkTest {
             .readText()
         stubFor(
             get(urlEqualTo(url))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .withHeader("Authorization", RegexPattern("Bearer hunter2"))
                 .withHeader("Content-type", RegexPattern("application/json"))
                 .willReturn(
                     aResponse()
@@ -78,7 +78,7 @@ class JournalpostArkivJoarkTest {
             .readText()
         stubFor(
             post(urlEqualTo("/graphql"))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .withHeader("Authorization", RegexPattern("Bearer hunter2"))
                 .withHeader("Content-type", RegexPattern("application/json"))
                 .willReturn(
                     aResponse()
@@ -99,7 +99,7 @@ class JournalpostArkivJoarkTest {
             .readText()
         stubFor(
             post(urlEqualTo("/graphql"))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .withHeader("Authorization", RegexPattern("Bearer hunter2"))
                 .withHeader("Content-type", RegexPattern("application/json"))
                 .willReturn(
                     aResponse()
@@ -120,7 +120,7 @@ class JournalpostArkivJoarkTest {
 
         stubFor(
             post(urlEqualTo("/graphql"))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .withHeader("Authorization", RegexPattern("Bearer hunter2"))
                 .willReturn(
                     notFound()
                 )

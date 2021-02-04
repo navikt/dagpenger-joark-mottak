@@ -190,7 +190,6 @@ fun main(args: Array<String>) {
     val personOppslag = PersonOppslag(
         config.application.personOppslagBaseUrl,
         oidcClient,
-        config.application.graphQlApiKey
     )
 
     val packetCreator = InnløpPacketCreator(personOppslag)

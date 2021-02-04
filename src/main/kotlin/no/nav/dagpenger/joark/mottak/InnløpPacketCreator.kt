@@ -72,7 +72,8 @@ class InnløpPacketCreator(
 
     private fun behandlendeEnhetFrom(person: Person?, brevkode: String): String {
         return when {
-            person?.diskresjonskode == "SPSF" -> "2103"
+            person?.diskresjonskode == "STRENGT_FORTROLIG_UTLAND" -> "2103"
+            person?.diskresjonskode == "STRENGT_FORTROLIG" -> "2103"
             brevkode in PERMITTERING_BREVKODER && person?.norskTilknytning == false -> "4465"
             brevkode in PERMITTERING_BREVKODER -> "4455"
             brevkode in UTLAND_BREVKODER -> "4470"

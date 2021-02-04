@@ -12,7 +12,6 @@ import no.nav.dagpenger.streams.HealthStatus
 class PersonOppslag(
     private val personOppslagBaseUrl: String,
     private val oidcClient: OidcClient,
-    private val apiKey: String
 ) : HealthCheck {
     override fun status(): HealthStatus {
         val (_, _, result) = with("${personOppslagBaseUrl}isAlive".httpGet()) {
@@ -25,10 +24,13 @@ class PersonOppslag(
     }
 
     fun hentPerson(id: String): Person {
+        val token = oidcClient.oidcToken().access_token
         val (_, response, result) = with("${personOppslagBaseUrl}graphql".httpPost()) {
-            authentication().bearer(oidcClient.oidcToken().access_token)
+            authentication().bearer(token)
             header("Content-Type" to "application/json")
-            header("X-API-KEY" to apiKey)
+            header("accept" to "application/json")
+            header("TEMA" to "DAG")
+            header("Nav-Consumer-Token" to "Bearer $token")
             body(
                 adapter.toJson(PersonQuery(id))
             )
@@ -71,7 +73,7 @@ internal data class PersonQuery(val id: String) : GraphqlQuery(
       gruppe
     }
     }                }
-            }
+            
         """.trimIndent(),
     variables = null
 )

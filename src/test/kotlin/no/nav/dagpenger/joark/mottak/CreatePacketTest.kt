@@ -82,14 +82,32 @@ class CreatePacketTest {
     }
 
     @Test
-    fun `skal få riktig behandlende enhet ved kode 6`() {
+    fun `skal få riktig behandlende enhet ved kode 6 Strengt Fortrolig`() {
         val personOppslagMedDiskresjonskode = mockk<PersonOppslag>()
 
         every { personOppslagMedDiskresjonskode.hentPerson(any()) } returns Person(
             navn = "Proffen",
             aktoerId = "1111",
             naturligIdent = "1234",
-            diskresjonskode = "SPSF",
+            diskresjonskode = "STRENGT_FORTROLIG",
+            norskTilknytning = true
+        )
+
+        val packetCreator = InnløpPacketCreator(personOppslagMedDiskresjonskode)
+        val packet = packetCreator.createPacket(Pair(dummyJournalpost(), null))
+
+        packet.getStringValue("behandlendeEnhet") shouldBe "2103"
+    }
+
+    @Test
+    fun `skal få riktig behandlende enhet ved kode 6 Strengt Fortrolig Utland`() {
+        val personOppslagMedDiskresjonskode = mockk<PersonOppslag>()
+
+        every { personOppslagMedDiskresjonskode.hentPerson(any()) } returns Person(
+            navn = "Proffen",
+            aktoerId = "1111",
+            naturligIdent = "1234",
+            diskresjonskode = "STRENGT_FORTROLIG_UTLAND",
             norskTilknytning = true
         )
 

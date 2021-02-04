@@ -77,7 +77,7 @@ class JoarkMottakComponentTest {
         val joarkMottak = JoarkMottak(
             configuration,
             DummyJournalpostArkiv(),
-            InnløpPacketCreator(PersonOppslag(configuration.application.personOppslagBaseUrl, stsOidcClient, "")),
+            InnløpPacketCreator(PersonOppslag(configuration.application.personOppslagBaseUrl, stsOidcClient)),
             FakeUnleash()
         )
 
