@@ -37,12 +37,6 @@ internal fun merge(map: Map<String, Any?>, json: String): String {
 
 internal val jacksonJsonAdapter = jacksonObjectMapper()
 
-internal fun <T : Any> jacksonDeserializerOf(clazz: Class<T>) = object : ResponseDeserializable<T> {
-    override fun deserialize(content: String): T? {
-        return jacksonJsonAdapter.readValue(content, clazz)
-    }
-}
-
 internal fun JsonNode.personNavn(): String {
     return findValue("navn").first().let { node ->
         val fornavn = node.path("fornavn").asText()
