@@ -63,7 +63,7 @@ private val prodProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.adeo.no",
         "oidc.sts.issuerurl" to "https://security-token-service.nais.adeo.no",
-        "personoppslag.url" to "https://dp-graphql.nais.adeo.no/",
+        "personoppslag.url" to "https://pdl-api.intern.nav.no/",
         "unleash.url" to "https://unleash.nais.io/api/",
         "kafka.processing.guarantee" to StreamsConfig.EXACTLY_ONCE
     )
