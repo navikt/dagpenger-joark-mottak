@@ -1,133 +1,96 @@
 package no.nav.dagpenger.joark.mottak
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import com.github.tomakehurst.wiremock.client.WireMock.notFound
-import com.github.tomakehurst.wiremock.client.WireMock.post
-import com.github.tomakehurst.wiremock.client.WireMock.stubFor
-import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import com.github.tomakehurst.wiremock.matching.RegexPattern
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondError
+import io.ktor.client.engine.mock.respondOk
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import no.nav.dagpenger.streams.HealthStatus
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 internal class PersonOppslagTest {
-    companion object {
-        val server: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
-
-        @BeforeAll
-        @JvmStatic
-        fun start() {
-            server.start()
-        }
-
-        @AfterAll
-        @JvmStatic
-        fun stop() {
-            server.stop()
-        }
-    }
-
-    @BeforeEach
-    fun configure() {
-        WireMock.configureFor(server.port())
-    }
-
     @Test
     fun `henter person med riktig spørring og headers`() {
         val body = PersonOppslagTest::class.java.getResource("/test-data/example-person-payload.json")
             .readText()
-        stubFor(
-            post(urlEqualTo("/graphql"))
-                .withHeader("Content-type", RegexPattern("application/json"))
-                .withHeader("Authorization", RegexPattern("Bearer hunter2"))
-                .withHeader("Nav-Consumer-Token", RegexPattern("Bearer hunter2"))
-                .withHeader("accept", RegexPattern("application/json"))
-                .withHeader("TEMA", RegexPattern("DAG"))
-                .willReturn(
-                    aResponse()
-                        .withHeader("Content-Type", "application/json")
-                        .withBody(body)
-                )
-        )
 
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
-        val person = personOppslag.hentPerson("789")
-        assertEquals("2797593735308", person.aktoerId)
-        assertEquals("13086824072", person.naturligIdent)
-        assertEquals("LITEN DRØVTYGGENDE BRANNHYDRANT", person.navn)
-        assertEquals(true, person.norskTilknytning)
-        assertEquals("STRENGT_FORTROLIG_UTLAND", person.diskresjonskode)
-        WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))
+        val engine = MockEngine {
+            this.respond(
+                headers = headersOf("Content-Type", "application/json"),
+                content = body
+            )
+        }
+        val person = PersonOppslag(
+            "http://localhost/",
+            DummyOidcClient(),
+            httpClient(engine = engine)
+        ).hentPerson("780")
+
+        person.aktoerId shouldBe "2797593735308"
+        person.naturligIdent shouldBe "13086824072"
+        person.navn shouldBe "LITEN DRØVTYGGENDE BRANNHYDRANT"
+        person.norskTilknytning shouldBe true
+        person.diskresjonskode shouldBe "STRENGT_FORTROLIG_UTLAND"
+
+        engine.requestHistory.size shouldBe 1
+        with(engine.requestHistory[0]) {
+            method shouldBe HttpMethod.Post
+            url.toString() shouldBe "http://localhost/graphql"
+            headers["Authorization"] shouldBe "Bearer hunter2"
+            headers["Nav-Consumer-Token"] shouldBe "Bearer hunter2"
+            headers["TEMA"] shouldBe "DAG"
+        }
     }
 
     @Test
     fun `håndterer statuskode 200 med errors og uten person`() {
         val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-person-error-payload.json")
             .readText()
-        stubFor(
-            post(urlEqualTo("/graphql"))
-                .willReturn(
-                    aResponse()
-                        .withHeader("Content-Type", "application/json")
-                        .withBody(body)
-                )
-        )
 
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
+        val engine = MockEngine {
+            this.respond(
+                headers = headersOf("Content-Type", "application/json"),
+                content = body
+            )
+        }
+
+        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
+
         val result = runCatching { personOppslag.hentPerson("123") }
-        assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is PersonOppslagException)
-
-        WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))
+        result.isFailure shouldBe true
+        result.exceptionOrNull().shouldBeInstanceOf<PersonOppslagException>()
     }
 
     @Test
     fun `håndterer 400-statuskoder`() {
-        stubFor(
-            post(urlEqualTo("/graphql"))
-                .willReturn(
-                    notFound()
-                )
-        )
+        val engine = MockEngine { this.respondError(HttpStatusCode.NotFound) }
 
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
+        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
+
         val result = runCatching { personOppslag.hentPerson("123") }
-        assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is PersonOppslagException)
-        WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))
+        result.isFailure shouldBe true
+        result.exceptionOrNull().shouldBeInstanceOf<PersonOppslagException>()
     }
 
     @Test
     fun `helsestatus settes korrekt om pdl-api er oppe`() {
-        stubFor(
-            WireMock.get(urlEqualTo("/internal/health/readiness"))
-                .willReturn(
-                    WireMock.ok()
-                )
-        )
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
+        val engine = MockEngine { respondOk() }
+
+        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
         personOppslag.status() shouldBe HealthStatus.UP
-        WireMock.verify(WireMock.getRequestedFor(urlEqualTo("/internal/health/readiness")))
+        engine.requestHistory.first().url.toString() shouldBe "http://localhost/internal/health/readiness"
     }
 
     @Test
     fun `helsestatus settes korrekt om pdl-api  er nede`() {
-        stubFor(
-            WireMock.get(urlEqualTo("/internal/health/readiness"))
-                .willReturn(
-                    WireMock.serverError()
-                )
-        )
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
+        val engine = MockEngine { respondError(HttpStatusCode.ServiceUnavailable) }
+
+        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
         personOppslag.status() shouldBe HealthStatus.DOWN
-        WireMock.verify(WireMock.getRequestedFor(urlEqualTo("/internal/health/readiness")))
+        engine.requestHistory.first().url.toString() shouldBe "http://localhost/internal/health/readiness"
     }
 }

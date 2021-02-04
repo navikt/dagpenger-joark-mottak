@@ -3,7 +3,7 @@
     "journalpost": {
       "journalpostId": "id",
       "tittel": "MASKERT_FELT",
-      "journalstatus": "UKJENT_BRUKER",
+      "journalstatus": "MOTTATT",
       "journalfoerendeEnhet": "2950",
       "avsenderMottaker": {
         "navn": null,

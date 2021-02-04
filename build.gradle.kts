@@ -49,48 +49,46 @@ configurations {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation(Dagpenger.Streams)
-    implementation(Dagpenger.Events)
-
-    implementation(Jackson.core)
-    implementation(Jackson.kotlin)
 
 //    implementation(Dagpenger.Biblioteker.stsKlient)
 //    todo Bruk global konstant
     implementation("com.github.navikt.dp-biblioteker:sts-klient:2021.02.04-18.04.66992d1db9a0")
+    implementation("no.finn.unleash:unleash-client-java:3.2.9")
+    implementation(Dagpenger.Events)
+    implementation(Dagpenger.Streams)
+
+    implementation(Jackson.core)
+    implementation(Jackson.kotlin)
+
+    implementation(Kafka.Confluent.avroStreamSerdes)
+    implementation(Kafka.clients)
+    implementation(Kafka.streams)
+
+    implementation(Konfig.konfig)
+    implementation(Kotlin.Logging.kotlinLogging)
+    implementation(Ktor.library("client-auth-jvm"))
+    implementation(Ktor.library("client-cio-jvm"))
+    implementation(Ktor.library("client-jackson"))
+    implementation(Ktor.library("client-logging"))
+    implementation(Ktor.serverNetty)
+
+    implementation(Log4j2.Logstash.logstashLayout)
+    implementation(Log4j2.api)
+    implementation(Log4j2.core)
+    implementation(Log4j2.slf4j)
 
     implementation(Prometheus.common)
     implementation(Prometheus.log4j2)
 
-    implementation(Konfig.konfig)
-
-    implementation(Log4j2.api)
-    implementation(Log4j2.core)
-    implementation(Log4j2.slf4j)
-    implementation(Log4j2.Logstash.logstashLayout)
-    implementation(Kotlin.Logging.kotlinLogging)
-
-    implementation(Kafka.clients)
-    implementation(Kafka.streams)
-    implementation(Kafka.Confluent.avroStreamSerdes)
-
-    implementation(Ktor.serverNetty)
-    implementation(Ktor.library("client-cio-jvm"))
-    implementation(Ktor.library("client-jackson"))
-    implementation(Ktor.library("client-logging"))
-    implementation(Ktor.library("client-auth-jvm"))
-
-    implementation("no.finn.unleash:unleash-client-java:3.2.9")
-
-    testImplementation(kotlin("test"))
     testImplementation(Junit5.api)
-    testImplementation(KoTest.runner)
-    testImplementation(KoTest.assertions)
-    testRuntimeOnly(Junit5.engine)
-    testImplementation(Wiremock.standalone)
-    testImplementation(KafkaEmbedded.env)
     testImplementation(Kafka.streamTestUtils)
+    testImplementation(KafkaEmbedded.env)
+    testImplementation(KoTest.assertions)
+    testImplementation(KoTest.runner)
+    testImplementation(Ktor.library("client-mock"))
     testImplementation(Mockk.mockk)
+    testImplementation(kotlin("test"))
+    testRuntimeOnly(Junit5.engine)
 }
 
 spotless {
