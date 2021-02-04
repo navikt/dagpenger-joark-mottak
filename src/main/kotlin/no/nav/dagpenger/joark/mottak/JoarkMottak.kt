@@ -15,7 +15,6 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.Topology
 import java.util.Properties
-import kotlin.time.ExperimentalTime
 
 private val logger = KotlinLogging.logger {}
 const val DAGPENGER_NAMESPACE = "dagpenger"
@@ -59,7 +58,6 @@ internal object PacketKeys {
     const val SØKNADSDATA: String = "søknadsdata"
 }
 
-@ExperimentalTime
 class JoarkMottak(
     val config: Configuration,
     val journalpostArkiv: JournalpostArkiv,
@@ -174,7 +172,6 @@ class JoarkMottak(
 
 class UnsupportedBehandlendeEnhetException(override val message: String) : RuntimeException(message)
 
-@ExperimentalTime
 fun main(args: Array<String>) {
 
     val config = Configuration()

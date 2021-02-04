@@ -2,7 +2,6 @@ package no.nav.dagpenger.joark.mottak
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ResponseException
-import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.statement.readText
@@ -10,9 +9,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.HealthStatus
-import kotlin.time.ExperimentalTime
 
-@ExperimentalTime
 class PersonOppslag(
     private val personOppslagBaseUrl: String,
     private val oidcClient: OidcClient,

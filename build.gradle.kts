@@ -57,7 +57,7 @@ dependencies {
 
 //    implementation(Dagpenger.Biblioteker.stsKlient)
 //    todo Bruk global konstant
-    implementation("com.github.navikt.dp-biblioteker:sts-klient:2021.02.02-18.48.e40858a181b7")
+    implementation("com.github.navikt.dp-biblioteker:sts-klient:2021.02.04-18.04.66992d1db9a0")
 
     implementation(Prometheus.common)
     implementation(Prometheus.log4j2)

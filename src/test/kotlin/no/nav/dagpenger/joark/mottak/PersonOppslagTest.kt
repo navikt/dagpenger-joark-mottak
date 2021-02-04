@@ -17,9 +17,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.time.ExperimentalTime
 
-@ExperimentalTime
 internal class PersonOppslagTest {
     companion object {
         val server: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
@@ -119,6 +117,7 @@ internal class PersonOppslagTest {
         personOppslag.status() shouldBe HealthStatus.UP
         WireMock.verify(WireMock.getRequestedFor(urlEqualTo("/internal/health/readiness")))
     }
+
     @Test
     fun `helsestatus settes korrekt om pdl-api  er nede`() {
         stubFor(

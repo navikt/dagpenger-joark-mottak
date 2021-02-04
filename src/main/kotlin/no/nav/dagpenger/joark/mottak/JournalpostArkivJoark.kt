@@ -10,11 +10,9 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthStatus
-import kotlin.time.ExperimentalTime
 
 private val logger = KotlinLogging.logger { }
 
-@ExperimentalTime
 class JournalpostArkivJoark(
     private val joarkBaseUrl: String,
     private val oidcClient: OidcClient,

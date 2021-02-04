@@ -21,9 +21,7 @@ import org.apache.kafka.streams.test.ConsumerRecordFactory
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.util.Properties
-import kotlin.time.ExperimentalTime
 
-@ExperimentalTime
 class JoarkMottakTopologyTest {
     companion object {
         val personOppslagMock = mockk<PersonOppslag>()
@@ -95,7 +93,8 @@ class JoarkMottakTopologyTest {
     fun `skal både produsere innløpbehov og søknadsdata`() {
         val journalpostId: Long = 123
 
-        val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator, FakeUnleash().apply { this.enableAll() })
+        val joarkMottak =
+            JoarkMottak(configuration, journalpostarkiv, packetCreator, FakeUnleash().apply { this.enableAll() })
 
         every { journalpostarkiv.hentInngåendeJournalpost(journalpostId.toString()) } returns dummyJournalpost(
             journalstatus = Journalstatus.MOTTATT,
@@ -142,6 +141,7 @@ class JoarkMottakTopologyTest {
             ut shouldNotBe null
         }
     }
+
     @Test
     fun `Skal prosessere innkommende journalposter med tema DAG og hendelses type MidlertidigJournalført `() {
         val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())

@@ -27,12 +27,9 @@ import java.time.Duration
 import java.util.Properties
 import java.util.Random
 import kotlin.test.assertEquals
-import kotlin.time.ExperimentalTime
 
-@ExperimentalTime
 class JoarkMottakComponentTest {
 
-    @ExperimentalTime
     companion object {
         private const val username = "srvkafkaclient"
         private const val password = "kafkaclient"
