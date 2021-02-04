@@ -84,6 +84,7 @@ internal class PersonOppslagTest {
         val result = runCatching { personOppslag.hentPerson("123") }
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is PersonOppslagException)
+
         WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))
     }
 
@@ -105,27 +106,6 @@ internal class PersonOppslagTest {
         WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))
     }
 
-    @Test
-    fun `skal feile hvis behnadlende enhet er null`() {
-        val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/person-behandlende-enhet-null-response.json")
-            .readText()
-        stubFor(
-            post(urlEqualTo("/graphql"))
-                .withHeader("Content-type", RegexPattern("application/json"))
-                .withHeader("X-API-KEY", RegexPattern("hunter2"))
-                .willReturn(
-                    aResponse()
-                        .withHeader("Content-Type", "application/json")
-                        .withBody(body)
-                )
-        )
-
-        val personOppslag = PersonOppslag(server.url(""), DummyOidcClient(), "hunter2")
-        val result = runCatching { personOppslag.hentPerson("123") }
-        assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is PersonOppslagException)
-        WireMock.verify(WireMock.postRequestedFor(urlEqualTo("/graphql")))
-    }
     @Test
     fun `helsestatus settes korrekt om dp-graphql er oppe`() {
         stubFor(

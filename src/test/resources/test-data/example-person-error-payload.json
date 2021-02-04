@@ -1,22 +1,57 @@
 {
-  "errors":[
+  "errors": [
     {
-      "message":"Failed to get ident",
-      "locations":[
+      "message": "Fant ikke person",
+      "locations": [
         {
-          "line":2,
-          "column":3
+          "line": 35,
+          "column": 5
         }
       ],
-      "path":[
-        "person"
+      "path": [
+        "hentPerson"
       ],
-      "extensions":{
-        "code":"IDENT_NOT_FOUND"
+      "extensions": {
+        "code": "not_found",
+        "classification": "ExecutionAborted"
+      }
+    },
+    {
+      "message": "Fant ikke person",
+      "locations": [
+        {
+          "line": 45,
+          "column": 5
+        }
+      ],
+      "path": [
+        "hentGeografiskTilknytning"
+      ],
+      "extensions": {
+        "code": "not_found",
+        "classification": "ExecutionAborted"
+      }
+    },
+    {
+      "message": "Fant ikke person",
+      "locations": [
+        {
+          "line": 48,
+          "column": 7
+        }
+      ],
+      "path": [
+        "hentIdenter"
+      ],
+      "extensions": {
+        "code": "not_found",
+        "classification": "ExecutionAborted"
       }
     }
   ],
-  "data":{
-    "person":null
+  "data": {
+    "hentPerson": null,
+    "hentGeografiskTilknytning": null,
+    "hentIdenter": null
   }
 }
