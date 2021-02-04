@@ -14,7 +14,7 @@ class PersonOppslag(
     private val oidcClient: OidcClient,
 ) : HealthCheck {
     override fun status(): HealthStatus {
-        val (_, _, result) = with("${personOppslagBaseUrl}isAlive".httpGet()) {
+        val (_, _, result) = with("${personOppslagBaseUrl}internal/health/readiness".httpGet()) {
             responseString()
         }
         return when (result) {

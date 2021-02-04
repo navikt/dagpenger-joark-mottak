@@ -48,7 +48,7 @@ private val devProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.preprod.local",
         "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local",
-        "personoppslag.url" to "https://dp-graphql.nais.preprod.local/",
+        "personoppslag.url" to "https://pdl-api.dev.intern.nav.no/",
         "unleash.url" to "https://unleash.nais.io/api/",
         "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE,
         "deserialization.exception.handler" to LogAndContinueExceptionHandler::class.java.name
