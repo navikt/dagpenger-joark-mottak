@@ -8,6 +8,7 @@ import io.ktor.client.statement.readText
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import no.nav.dagpenger.oidc.OidcClient
+import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.HealthStatus
 
@@ -62,7 +63,7 @@ internal data class PersonQuery(val id: String) : GraphqlQuery(
     query =
         """ 
             query {
-  hentPerson(ident: $id) {
+  hentPerson(ident: "$id") {
       navn {
         fornavn,
         mellomnavn,
@@ -72,10 +73,10 @@ internal data class PersonQuery(val id: String) : GraphqlQuery(
      gradering 
     }
     }
-    hentGeografiskTilknytning(ident: $id){
+    hentGeografiskTilknytning(ident: "$id"){
     gtLand
   }
-      hentIdenter(ident: $id, grupper: [AKTORID,FOLKEREGISTERIDENT]) {
+      hentIdenter(ident: "$id", grupper: [AKTORID,FOLKEREGISTERIDENT]) {
     identer {
       ident,
       gruppe
@@ -91,3 +92,4 @@ class PersonOppslagException(
     override val message: String? = "",
     override val cause: Throwable? = null
 ) : RuntimeException(message, cause)
+
