@@ -17,6 +17,7 @@ import org.apache.kafka.streams.Topology
 import java.util.Properties
 
 private val logger = KotlinLogging.logger {}
+private val securelog = KotlinLogging.logger { "tjenestekall" }
 const val DAGPENGER_NAMESPACE = "dagpenger"
 private val labelNames = listOf(
     "skjemaId",
@@ -196,5 +197,6 @@ fun main(args: Array<String>) {
     val unleash = DefaultUnleash(config.application.unleashConfig)
 
     val service = JoarkMottak(config, journalpostArkiv, packetCreator, unleash)
+    securelog.info { "Starter hemmeling tjeneneste" }
     service.start()
 }

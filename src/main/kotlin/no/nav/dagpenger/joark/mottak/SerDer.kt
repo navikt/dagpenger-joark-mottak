@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger { "tjenestekall" }
 
 internal fun merge(map: Map<String, Any?>, json: String): String {
     val mutableMap =
@@ -46,13 +49,24 @@ object PersonDeserializer : JsonDeserializer<Person>() {
     }
 
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): Person {
-        val node: JsonNode = p.readValueAsTree()
-        return Person(
-            navn = node.personNavn(),
-            aktoerId = node.aktoerId(),
-            naturligIdent = node.naturligIdent(),
-            norskTilknytning = node.norskTilknyting(),
-            diskresjonskode = node.diskresjonsKode()
+        return kotlin.runCatching {
+            val node: JsonNode = p.readValueAsTree()
+            Person(
+                navn = node.personNavn(),
+                aktoerId = node.aktoerId(),
+                naturligIdent = node.naturligIdent(),
+                norskTilknytning = node.norskTilknyting(),
+                diskresjonskode = node.diskresjonsKode()
+            )
+        }.fold(
+            onSuccess = {
+                logger.info { "HEMMELIG" }
+                it
+            },
+            onFailure = {
+                logger.info { "HEMMELIG" }
+                throw it
+            }
         )
     }
 }
