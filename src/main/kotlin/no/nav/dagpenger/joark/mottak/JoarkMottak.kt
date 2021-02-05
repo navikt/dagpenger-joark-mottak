@@ -17,7 +17,6 @@ import org.apache.kafka.streams.Topology
 import java.util.Properties
 
 private val logger = KotlinLogging.logger {}
-
 const val DAGPENGER_NAMESPACE = "dagpenger"
 private val labelNames = listOf(
     "skjemaId",
@@ -185,11 +184,13 @@ fun main(args: Array<String>) {
     val journalpostArkiv = JournalpostArkivJoark(
         config.application.joarkJournalpostArkivBaseUrl,
         oidcClient,
+        config.application.profile
     )
 
     val personOppslag = PersonOppslag(
         config.application.personOppslagBaseUrl,
         oidcClient,
+        config.application.graphQlApiKey
     )
 
     val packetCreator = InnløpPacketCreator(personOppslag)

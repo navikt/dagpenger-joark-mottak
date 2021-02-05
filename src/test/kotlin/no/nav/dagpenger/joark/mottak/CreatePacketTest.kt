@@ -1,11 +1,12 @@
 package no.nav.dagpenger.joark.mottak
 
-import com.fasterxml.jackson.core.type.TypeReference
+import com.squareup.moshi.Types
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.dagpenger.events.Packet
+import no.nav.dagpenger.events.moshiInstance
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -18,7 +19,7 @@ class CreatePacketTest {
         @BeforeAll
         @JvmStatic
         fun setUp() {
-            every { personOppslagMock.hentPerson(any()) } returns Person(
+            every { personOppslagMock.hentPerson(any(), any()) } returns Person(
                 navn = "Proffen",
                 aktoerId = "1111",
                 naturligIdent = "1234",
@@ -38,7 +39,7 @@ class CreatePacketTest {
         val packetCreator = InnløpPacketCreator(personOppslagMock)
         val packet = packetCreator.createPacket(Pair(journalpost, null))
 
-        verify { personOppslagMock.hentPerson("1111") }
+        verify { personOppslagMock.hentPerson("1111", BrukerType.AKTOERID) }
 
         packet.getStringValue("aktørId") shouldBe "1111"
         packet.getStringValue("naturligIdent") shouldBe "1234"
@@ -68,40 +69,27 @@ class CreatePacketTest {
         )
         val packet = packetCreator.createPacket(Pair(journalpost, null))
 
-        val dokumentListe = Packet(packet.toJson()!!).getObjectValue("dokumenter") {
-            jacksonJsonAdapter.convertValue(it, object : TypeReference<List<DokumentInfo>>() {})
-        }
+        val adapter = moshiInstance.adapter<List<DokumentInfo>>(
+            Types.newParameterizedType(
+                List::class.java,
+                DokumentInfo::class.java
+            )
+        )
+
+        val dokumentListe = Packet(packet.toJson()!!).getObjectValue("dokumenter") { adapter.fromJsonValue(it)!! }
         dokumentListe.size shouldBe 1
         dokumentListe.first().tittel shouldBe "Søknad"
     }
 
     @Test
-    fun `skal få riktig behandlende enhet ved kode 6 Strengt Fortrolig`() {
+    fun `skal få riktig behandlende enhet ved kode 6`() {
         val personOppslagMedDiskresjonskode = mockk<PersonOppslag>()
 
-        every { personOppslagMedDiskresjonskode.hentPerson(any()) } returns Person(
+        every { personOppslagMedDiskresjonskode.hentPerson(any(), any()) } returns Person(
             navn = "Proffen",
             aktoerId = "1111",
             naturligIdent = "1234",
-            diskresjonskode = "STRENGT_FORTROLIG",
-            norskTilknytning = true
-        )
-
-        val packetCreator = InnløpPacketCreator(personOppslagMedDiskresjonskode)
-        val packet = packetCreator.createPacket(Pair(dummyJournalpost(), null))
-
-        packet.getStringValue("behandlendeEnhet") shouldBe "2103"
-    }
-
-    @Test
-    fun `skal få riktig behandlende enhet ved kode 6 Strengt Fortrolig Utland`() {
-        val personOppslagMedDiskresjonskode = mockk<PersonOppslag>()
-
-        every { personOppslagMedDiskresjonskode.hentPerson(any()) } returns Person(
-            navn = "Proffen",
-            aktoerId = "1111",
-            naturligIdent = "1234",
-            diskresjonskode = "STRENGT_FORTROLIG_UTLAND",
+            diskresjonskode = "SPSF",
             norskTilknytning = true
         )
 
@@ -115,7 +103,7 @@ class CreatePacketTest {
     fun `brukere uten geografisk tilknytning til norge som søker om permittering skal til 4465`() {
         val personoppslag = mockk<PersonOppslag>()
 
-        every { personoppslag.hentPerson(any()) } returns Person(
+        every { personoppslag.hentPerson(any(), any()) } returns Person(
             navn = "Proffen",
             aktoerId = "1111",
             naturligIdent = "1234",

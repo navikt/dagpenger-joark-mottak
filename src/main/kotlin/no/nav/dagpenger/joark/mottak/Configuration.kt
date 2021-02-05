@@ -35,6 +35,7 @@ private val localProperties = ConfigurationMap(
         "personoppslag.url" to "https://localhost:1010",
         "srvdagpenger.joark.mottak.username" to "user",
         "srvdagpenger.joark.mottak.password" to "password",
+        "graphql.apikey" to "hunter2",
         "unleash.url" to "https://localhost",
         "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE
     )
@@ -48,7 +49,8 @@ private val devProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.preprod.local",
         "oidc.sts.issuerurl" to "https://security-token-service.nais.preprod.local",
-        "personoppslag.url" to "https://pdl-api.dev.intern.nav.no/",
+        "personoppslag.url" to "https://dp-graphql.nais.preprod.local/",
+        "graphql.apikey" to "hunter2",
         "unleash.url" to "https://unleash.nais.io/api/",
         "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE,
         "deserialization.exception.handler" to LogAndContinueExceptionHandler::class.java.name
@@ -63,7 +65,8 @@ private val prodProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.adeo.no",
         "oidc.sts.issuerurl" to "https://security-token-service.nais.adeo.no",
-        "personoppslag.url" to "https://pdl-api.intern.nav.no/",
+        "personoppslag.url" to "https://dp-graphql.nais.adeo.no/",
+        "graphql.apikey" to "hunter2",
         "unleash.url" to "https://unleash.nais.io/api/",
         "kafka.processing.guarantee" to StreamsConfig.EXACTLY_ONCE
     )
@@ -124,6 +127,7 @@ data class Configuration(
         val oidcStsUrl: String = config()[Key("oidc.sts.issuerurl", stringType)],
         val joarkJournalpostArkivBaseUrl: String = config()[Key("joark.journalpostarkiv.url", stringType)],
         val personOppslagBaseUrl: String = config()[Key("personoppslag.url", stringType)],
+        val graphQlApiKey: String = config()[Key("graphql.apikey", stringType)]
     )
 }
 

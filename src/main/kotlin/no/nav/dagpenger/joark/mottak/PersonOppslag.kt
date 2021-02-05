@@ -1,93 +1,78 @@
 package no.nav.dagpenger.joark.mottak
 
-import io.ktor.client.HttpClient
-import io.ktor.client.features.ResponseException
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.statement.readText
-import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
+import com.github.kittinunf.fuel.core.extensions.authentication
+import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.result.Result
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.HealthStatus
 
-private val logger = KotlinLogging.logger {}
-private val sikkerLogg = KotlinLogging.logger("tjenestekall")
-
-class PersonOppslag(
-    private val personOppslagBaseUrl: String,
-    private val oidcClient: OidcClient,
-    private val httpClientProvider: () -> HttpClient = ::httpClientProvider
-) : HealthCheck {
+class PersonOppslag(private val personOppslagBaseUrl: String, private val oidcClient: OidcClient, private val apiKey: String) : HealthCheck {
     override fun status(): HealthStatus {
-        return httpClientProvider().use {
-            it.healthStatus("${personOppslagBaseUrl}internal/health/readiness")
+        val (_, _, result) = with("${personOppslagBaseUrl}isAlive".httpGet()) {
+            responseString()
+        }
+        return when (result) {
+            is Result.Failure -> HealthStatus.DOWN
+            else -> HealthStatus.UP
         }
     }
 
-    fun hentPerson(id: String): Person {
-        return runBlocking {
-            kotlin.runCatching {
-                val token = oidcClient.oidcToken().access_token
-                httpClientProvider().use {
-                    it.post<Person>("${personOppslagBaseUrl}graphql") {
-                        header("Authorization", "Bearer $token")
-                        header("Content-Type", "application/json")
-                        header("TEMA", "DAG")
-                        header("Nav-Consumer-Token", "Bearer $token")
-                        body = PersonQuery(id).also {
-                            sikkerLogg.info { "Query: $it" }
-                        }
-                    }
-                }
-            }.fold(
-                onSuccess = { it },
-                onFailure = {
-                    logger.error(it.message)
-                    when (it) {
-                        is ResponseException -> {
-                            throw PersonOppslagException(it.response?.status?.value, it.response?.readText(), it)
-                        }
-                        else -> {
-                            throw PersonOppslagException(cause = it)
-                        }
-                    }
-                }
+    fun hentPerson(id: String, brukerType: BrukerType): Person {
+        val (_, response, result) = with("${personOppslagBaseUrl}graphql".httpPost()) {
+            authentication().bearer(oidcClient.oidcToken().access_token)
+            header("Content-Type" to "application/json")
+            header("X-API-KEY" to apiKey)
+            body(
+                adapter.toJson(
+                    PersonQuery(
+                        id,
+                        mapBrukerTypeTilIdType[brukerType]
+                            ?: throw PersonOppslagException(message = "Failed to map $brukerType")
+                    )
+                )
             )
+            responseObject<GraphQlPersonResponse>()
+        }
+
+        return when (result) {
+            is Result.Failure ->
+                throw PersonOppslagException(
+                    response.statusCode,
+                    "Failed to fetch person. Response message ${response.responseMessage}. Payload from server ${response.body().asString("application/json")}",
+                    result.error
+                )
+            is Result.Success -> result.get().data.person
         }
     }
 }
 
-internal data class PersonQuery(val id: String) : GraphqlQuery(
+val mapBrukerTypeTilIdType = mapOf(
+    BrukerType.AKTOERID to IdType.AKTOER_ID,
+    BrukerType.FNR to IdType.NATURLIG_IDENT
+)
+
+enum class IdType {
+    AKTOER_ID,
+    NATURLIG_IDENT
+}
+
+internal data class PersonQuery(val id: String, val idType: IdType) : GraphqlQuery(
     query =
         """ 
             query {
-  hentPerson(ident: "$id") {
-      navn {
-        fornavn,
-        mellomnavn,
-        etternavn
-      },
-    adressebeskyttelse{
-     gradering 
-    }
-    }
-    hentGeografiskTilknytning(ident: "$id"){
-    gtLand
-  }
-      hentIdenter(ident: "$id", grupper: [AKTORID,FOLKEREGISTERIDENT]) {
-    identer {
-      ident,
-      gruppe
-    }
-    }                }
-            
+                person(id: "$id", idType: ${idType.name}) {
+                    navn
+                    aktoerId
+                    naturligIdent
+                    diskresjonskode
+                    norskTilknytning
+                }
+            }
         """.trimIndent(),
     variables = null
 )
 
-class PersonOppslagException(
-    val statusCode: Int? = 500,
-    override val message: String? = "",
-    override val cause: Throwable? = null
-) : RuntimeException(message, cause)
+class PersonOppslagException(val statusCode: Int = 500, override val message: String, override val cause: Throwable? = null) :
+    RuntimeException(message, cause)
