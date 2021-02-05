@@ -12,7 +12,6 @@ import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.HealthStatus
 
 private val logger = KotlinLogging.logger {}
-private val sikkerLogg = KotlinLogging.logger("tjenestekall")
 
 class PersonOppslag(
     private val personOppslagBaseUrl: String,
@@ -35,9 +34,7 @@ class PersonOppslag(
                         header("Content-Type", "application/json")
                         header("TEMA", "DAG")
                         header("Nav-Consumer-Token", "Bearer $token")
-                        body = PersonQuery(id).also {
-                            sikkerLogg.info { "Query: $it" }
-                        }
+                        body = PersonQuery(id)
                     }
                 }
             }.fold(
