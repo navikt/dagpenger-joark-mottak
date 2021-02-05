@@ -6,6 +6,7 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.HttpTimeout
 import io.ktor.client.features.auth.Auth
 import io.ktor.client.features.auth.providers.basic
+import io.ktor.client.features.get
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.logging.LogLevel
@@ -26,13 +27,13 @@ internal fun httpClient(
 ): HttpClient {
     return HttpClient(engine) {
         install(HttpTimeout) {
-            connectTimeoutMillis = Duration.ofSeconds(30).toMillis()
-            requestTimeoutMillis = Duration.ofSeconds(30).toMillis()
-            socketTimeoutMillis = Duration.ofSeconds(30).toMillis()
+            connectTimeoutMillis = Duration.ofSeconds(1).toMillis()
+            requestTimeoutMillis = Duration.ofSeconds(1).toMillis()
+            socketTimeoutMillis = Duration.ofSeconds(1).toMillis()
         }
 
         install(Logging) {
-            level = LogLevel.BODY
+            level = LogLevel.INFO
         }
 
         install(JsonFeature) {
@@ -58,11 +59,9 @@ fun HttpClient.healthStatus(urlString: String): HealthStatus {
             this@healthStatus.get<String>(urlString)
         }.fold(
             onSuccess = {
-                logger.info(it)
                 HealthStatus.UP
             },
             onFailure = {
-                logger.info("Feil: ${it.message}")
                 HealthStatus.DOWN
             }
         )
