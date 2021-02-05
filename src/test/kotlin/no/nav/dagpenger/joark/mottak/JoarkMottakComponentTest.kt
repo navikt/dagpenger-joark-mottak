@@ -1,17 +1,18 @@
 package no.nav.dagpenger.joark.mottak
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.kotest.matchers.shouldBe
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondBadRequest
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import no.finn.unleash.FakeUnleash
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.getAvailablePort
 import no.nav.dagpenger.events.Packet
-import no.nav.dagpenger.oidc.StsOidcClient
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -46,12 +47,6 @@ class JoarkMottakComponentTest {
             )
         )
 
-        val wireMock by lazy {
-            WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort()).also {
-                it.start()
-            }
-        }
-
         val configuration = Configuration().copy(
             kafka = Configuration.Kafka(
                 brokers = embeddedEnvironment.brokersURL,
@@ -61,23 +56,47 @@ class JoarkMottakComponentTest {
             ),
             application = Configuration.Application(
                 httpPort = getAvailablePort(),
-                oidcStsUrl = wireMock.baseUrl(),
-                personOppslagBaseUrl = "${wireMock.baseUrl()}/"
+                personOppslagBaseUrl = "http://pdl-api/",
+                joarkJournalpostArkivBaseUrl = "http://saf/"
             )
 
         )
+        val mockHttpClient = httpClient(
+            engine = MockEngine { request ->
+                when (request.url.host) {
+                    "pdl-api" -> {
+                        respond(
+                            content = "/test-data/example-person-payload.json".getResouce(),
+                            status = HttpStatusCode.OK,
+                            headersOf("Content-type", "application/json")
+                        )
+                    }
+                    "saf" -> {
+                        respond(
+                            content = "/test-data/example-journalpost-payload.json".getResouce(),
+                            status = HttpStatusCode.OK,
+                            headersOf("Content-type", "application/json")
+                        )
+                    }
+                    else -> respondBadRequest()
+                }
+            }
+        )
 
-        val stsOidcClient =
-            StsOidcClient(
-                configuration.application.oidcStsUrl,
-                configuration.kafka.user,
-                configuration.kafka.password
-            )
+        val journalPostArkiv = JournalpostArkivJoark(
+            configuration.application.joarkJournalpostArkivBaseUrl,
+            DummyOidcClient()
+        ) { mockHttpClient }
 
         val joarkMottak = JoarkMottak(
             configuration,
-            DummyJournalpostArkiv(),
-            InnløpPacketCreator(PersonOppslag(configuration.application.personOppslagBaseUrl, stsOidcClient, "")),
+            journalPostArkiv,
+            InnløpPacketCreator(
+                PersonOppslag(
+                    configuration.application.personOppslagBaseUrl,
+                    DummyOidcClient()
+                ) { mockHttpClient }
+            ),
             FakeUnleash()
         )
 
@@ -97,6 +116,7 @@ class JoarkMottakComponentTest {
     }
 
     @Test
+    @Disabled
     fun ` embedded kafka cluster is up and running `() {
         assertEquals(embeddedEnvironment.serverPark.status, KafkaEnvironment.ServerParkStatus.Started)
     }
@@ -104,42 +124,6 @@ class JoarkMottakComponentTest {
     @Test
     @Disabled
     fun ` Component test of JoarkMottak  where hendelsesType is 'MidlertidigJournalført'`() {
-
-        wireMock.addStubMapping(
-            WireMock.post(WireMock.urlEqualTo("/graphql"))
-                .willReturn(
-                    WireMock.okJson(
-                        """
-                   {
-                    "data": {
-                        "person": {
-                            "aktoerId": "789",
-                            "naturligIdent": "123",
-                            "navn": "Pelle"
-                        }
-                    }
-                }
-                        """.trimIndent()
-                    )
-                )
-                .build()
-        )
-
-        wireMock.addStubMapping(
-            WireMock.get(WireMock.urlEqualTo("/rest/v1/sts/token/?grant_type=client_credentials&scope=openid"))
-                .willReturn(
-                    WireMock.okJson(
-                        """
-                   {
-                     "access_token": "token",
-                     "token_type": "Bearer",
-                     "expires_in": 3600
-                    } 
-                        """.trimIndent()
-                    )
-                )
-                .build()
-        )
 
         val kjoarkEvents = mapOf(
             Random().nextLong() to "DAG",
@@ -215,3 +199,5 @@ class JoarkMottakComponentTest {
         return dummyJoarkProducer
     }
 }
+
+internal fun String.getResouce(): String = JoarkMottakComponentTest::class.java.getResource(this).readText()
