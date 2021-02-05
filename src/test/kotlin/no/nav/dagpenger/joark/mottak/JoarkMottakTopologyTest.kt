@@ -29,7 +29,7 @@ class JoarkMottakTopologyTest {
         @BeforeAll
         @JvmStatic
         fun setUp() {
-            every { personOppslagMock.hentPerson(any()) } returns Person(
+            every { personOppslagMock.hentPerson(any(), any()) } returns Person(
                 navn = "Proffen",
                 aktoerId = "1111",
                 naturligIdent = "1234",
@@ -93,8 +93,7 @@ class JoarkMottakTopologyTest {
     fun `skal både produsere innløpbehov og søknadsdata`() {
         val journalpostId: Long = 123
 
-        val joarkMottak =
-            JoarkMottak(configuration, journalpostarkiv, packetCreator, FakeUnleash().apply { this.enableAll() })
+        val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator, FakeUnleash().apply { this.enableAll() })
 
         every { journalpostarkiv.hentInngåendeJournalpost(journalpostId.toString()) } returns dummyJournalpost(
             journalstatus = Journalstatus.MOTTATT,
@@ -141,7 +140,6 @@ class JoarkMottakTopologyTest {
             ut shouldNotBe null
         }
     }
-
     @Test
     fun `Skal prosessere innkommende journalposter med tema DAG og hendelses type MidlertidigJournalført `() {
         val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())

@@ -17,6 +17,10 @@
     }
   ],
   "data":{
-    "person":null
+    "person":{
+      "aktoerId": "4321",
+      "naturligIdent": "1234",
+      "behandlendeEnheter": null
+    }
   }
 }
