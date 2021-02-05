@@ -19,7 +19,7 @@ import java.time.Duration
 @KtorExperimentalAPI
 internal fun httpClient(
     credentials: Pair<String, String>? = null,
-    engine: HttpClientEngine = CIO.create { requestTimeout = Long.MAX_VALUE },
+    engine: HttpClientEngine = CIO.create { },
 ): HttpClient {
     return HttpClient(engine) {
         install(HttpTimeout) {
@@ -29,7 +29,7 @@ internal fun httpClient(
         }
 
         install(Logging) {
-            level = LogLevel.INFO
+            level = LogLevel.ALL
         }
 
         install(JsonFeature) {
