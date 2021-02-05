@@ -26,7 +26,7 @@ internal fun httpClient(
         }
 
         install(Logging) {
-            level = LogLevel.INFO
+            level = LogLevel.NONE
         }
 
         install(JsonFeature) {
