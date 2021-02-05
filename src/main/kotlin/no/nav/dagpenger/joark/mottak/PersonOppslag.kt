@@ -6,9 +6,12 @@ import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.statement.readText
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.HealthStatus
+
+private val logger = KotlinLogging.logger {}
 
 class PersonOppslag(
     private val personOppslagBaseUrl: String,
@@ -33,6 +36,7 @@ class PersonOppslag(
             }.fold(
                 onSuccess = { it },
                 onFailure = {
+                    logger.error(it.message)
                     when (it) {
                         is ResponseException -> {
                             throw PersonOppslagException(it.response?.status?.value, it.response?.readText(), it)
