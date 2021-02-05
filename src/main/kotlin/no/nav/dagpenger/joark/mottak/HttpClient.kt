@@ -19,7 +19,7 @@ import java.time.Duration
 
 private val logger = KotlinLogging.logger { }
 
-internal fun httpClient(): HttpClient = httpClient()
+internal fun httpClientProvider(): HttpClient = httpClient()
 
 @KtorExperimentalAPI
 internal fun httpClient(
@@ -57,7 +57,7 @@ internal fun httpClient(
 internal fun healthStatus(urlString: String): HealthStatus {
     return runBlocking {
         kotlin.runCatching {
-            httpClient().use {
+            httpClientProvider().use {
                 it.get<String>(urlString)
             }
         }.fold(
