@@ -8,7 +8,6 @@ import io.ktor.client.statement.readText
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import no.nav.dagpenger.oidc.OidcClient
-import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.HealthStatus
 
@@ -92,4 +91,3 @@ class PersonOppslagException(
     override val message: String? = "",
     override val cause: Throwable? = null
 ) : RuntimeException(message, cause)
-
