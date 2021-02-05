@@ -13,8 +13,11 @@ import io.ktor.client.features.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import no.nav.dagpenger.streams.HealthStatus
 import java.time.Duration
+
+private val logger = KotlinLogging.logger { }
 
 @KtorExperimentalAPI
 internal fun httpClient(
@@ -29,7 +32,7 @@ internal fun httpClient(
         }
 
         install(Logging) {
-            level = LogLevel.ALL
+            level = LogLevel.BODY
         }
 
         install(JsonFeature) {
@@ -54,8 +57,14 @@ fun HttpClient.healthStatus(urlString: String): HealthStatus {
         kotlin.runCatching {
             this@healthStatus.get<String>(urlString)
         }.fold(
-            onSuccess = { HealthStatus.UP },
-            onFailure = { HealthStatus.DOWN }
+            onSuccess = {
+                logger.info(it)
+                HealthStatus.UP
+            },
+            onFailure = {
+                logger.info("Feil: ${it.message}")
+                HealthStatus.DOWN
+            }
         )
     }
 }
