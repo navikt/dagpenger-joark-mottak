@@ -16,11 +16,13 @@ private val logger = KotlinLogging.logger { }
 class JournalpostArkivJoark(
     private val joarkBaseUrl: String,
     private val oidcClient: OidcClient,
-    private val httpClient: HttpClient = httpClient()
+    private val httpClientProvider: () -> HttpClient = ::httpClientProvider
 ) : JournalpostArkiv {
 
     override fun status(): HealthStatus {
-        return healthStatus("${joarkBaseUrl}isAlive")
+        return httpClientProvider().use {
+            it.healthStatus("${joarkBaseUrl}isAlive")
+        }
     }
 
     override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {
@@ -28,10 +30,12 @@ class JournalpostArkivJoark(
 
             kotlin.runCatching {
                 val token = oidcClient.oidcToken().access_token
-                httpClient.post<GraphQlJournalpostResponse>("${joarkBaseUrl}graphql") {
-                    header("Authorization", "Bearer $token")
-                    header("Content-Type", "application/json")
-                    body = JournalPostQuery(journalpostId)
+                httpClientProvider().use {
+                    it.post<GraphQlJournalpostResponse>("${joarkBaseUrl}graphql") {
+                        header("Authorization", "Bearer $token")
+                        header("Content-Type", "application/json")
+                        body = JournalPostQuery(journalpostId)
+                    }
                 }
             }.fold(
                 onSuccess = { it.data.journalpost },
@@ -62,8 +66,10 @@ class JournalpostArkivJoark(
         return runBlocking {
             val token = oidcClient.oidcToken().access_token
             kotlin.runCatching {
-                httpClient.get<String>("${joarkBaseUrl}rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL") {
-                    header("Authorization", "Bearer $token")
+                httpClientProvider().use {
+                    it.get<String>("${joarkBaseUrl}rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL") {
+                        header("Authorization", "Bearer $token")
+                    }
                 }
             }.fold(
                 onSuccess = { Søknadsdata(it, journalpostId, journalpost.registrertDato()) },
