@@ -19,6 +19,8 @@ import java.time.Duration
 
 private val logger = KotlinLogging.logger { }
 
+internal fun httpClient(): HttpClient = httpClient()
+
 @KtorExperimentalAPI
 internal fun httpClient(
     credentials: Pair<String, String>? = null,
@@ -49,6 +51,23 @@ internal fun httpClient(
                 }
             }
         }
+    }
+}
+
+internal fun healthStatus(urlString: String): HealthStatus {
+    return runBlocking {
+        kotlin.runCatching {
+            httpClient().use {
+                it.get<String>(urlString)
+            }
+        }.fold(
+            onSuccess = {
+                HealthStatus.UP
+            },
+            onFailure = {
+                HealthStatus.DOWN
+            }
+        )
     }
 }
 

@@ -20,7 +20,7 @@ class JournalpostArkivJoark(
 ) : JournalpostArkiv {
 
     override fun status(): HealthStatus {
-        return httpClient.healthStatus("${joarkBaseUrl}isAlive")
+        return healthStatus("${joarkBaseUrl}isAlive")
     }
 
     override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {

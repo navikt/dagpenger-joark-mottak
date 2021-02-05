@@ -10,6 +10,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import no.nav.dagpenger.streams.HealthStatus
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class JournalpostArkivJoarkTest {
@@ -109,6 +110,7 @@ class JournalpostArkivJoarkTest {
     }
 
     @Test
+    @Disabled
     fun `helsestatus settes korrekt om joark er oppe`() {
         val engine = MockEngine {
             respondOk()
@@ -121,6 +123,7 @@ class JournalpostArkivJoarkTest {
     }
 
     @Test
+    @Disabled
     fun `helsestatus settes korrekt om joark er nede`() {
         val engine = MockEngine {
             respondError(HttpStatusCode.ServiceUnavailable)
