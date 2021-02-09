@@ -17,27 +17,21 @@ private val sikkerLogg = KotlinLogging.logger("tjenestekall")
 class PersonOppslag(
     private val personOppslagBaseUrl: String,
     private val oidcClient: OidcClient,
-    private val httpClientProvider: () -> HttpClient = ::httpClientProvider
+    private val httpClient: HttpClient
 ) : HealthCheck {
-    override fun status(): HealthStatus {
-        return httpClientProvider().use {
-            it.healthStatus("${personOppslagBaseUrl}internal/health/readiness")
-        }
-    }
+    override fun status(): HealthStatus = httpClient.healthStatus("${personOppslagBaseUrl}internal/health/readiness")
 
     fun hentPerson(id: String): Person {
         return runBlocking {
             kotlin.runCatching {
                 val token = oidcClient.oidcToken().access_token
-                httpClientProvider().use {
-                    it.post<Person>("${personOppslagBaseUrl}graphql") {
-                        header("Authorization", "Bearer $token")
-                        header("Content-Type", "application/json")
-                        header("TEMA", "DAG")
-                        header("Nav-Consumer-Token", "Bearer $token")
-                        body = PersonQuery(id).also {
-                            sikkerLogg.info { "Query: $it" }
-                        }
+                httpClient.post<Person>("${personOppslagBaseUrl}graphql") {
+                    header("Authorization", "Bearer $token")
+                    header("Content-Type", "application/json")
+                    header("TEMA", "DAG")
+                    header("Nav-Consumer-Token", "Bearer $token")
+                    body = PersonQuery(id).also {
+                        sikkerLogg.info { "Query: $it" }
                     }
                 }
             }.fold(

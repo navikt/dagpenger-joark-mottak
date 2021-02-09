@@ -7,22 +7,17 @@ import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.statement.readText
 import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthStatus
-
-private val logger = KotlinLogging.logger { }
 
 class JournalpostArkivJoark(
     private val joarkBaseUrl: String,
     private val oidcClient: OidcClient,
-    private val httpClientProvider: () -> HttpClient = ::httpClientProvider
+    private val httpClient: HttpClient
 ) : JournalpostArkiv {
 
     override fun status(): HealthStatus {
-        return httpClientProvider().use {
-            it.healthStatus("${joarkBaseUrl}isAlive")
-        }
+        return httpClient.healthStatus("${joarkBaseUrl}isAlive")
     }
 
     override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {
@@ -30,12 +25,10 @@ class JournalpostArkivJoark(
 
             kotlin.runCatching {
                 val token = oidcClient.oidcToken().access_token
-                httpClientProvider().use {
-                    it.post<GraphQlJournalpostResponse>("${joarkBaseUrl}graphql") {
-                        header("Authorization", "Bearer $token")
-                        header("Content-Type", "application/json")
-                        body = JournalPostQuery(journalpostId)
-                    }
+                httpClient.post<GraphQlJournalpostResponse>("${joarkBaseUrl}graphql") {
+                    header("Authorization", "Bearer $token")
+                    header("Content-Type", "application/json")
+                    body = JournalPostQuery(journalpostId)
                 }
             }.fold(
                 onSuccess = { it.data.journalpost },
@@ -66,10 +59,8 @@ class JournalpostArkivJoark(
         return runBlocking {
             val token = oidcClient.oidcToken().access_token
             kotlin.runCatching {
-                httpClientProvider().use {
-                    it.get<String>("${joarkBaseUrl}rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL") {
-                        header("Authorization", "Bearer $token")
-                    }
+                httpClient.get<String>("${joarkBaseUrl}rest/hentdokument/$journalpostId/$dokumentId/ORIGINAL") {
+                    header("Authorization", "Bearer $token")
                 }
             }.fold(
                 onSuccess = { Søknadsdata(it, journalpostId, journalpost.registrertDato()) },

@@ -85,8 +85,9 @@ class JoarkMottakComponentTest {
 
         val journalPostArkiv = JournalpostArkivJoark(
             configuration.application.joarkJournalpostArkivBaseUrl,
-            DummyOidcClient()
-        ) { mockHttpClient }
+            DummyOidcClient(),
+            mockHttpClient
+        )
 
         val joarkMottak = JoarkMottak(
             configuration,
@@ -94,8 +95,9 @@ class JoarkMottakComponentTest {
             InnløpPacketCreator(
                 PersonOppslag(
                     configuration.application.personOppslagBaseUrl,
-                    DummyOidcClient()
-                ) { mockHttpClient }
+                    DummyOidcClient(),
+                    mockHttpClient
+                )
             ),
             FakeUnleash()
         )

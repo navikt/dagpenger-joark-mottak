@@ -173,7 +173,7 @@ class JoarkMottak(
 
 class UnsupportedBehandlendeEnhetException(override val message: String) : RuntimeException(message)
 
-fun main(args: Array<String>) {
+fun main() {
 
     val config = Configuration()
     val oidcClient = StsOidcClient(
@@ -182,14 +182,18 @@ fun main(args: Array<String>) {
         config.kafka.password
     )
 
+    val httpClient = httpClient()
+
     val journalpostArkiv = JournalpostArkivJoark(
         config.application.joarkJournalpostArkivBaseUrl,
         oidcClient,
+        httpClient
     )
 
     val personOppslag = PersonOppslag(
         config.application.personOppslagBaseUrl,
         oidcClient,
+        httpClient
     )
 
     val packetCreator = InnløpPacketCreator(personOppslag)

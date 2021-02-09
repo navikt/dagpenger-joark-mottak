@@ -31,7 +31,7 @@ class JournalpostArkivJoarkTest {
             )
         }
         val joarkClient =
-            JournalpostArkivJoark("http://localhost/", DummyOidcClient()) { httpClient(engine = engine) }
+            JournalpostArkivJoark("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
         joarkClient.hentSøknadsdata(
             dummyJournalpost(
                 journalpostId = journalpostId,
@@ -60,7 +60,7 @@ class JournalpostArkivJoarkTest {
         }
 
         val joarkClient =
-            JournalpostArkivJoark("http://localhost/", DummyOidcClient()) { httpClient(engine = engine) }
+            JournalpostArkivJoark("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
 
         engine.requestHistory.size shouldBe 1
@@ -87,7 +87,7 @@ class JournalpostArkivJoarkTest {
         }
 
         val joarkClient =
-            JournalpostArkivJoark("http://localhost/", DummyOidcClient()) { httpClient(engine = engine) }
+            JournalpostArkivJoark("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
         val result = runCatching { joarkClient.hentInngåendeJournalpost("2") }
 
         result.isFailure shouldBe true
@@ -102,7 +102,7 @@ class JournalpostArkivJoarkTest {
         }
 
         val joarkClient =
-            JournalpostArkivJoark("http://localhost/", DummyOidcClient()) { httpClient(engine = engine) }
+            JournalpostArkivJoark("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
 
         val result = runCatching { joarkClient.hentInngåendeJournalpost("-1") }
         result.isFailure shouldBe true
@@ -116,7 +116,7 @@ class JournalpostArkivJoarkTest {
             respondOk()
         }
         val joarkClient =
-            JournalpostArkivJoark("http://localhost/", DummyOidcClient()) { httpClient(engine = engine) }
+            JournalpostArkivJoark("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
 
         joarkClient.status() shouldBe HealthStatus.UP
         engine.requestHistory.first().url.toString() shouldBe "http://localhost/isAlive"
@@ -129,7 +129,7 @@ class JournalpostArkivJoarkTest {
             respondError(HttpStatusCode.ServiceUnavailable)
         }
         val joarkClient =
-            JournalpostArkivJoark("http://localhost/", DummyOidcClient()) { httpClient(engine = engine) }
+            JournalpostArkivJoark("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
 
         joarkClient.status() shouldBe HealthStatus.DOWN
         engine.requestHistory.first().url.toString() shouldBe "http://localhost/isAlive"

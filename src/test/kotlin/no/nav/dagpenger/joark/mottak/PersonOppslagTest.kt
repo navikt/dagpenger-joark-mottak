@@ -24,10 +24,8 @@ internal class PersonOppslagTest {
                 content = body
             )
         }
-        val person = PersonOppslag(
-            "http://localhost/",
-            DummyOidcClient()
-        ) { httpClient(engine = engine) }.hentPerson("780")
+        val person =
+            PersonOppslag("http://localhost/", DummyOidcClient(), httpClient(engine = engine)).hentPerson("780")
 
         person.aktoerId shouldBe "2797593735308"
         person.naturligIdent shouldBe "13086824072"
@@ -57,7 +55,7 @@ internal class PersonOppslagTest {
             )
         }
 
-        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient()) { httpClient(engine = engine) }
+        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
 
         val result = runCatching { personOppslag.hentPerson("123") }
         result.isFailure shouldBe true
@@ -68,7 +66,7 @@ internal class PersonOppslagTest {
     fun `håndterer 400-statuskoder`() {
         val engine = MockEngine { this.respondError(HttpStatusCode.NotFound) }
 
-        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient()) { httpClient(engine = engine) }
+        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
 
         val result = runCatching { personOppslag.hentPerson("123") }
         result.isFailure shouldBe true
@@ -79,7 +77,7 @@ internal class PersonOppslagTest {
     fun `helsestatus settes korrekt om pdl-api er oppe`() {
         val engine = MockEngine { respondOk() }
 
-        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient()) { httpClient(engine = engine) }
+        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
         personOppslag.status() shouldBe HealthStatus.UP
         engine.requestHistory.first().url.toString() shouldBe "http://localhost/internal/health/readiness"
     }
@@ -88,7 +86,7 @@ internal class PersonOppslagTest {
     fun `helsestatus settes korrekt om pdl-api  er nede`() {
         val engine = MockEngine { respondError(HttpStatusCode.ServiceUnavailable) }
 
-        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient()) { httpClient(engine = engine) }
+        val personOppslag = PersonOppslag("http://localhost/", DummyOidcClient(), httpClient(engine = engine))
         personOppslag.status() shouldBe HealthStatus.DOWN
         engine.requestHistory.first().url.toString() shouldBe "http://localhost/internal/health/readiness"
     }
