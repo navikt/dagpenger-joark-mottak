@@ -18,7 +18,13 @@ data class Søknadsdata(
 ) {
     fun serialize() = when (this == emptySøknadsdata) {
         true -> "{}"
-        false -> merge(mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato), data)
+        false ->
+            try {
+                merge(mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato), data)
+            } catch (e: Exception) {
+                logger.info { "Klarte ikke å lese søknad med journalpost id $journalpostId" }
+                "{}"
+            }
     }
 
     fun toMap(): Map<String, Any?>? {
@@ -28,8 +34,7 @@ data class Søknadsdata(
             }
         } catch (e: Exception) {
             logger.info { "Klarte ikke å lese søknad med journalpost id $journalpostId" }
-            sikkerLogger.info { "Klarte ikke å lese søknad med journalpost id $journalpostId, data $data" }
-            null
+            emptyMap()
         }
     }
 }
