@@ -4,6 +4,7 @@ import io.prometheus.client.Counter
 import mu.KotlinLogging
 import no.finn.unleash.DefaultUnleash
 import no.finn.unleash.Unleash
+import no.nav.dagpenger.joark.mottak.IgnoreJournalPost.ignorerJournalpost
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.Service
@@ -85,6 +86,7 @@ class JoarkMottak(
 
         val journalpostStream = inngåendeJournalposter
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
+            .filter { _, record -> !ignorerJournalpost.contains(record[PacketKeys.JOURNALPOST_ID].toString()) }
             .peek { _, record ->
                 logger.info(
                     "Received journalpost with journalpost id: ${record[PacketKeys.JOURNALPOST_ID]} and tema: ${record["temaNytt"]}, hendelsesType: ${record["hendelsesType"]}, mottakskanal, ${record["mottaksKanal"]} "

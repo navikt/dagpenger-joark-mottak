@@ -297,6 +297,20 @@ class JoarkMottakTopologyTest {
         }
     }
 
+    @Test
+    fun `Skal skippe journalpost id `() {
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
+
+        TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
+
+            val inputRecord = factory.create(lagJoarkHendelse(493332645, "DAG", "MidlertidigJournalført"))
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = readOutputInnløp(topologyTestDriver)
+
+            ut shouldBe null
+        }
+    }
     private fun readOutputInnløp(topologyTestDriver: TopologyTestDriver): ProducerRecord<String, Packet>? {
         return topologyTestDriver.readOutput(
             configuration.kafka.dagpengerJournalpostTopic.name,
