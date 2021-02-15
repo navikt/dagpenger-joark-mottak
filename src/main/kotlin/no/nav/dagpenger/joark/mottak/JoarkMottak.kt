@@ -86,7 +86,7 @@ class JoarkMottak(
 
         val journalpostStream = inngåendeJournalposter
             .filter { _, journalpostHendelse -> "DAG" == journalpostHendelse.get("temaNytt").toString() }
-            .filter { _, record -> !ignorerJournalpost.contains(record[PacketKeys.JOURNALPOST_ID].toString()) }
+            .filterNot { _, record -> ignorerJournalpost.contains(record[PacketKeys.JOURNALPOST_ID].toString()) }
             .peek { _, record ->
                 logger.info(
                     "Received journalpost with journalpost id: ${record[PacketKeys.JOURNALPOST_ID]} and tema: ${record["temaNytt"]}, hendelsesType: ${record["hendelsesType"]}, mottakskanal, ${record["mottaksKanal"]} "

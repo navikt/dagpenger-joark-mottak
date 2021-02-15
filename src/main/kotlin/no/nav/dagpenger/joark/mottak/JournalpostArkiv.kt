@@ -1,10 +1,6 @@
 package no.nav.dagpenger.joark.mottak
 
-import mu.KotlinLogging
 import no.nav.dagpenger.streams.HealthCheck
-
-private val logger = KotlinLogging.logger { }
-private val sikkerLogger = KotlinLogging.logger("tjenestekall")
 
 interface JournalpostArkiv : HealthCheck {
     fun hentInngåendeJournalpost(journalpostId: String): Journalpost
@@ -18,25 +14,13 @@ data class Søknadsdata(
 ) {
     fun serialize() = when (this == emptySøknadsdata) {
         true -> "{}"
-        false ->
-            try {
-                merge(mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato), data)
-            } catch (e: Exception) {
-                logger.info { "Klarte ikke å lese søknad med journalpost id $journalpostId" }
-                "{}"
-            }
+        false -> merge(mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato), data)
     }
 
-    fun toMap(): Map<String, Any?>? {
-        return try {
-            jsonMapAdapter.fromJson(data)?.toMap()?.let {
-                it + mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato)
-            }
-        } catch (e: Exception) {
-            logger.info { "Klarte ikke å lese søknad med journalpost id $journalpostId" }
-            emptyMap()
+    fun toMap(): Map<String, Any?>? =
+        jsonMapAdapter.fromJson(data)?.toMap()?.let {
+            it + mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato)
         }
-    }
 }
 
 val emptySøknadsdata = Søknadsdata("", "", null)
