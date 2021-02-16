@@ -10,7 +10,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import no.nav.dagpenger.streams.HealthStatus
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 internal class PersonOppslagTest {
@@ -75,7 +74,6 @@ internal class PersonOppslagTest {
     }
 
     @Test
-    @Disabled
     fun `helsestatus settes korrekt om pdl-api er oppe`() {
         val engine = MockEngine { respondOk() }
 
@@ -85,7 +83,6 @@ internal class PersonOppslagTest {
     }
 
     @Test
-    @Disabled
     fun `helsestatus settes korrekt om pdl-api  er nede`() {
         val engine = MockEngine { respondError(HttpStatusCode.ServiceUnavailable) }
 

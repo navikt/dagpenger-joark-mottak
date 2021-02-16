@@ -1,7 +1,6 @@
 package no.nav.dagpenger.joark.mottak
 
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.ResponseException
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -20,8 +19,7 @@ class PersonOppslag(
     private val oidcClient: OidcClient,
     private val httpClient: HttpClient
 ) : HealthCheck {
-    private val client = HttpClient(CIO)
-    override fun status(): HealthStatus = client.healthStatus("${personOppslagBaseUrl}internal/health/readiness")
+    override fun status(): HealthStatus = httpClient.healthStatus("${personOppslagBaseUrl}internal/health/readiness")
 
     fun hentPerson(id: String): Person {
         return runBlocking {
