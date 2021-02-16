@@ -4,7 +4,7 @@ on: [push]
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/dagpenger-joark-mottak:${{ github.sha }}
-  GITHUB_REF: "refs/heads/master"
+  BRANCH: "refs/heads/master"
 
 jobs:
   build:
@@ -33,7 +33,7 @@ jobs:
         run: ./gradlew build --info
 
       - name: Build and Publish Docker image
-        if: github.ref == ${{ GITHUB_REF }}
+        if: github.ref == ${{ BRANCH }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -42,7 +42,7 @@ jobs:
           docker push $IMAGE
 
       - name: Archive NAIS yaml
-        if: github.ref == ${{ GITHUB_REF }}
+        if: github.ref == ${{ BRANCH }}
         uses: actions/upload-artifact@v1
         with:
           name: nais-yaml
@@ -51,7 +51,7 @@ jobs:
   deploy-dev:
     name: Deploy to dev
     needs: [build]
-    if: github.ref == ${{ GITHUB_REF }}
+    if: github.ref == ${{ BRANCH }}
     runs-on: ubuntu-latest
     steps:
       - name: Fetch NAIS yaml
