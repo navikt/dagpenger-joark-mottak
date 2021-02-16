@@ -36,7 +36,8 @@ private val localProperties = ConfigurationMap(
         "srvdagpenger.joark.mottak.username" to "user",
         "srvdagpenger.joark.mottak.password" to "password",
         "unleash.url" to "https://localhost",
-        "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE
+        "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE,
+        "ignore.journalpost" to "493332645",
     )
 )
 private val devProperties = ConfigurationMap(
@@ -51,7 +52,8 @@ private val devProperties = ConfigurationMap(
         "personoppslag.url" to "https://pdl-api.dev.intern.nav.no/",
         "unleash.url" to "https://unleash.nais.io/api/",
         "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE,
-        "deserialization.exception.handler" to LogAndContinueExceptionHandler::class.java.name
+        "deserialization.exception.handler" to LogAndContinueExceptionHandler::class.java.name,
+        "ignore.journalpost" to "493332645",
     )
 )
 private val prodProperties = ConfigurationMap(
@@ -125,6 +127,10 @@ data class Configuration(
         val joarkJournalpostArkivBaseUrl: String = config()[Key("joark.journalpostarkiv.url", stringType)],
         val personOppslagBaseUrl: String = config()[Key("personoppslag.url", stringType)],
     )
+}
+
+object IgnoreJournalPost {
+    val ignorerJournalpost: Set<String> = config().getOrNull(Key("ignore.journalpost", stringType))?.split(",")?.map { it.trim() }?.toSet() ?: emptySet()
 }
 
 fun getHostname(): String {

@@ -61,8 +61,8 @@ class InnløpPacketCreator(
         listOf(
             "NAV 04-01.04",
             "NAVe 04-01.04",
-            "NAVe 04-16.03",
             "NAV 04-16.04",
+            "NAVe 04-16.04",
             "NAVe 04-08.04",
             "NAV 04-08.04"
         )
