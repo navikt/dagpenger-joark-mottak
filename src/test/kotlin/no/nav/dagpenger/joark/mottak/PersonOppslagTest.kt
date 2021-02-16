@@ -111,9 +111,9 @@ internal class PersonOppslagTest {
     }
 
     @Test
-    fun `helsestatus settes korrekt om dp-graphql er oppe`() {
+    fun `helsestatus settes korrekt om pdl-api er oppe`() {
         stubFor(
-            WireMock.get(urlEqualTo("/isAlive"))
+            WireMock.get(urlEqualTo("/internal/health/readiness"))
                 .willReturn(
                     WireMock.ok()
                 )
@@ -121,13 +121,13 @@ internal class PersonOppslagTest {
         val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
 
         personOppslag.status() shouldBe HealthStatus.UP
-        WireMock.verify(WireMock.getRequestedFor(urlEqualTo("/isAlive")))
+        WireMock.verify(WireMock.getRequestedFor(urlEqualTo("/internal/health/readiness")))
     }
 
     @Test
-    fun `helsestatus settes korrekt om dp-graphql er nede`() {
+    fun `helsestatus settes korrekt om pdl-api er nede`() {
         stubFor(
-            WireMock.get(urlEqualTo("/isAlive"))
+            WireMock.get(urlEqualTo("/internal/health/readiness"))
                 .willReturn(
                     WireMock.serverError()
                 )
@@ -135,6 +135,6 @@ internal class PersonOppslagTest {
         val personOppslag = PersonOppslag(server.url(""), DummyOidcClient())
 
         personOppslag.status() shouldBe HealthStatus.DOWN
-        WireMock.verify(WireMock.getRequestedFor(urlEqualTo("/isAlive")))
+        WireMock.verify(WireMock.getRequestedFor(urlEqualTo("/internal/health/readiness")))
     }
 }
