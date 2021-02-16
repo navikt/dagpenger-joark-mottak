@@ -9,8 +9,11 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.logging.Logging
 import io.ktor.client.request.get
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import no.nav.dagpenger.streams.HealthStatus
 import java.time.Duration
+
+private val logger = KotlinLogging.logger {}
 
 internal fun httpClient(
     engine: HttpClientEngine = CIO.create { },
@@ -42,6 +45,7 @@ fun HttpClient.healthStatus(urlString: String): HealthStatus {
                 HealthStatus.UP
             },
             onFailure = {
+                logger.warn(urlString, it)
                 HealthStatus.DOWN
             }
         )
