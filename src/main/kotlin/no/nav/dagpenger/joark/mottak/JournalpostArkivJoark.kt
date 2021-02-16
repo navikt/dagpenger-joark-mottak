@@ -3,17 +3,14 @@ package no.nav.dagpenger.joark.mottak
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.fuel.jackson.responseObject
 import com.github.kittinunf.result.Result
-import mu.KotlinLogging
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthStatus
-
-private val logger = KotlinLogging.logger { }
 
 class JournalpostArkivJoark(
     private val joarkBaseUrl: String,
     private val oidcClient: OidcClient,
-    private val profile: Profile
 ) : JournalpostArkiv {
 
     override fun status(): HealthStatus {
@@ -30,21 +27,21 @@ class JournalpostArkivJoark(
         val (_, response, result) = with("${joarkBaseUrl}graphql".httpPost()) {
             authentication().bearer(oidcClient.oidcToken().access_token)
             header("Content-Type" to "application/json")
-            body(adapter.toJson(JournalPostQuery(journalpostId)))
+            body(jacksonJsonAdapter.writeValueAsString(JournalPostQuery(journalpostId)))
             responseObject<GraphQlJournalpostResponse>()
         }
 
         return when (result) {
             is Result.Failure -> throw JournalpostArkivException(
                 response.statusCode,
-                "Failed to fetch journalpost id: $journalpostId. Response message ${response.responseMessage}",
+                "Feil ved henting av journalpost med id $journalpostId. Response message ${response.responseMessage}",
                 result.getException()
             )
             is Result.Success -> result.get().data.journalpost
         }
     }
 
-    private fun _hentSøknadsdata(journalpost: Journalpost): Søknadsdata? {
+    private fun _hentSøknadsdata(journalpost: Journalpost): Søknadsdata {
         val journalpostId = journalpost.journalpostId
         val dokumentId = journalpost.dokumenter.firstOrNull()?.dokumentInfoId ?: return emptySøknadsdata
 
@@ -64,16 +61,11 @@ class JournalpostArkivJoark(
                 )
             },
             { error ->
-                if (profile == Profile.DEV && error.response.statusCode == 404) {
-                    logger.warn { "Fant ikke søknadsdata fra journalpost id $journalpostId" }
-                    return null
-                } else {
-                    throw JournalpostArkivException(
-                        response.statusCode,
-                        "Feilet å hente søknadsdata fra journalpostid: $journalpostId. Melding fra response ${response.responseMessage}",
-                        error.exception
-                    )
-                }
+                throw JournalpostArkivException(
+                    response.statusCode,
+                    "Feil ved henting av søknadsdata for journalpost med id: $journalpostId. Melding fra response ${response.responseMessage}",
+                    error.exception
+                )
             }
         )
     }

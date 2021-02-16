@@ -62,7 +62,8 @@ class JoarkMottakComponentTest {
             application = Configuration.Application(
                 httpPort = getAvailablePort(),
                 oidcStsUrl = wireMock.baseUrl(),
-                personOppslagBaseUrl = "${wireMock.baseUrl()}/"
+                personOppslagBaseUrl = "${wireMock.baseUrl()}/pdl-api/",
+                joarkJournalpostArkivBaseUrl = "${wireMock.baseUrl()}/saf/",
             )
 
         )
@@ -77,7 +78,7 @@ class JoarkMottakComponentTest {
         val joarkMottak = JoarkMottak(
             configuration,
             DummyJournalpostArkiv(),
-            InnløpPacketCreator(PersonOppslag(configuration.application.personOppslagBaseUrl, stsOidcClient, "")),
+            InnløpPacketCreator(PersonOppslag(configuration.application.personOppslagBaseUrl, stsOidcClient)),
             FakeUnleash()
         )
 
@@ -106,21 +107,9 @@ class JoarkMottakComponentTest {
     fun ` Component test of JoarkMottak  where hendelsesType is 'MidlertidigJournalført'`() {
 
         wireMock.addStubMapping(
-            WireMock.post(WireMock.urlEqualTo("/graphql"))
+            WireMock.post(WireMock.urlEqualTo("/pdl-api/graphql"))
                 .willReturn(
-                    WireMock.okJson(
-                        """
-                   {
-                    "data": {
-                        "person": {
-                            "aktoerId": "789",
-                            "naturligIdent": "123",
-                            "navn": "Pelle"
-                        }
-                    }
-                }
-                        """.trimIndent()
-                    )
+                    WireMock.okJson("/test-data/example-person-payload.json".getResouce())
                 )
                 .build()
         )
@@ -214,4 +203,6 @@ class JoarkMottakComponentTest {
         val dummyJoarkProducer = DummyJoarkProducer(props)
         return dummyJoarkProducer
     }
+
+    internal fun String.getResouce(): String = JoarkMottakComponentTest::class.java.getResource(this).readText()
 }
