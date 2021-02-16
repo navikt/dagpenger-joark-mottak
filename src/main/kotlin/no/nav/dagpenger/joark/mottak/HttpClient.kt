@@ -16,9 +16,9 @@ internal fun httpClient(
     engine: HttpClientEngine = CIO.create { },
     block: HttpClientConfig<*>.() -> Unit = {
         install(HttpTimeout) {
-            connectTimeoutMillis = Duration.ofSeconds(1).toMillis()
-            requestTimeoutMillis = Duration.ofSeconds(1).toMillis()
-            socketTimeoutMillis = Duration.ofSeconds(1).toMillis()
+            connectTimeoutMillis = Duration.ofSeconds(5).toMillis()
+            requestTimeoutMillis = Duration.ofSeconds(5).toMillis()
+            socketTimeoutMillis = Duration.ofSeconds(5).toMillis()
         }
 
         install(Logging) {
