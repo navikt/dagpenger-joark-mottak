@@ -174,7 +174,7 @@ class JoarkMottak(
 
 class UnsupportedBehandlendeEnhetException(override val message: String) : RuntimeException(message)
 
-fun main(args: Array<String>) {
+fun main() {
 
     val config = Configuration()
     val oidcClient = StsOidcClient(
@@ -185,14 +185,12 @@ fun main(args: Array<String>) {
 
     val journalpostArkiv = JournalpostArkivJoark(
         config.application.joarkJournalpostArkivBaseUrl,
-        oidcClient,
-        config.application.profile
+        oidcClient
     )
 
     val personOppslag = PersonOppslag(
         config.application.personOppslagBaseUrl,
-        oidcClient,
-        config.application.graphQlApiKey
+        oidcClient
     )
 
     val packetCreator = InnløpPacketCreator(personOppslag)

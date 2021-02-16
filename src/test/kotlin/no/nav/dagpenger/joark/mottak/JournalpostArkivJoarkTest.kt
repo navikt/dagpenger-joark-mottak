@@ -14,15 +14,14 @@ import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import com.github.tomakehurst.wiremock.matching.RegexPattern
+import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.dagpenger.streams.HealthStatus
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class JournalpostArkivJoarkTest {
 
@@ -57,8 +56,8 @@ class JournalpostArkivJoarkTest {
             .readText()
         stubFor(
             get(urlEqualTo(url))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
-                .withHeader("Content-type", RegexPattern("application/json"))
+                .withHeader("Authorization", EqualToPattern("Bearer hunter2"))
+                .withHeader("Content-type", EqualToPattern("application/json"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -66,8 +65,14 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
-        joarkClient.hentSøknadsdata(dummyJournalpost(journalpostId = journalpostId, kanal = "NAV_NO", dokumenter = listOf(DokumentInfo("Søknad", dokumentId, "NAV 04-01.03"))))
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
+        joarkClient.hentSøknadsdata(
+            dummyJournalpost(
+                journalpostId = journalpostId,
+                kanal = "NAV_NO",
+                dokumenter = listOf(DokumentInfo("Søknad", dokumentId, "NAV 04-01.03"))
+            )
+        )
 
         verify(getRequestedFor(urlEqualTo(url)))
     }
@@ -78,8 +83,8 @@ class JournalpostArkivJoarkTest {
             .readText()
         stubFor(
             post(urlEqualTo("/graphql"))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
-                .withHeader("Content-type", RegexPattern("application/json"))
+                .withHeader("Authorization", EqualToPattern("Bearer hunter2"))
+                .withHeader("Content-type", EqualToPattern("application/json"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -87,20 +92,22 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
-        assertEquals("MASKERT_FELT", journalPost.tittel)
+
+        journalPost.tittel shouldBe "MASKERT_FELT"
         verify(postRequestedFor(urlEqualTo("/graphql")))
     }
 
     @Test
     fun `håndterer statuskode 200 med errors og uten Journalpost`() {
-        val body = JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-journalpost-error-payload.json")
-            .readText()
+        val body =
+            JournalpostArkivJoarkTest::class.java.getResource("/test-data/example-journalpost-error-payload.json")
+                .readText()
         stubFor(
             post(urlEqualTo("/graphql"))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
-                .withHeader("Content-type", RegexPattern("application/json"))
+                .withHeader("Authorization", EqualToPattern("Bearer hunter2"))
+                .withHeader("Content-type", EqualToPattern("application/json"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -108,10 +115,11 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         val result = runCatching { joarkClient.hentInngåendeJournalpost("2") }
-        assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is JournalpostArkivException)
+
+        result.isFailure shouldBe true
+        result.exceptionOrNull().shouldBeInstanceOf<JournalpostArkivException>()
         verify(postRequestedFor(urlEqualTo("/graphql")))
     }
 
@@ -120,17 +128,17 @@ class JournalpostArkivJoarkTest {
 
         stubFor(
             post(urlEqualTo("/graphql"))
-                .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .withHeader("Authorization", EqualToPattern("Bearer hunter2"))
                 .willReturn(
                     notFound()
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
 
         val result = runCatching { joarkClient.hentInngåendeJournalpost("-1") }
-        assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is JournalpostArkivException)
+        result.isFailure shouldBe true
+        result.exceptionOrNull().shouldBeInstanceOf<JournalpostArkivException>()
         verify(postRequestedFor(urlEqualTo("/graphql")))
     }
 
@@ -142,10 +150,11 @@ class JournalpostArkivJoarkTest {
                     ok()
                 )
         )
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         joarkClient.status() shouldBe HealthStatus.UP
         verify(getRequestedFor(urlEqualTo("/isAlive")))
     }
+
     @Test
     fun `helsestatus settes korrekt om joark er nede`() {
         stubFor(
@@ -154,7 +163,7 @@ class JournalpostArkivJoarkTest {
                     serverError()
                 )
         )
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
         joarkClient.status() shouldBe HealthStatus.DOWN
         verify(getRequestedFor(urlEqualTo("/isAlive")))
     }
