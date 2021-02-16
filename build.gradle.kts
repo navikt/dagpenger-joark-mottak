@@ -120,3 +120,7 @@ tasks.named("jar") {
 tasks.named("compileKotlin") {
     dependsOn("spotlessCheck")
 }
+
+tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer::class.java)
+}
