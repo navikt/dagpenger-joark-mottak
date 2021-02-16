@@ -4,7 +4,7 @@ on: [push]
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/dagpenger-joark-mottak:${{ github.sha }}
-  BRANCH: "refs/heads/master"
+  BRANCH: refs/heads/master
 
 jobs:
   build:
