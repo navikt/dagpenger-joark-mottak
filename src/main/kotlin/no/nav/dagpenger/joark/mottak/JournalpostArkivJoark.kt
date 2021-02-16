@@ -1,6 +1,7 @@
 package no.nav.dagpenger.joark.mottak
 
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.ResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -16,8 +17,10 @@ class JournalpostArkivJoark(
     private val httpClient: HttpClient
 ) : JournalpostArkiv {
 
+    private val client = HttpClient(CIO)
+
     override fun status(): HealthStatus {
-        return httpClient.healthStatus("${joarkBaseUrl}isAlive")
+        return client.healthStatus("${joarkBaseUrl}isAlive")
     }
 
     override fun hentInngåendeJournalpost(journalpostId: String): Journalpost {
