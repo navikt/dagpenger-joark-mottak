@@ -20,7 +20,7 @@ internal fun httpClient(
     block: HttpClientConfig<*>.() -> Unit = {
         install(HttpTimeout) {
             connectTimeoutMillis = Duration.ofSeconds(5).toMillis()
-            requestTimeoutMillis = Duration.ofSeconds(5).toMillis()
+            requestTimeoutMillis = Duration.ofSeconds(15).toMillis()
             socketTimeoutMillis = Duration.ofSeconds(5).toMillis()
         }
 
