@@ -72,7 +72,6 @@ internal data class PersonQuery(val id: String) : GraphqlQuery(
       gruppe
     }
     }                }
-            
         """.trimIndent(),
     variables = null
 )
