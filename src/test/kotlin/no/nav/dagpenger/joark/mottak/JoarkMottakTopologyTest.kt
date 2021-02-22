@@ -13,14 +13,16 @@ import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.Topics
 import org.apache.avro.generic.GenericRecord
-import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.streams.KeyValue
 import org.apache.kafka.streams.StreamsConfig
+import org.apache.kafka.streams.TestInputTopic
+import org.apache.kafka.streams.TestOutputTopic
 import org.apache.kafka.streams.TopologyTestDriver
-import org.apache.kafka.streams.test.ConsumerRecordFactory
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.util.Properties
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class JoarkMottakTopologyTest {
     companion object {
@@ -64,13 +66,6 @@ class JoarkMottakTopologyTest {
             )
         )
 
-    private val factory = ConsumerRecordFactory<String, GenericRecord>(
-        Topics.JOARK_EVENTS.name,
-        Topics.JOARK_EVENTS.keySerde.serializer(),
-        avroSerde.serializer()
-
-    )
-
     private val streamProperties = Properties().apply {
         this[StreamsConfig.APPLICATION_ID_CONFIG] = "test"
         this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
@@ -103,22 +98,20 @@ class JoarkMottakTopologyTest {
         )
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
-            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
-            topologyTestDriver.pipeInput(inputRecord)
+            topologyTestDriver.joarkInputEvent()
+                .also { it.pipeInput(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført")) }
 
-            val utInnløp = readOutputInnløp(topologyTestDriver)
-            val utSøkndadsdata = readOutputSøknadsdata(topologyTestDriver)
-
-            withClue("Publiserte ikke innløpsbehov:") {
-                utInnløp shouldNotBe null
+            withClue("Publiserte innløpsbehov:") {
+                assertFalse { topologyTestDriver.innløpetOutputTopic().isEmpty }
             }
-            withClue("Publiserte ikke søknadsdata:") {
-                utSøkndadsdata shouldNotBe null
-                utSøkndadsdata?.value() shouldBe """{"søknadsId":"id","journalpostId":"123","journalRegistrertDato":"2020-06-19"}"""
-            }
+            withClue("Publiserte søknadsdata:") {
+                val utSøknadsdata = topologyTestDriver.søknadDataOutputTopic().readValue()
+                utSøknadsdata shouldNotBe null
+                utSøknadsdata shouldBe """{"søknadsId":"id","journalpostId":"123","journalRegistrertDato":"2020-06-19"}"""
 
-            withClue("Feil format på søknadsdata") {
-                utSøkndadsdata!!.value() shouldBe søknadsdata.serialize()
+                withClue("Feil format på søknadsdata") {
+                    utSøknadsdata shouldBe søknadsdata.serialize()
+                }
             }
         }
     }
@@ -133,12 +126,9 @@ class JoarkMottakTopologyTest {
         )
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
-            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
-            topologyTestDriver.pipeInput(inputRecord)
-
-            val ut = readOutputInnløp(topologyTestDriver)
-
-            ut shouldNotBe null
+            topologyTestDriver.joarkInputEvent()
+                .also { it.pipeInput(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført")) }
+            assertFalse { topologyTestDriver.innløpetOutputTopic().isEmpty }
         }
     }
 
@@ -148,13 +138,10 @@ class JoarkMottakTopologyTest {
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
-            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
-            topologyTestDriver.pipeInput(inputRecord)
-
-            val ut = readOutputInnløp(topologyTestDriver)
-
-            ut shouldNotBe null
-            ut?.value()?.getLongValue("journalpostId") shouldBe journalpostId
+            topologyTestDriver.joarkInputEvent()
+                .also { it.pipeInput(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført")) }
+            val ut = topologyTestDriver.innløpetOutputTopic().readValue()
+            ut.getLongValue("journalpostId") shouldBe journalpostId
         }
     }
 
@@ -185,16 +172,11 @@ class JoarkMottakTopologyTest {
         }.toMutableList()
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
-            val inputRecord = factory.create(joarkhendelser)
-
-            topologyTestDriver.pipeInput(inputRecord)
-
+            topologyTestDriver.joarkInputEvent().also { it.pipeKeyValueList(joarkhendelser) }
             idTilBrevkode.forEach {
-                val ut = readOutputInnløp(topologyTestDriver)
-
+                val ut = topologyTestDriver.innløpetOutputTopic().readValue()
                 withClue("Brevkode for henvendelse ${it.value.second.name} skal prosesseres og skal dermed ikke være null ") {
-                    ut shouldNotBe null
-                    ut?.value()?.getStringValue(PacketKeys.HENVENDELSESTYPE) shouldBe it.value.second.name
+                    ut.getStringValue(PacketKeys.HENVENDELSESTYPE) shouldBe it.value.second.name
                 }
             }
         }
@@ -205,13 +187,9 @@ class JoarkMottakTopologyTest {
         every { journalpostarkiv.hentInngåendeJournalpost(any()) } returns dummyJournalpost(journalstatus = Journalstatus.JOURNALFOERT)
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
-            val inputRecord =
-                factory.create(lagJoarkHendelse(123, "DAG", "MidlertidigJournalført"))
-            topologyTestDriver.pipeInput(inputRecord)
-
-            val ut = readOutputInnløp(topologyTestDriver)
-
-            ut shouldBe null
+            topologyTestDriver.joarkInputEvent()
+                .also { it.pipeInput(lagJoarkHendelse(123, "DAG", "MidlertidigJournalført")) }
+            assertTrue { topologyTestDriver.innløpetOutputTopic().isEmpty }
         }
     }
 
@@ -220,13 +198,11 @@ class JoarkMottakTopologyTest {
         val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
-            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
-            topologyTestDriver.pipeInput(inputRecord)
-            topologyTestDriver.pipeInput(inputRecord)
-
-            val ut = readOutputInnløp(topologyTestDriver)
-
-            ut shouldNotBe null
+            val inputRecord = lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført")
+            val input = topologyTestDriver.joarkInputEvent()
+            input.pipeInput(inputRecord)
+            input.pipeInput(inputRecord)
+            assertFalse { topologyTestDriver.innløpetOutputTopic().isEmpty }
             CollectorRegistry.defaultRegistry.getSampleValue(
                 "dagpenger_journalpost_mottatt",
                 arrayOf(),
@@ -239,12 +215,9 @@ class JoarkMottakTopologyTest {
     fun `Skal ikke prosessere journalposter med andre temaer en DAG`() {
         val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
-            val inputRecord = factory.create(lagJoarkHendelse(123, "ANNET", "MidlertidigJournalført"))
-            topologyTestDriver.pipeInput(inputRecord)
-
-            val ut = readOutputInnløp(topologyTestDriver)
-
-            ut shouldBe null
+            topologyTestDriver.joarkInputEvent()
+                .also { it.pipeInput(lagJoarkHendelse(123, "ANNET", "MidlertidigJournalført")) }
+            assertTrue { topologyTestDriver.innløpetOutputTopic().isEmpty }
         }
     }
 
@@ -252,12 +225,9 @@ class JoarkMottakTopologyTest {
     fun `Skal ikke prosessere hendelser fra kanalen EESSI`() {
         val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
-            val inputRecord = factory.create(lagJoarkHendelse(123, "DAG", "MidlertidigJournalført", "EESSI"))
-            topologyTestDriver.pipeInput(inputRecord)
-
-            val ut = readOutputInnløp(topologyTestDriver)
-
-            ut shouldBe null
+            topologyTestDriver.joarkInputEvent()
+                .also { it.pipeInput(lagJoarkHendelse(123, "DAG", "MidlertidigJournalført", "EESSI")) }
+            assertTrue { topologyTestDriver.innløpetOutputTopic().isEmpty }
         }
     }
 
@@ -266,12 +236,9 @@ class JoarkMottakTopologyTest {
         val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
-            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "Ferdigstilt"))
-            topologyTestDriver.pipeInput(inputRecord)
-
-            val ut = readOutputInnløp(topologyTestDriver)
-
-            ut shouldBe null
+            topologyTestDriver.joarkInputEvent()
+                .also { it.pipeInput(lagJoarkHendelse(journalpostId, "DAG", "Ferdigstilt")) }
+            assertTrue { topologyTestDriver.innløpetOutputTopic().isEmpty }
         }
     }
 
@@ -281,14 +248,9 @@ class JoarkMottakTopologyTest {
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
-            val inputRecord = factory.create(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført"))
-            topologyTestDriver.pipeInput(inputRecord)
-
-            val ut = readOutputInnløp(topologyTestDriver)
-
-            ut shouldNotBe null
-            val packet = ut!!.value()
-
+            topologyTestDriver.joarkInputEvent()
+                .also { it.pipeInput(lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført")) }
+            val packet = topologyTestDriver.innløpetOutputTopic().readValue()
             packet.hasField("søknadsdata") shouldBe true
             packet.getMapValue("søknadsdata") shouldBe mapOf(
                 "søknadsId" to "id",
@@ -304,28 +266,30 @@ class JoarkMottakTopologyTest {
         val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
-
-            val inputRecord = factory.create(lagJoarkHendelse(493332645, "DAG", "MidlertidigJournalført"))
-            topologyTestDriver.pipeInput(inputRecord)
-
-            val ut = readOutputInnløp(topologyTestDriver)
-
-            ut shouldBe null
+            topologyTestDriver.joarkInputEvent()
+                .also { it.pipeInput(lagJoarkHendelse(493332645, "DAG", "MidlertidigJournalført")) }
+            assertTrue { topologyTestDriver.innløpetOutputTopic().isEmpty }
         }
     }
-    private fun readOutputInnløp(topologyTestDriver: TopologyTestDriver): ProducerRecord<String, Packet>? {
-        return topologyTestDriver.readOutput(
+
+    private fun TopologyTestDriver.joarkInputEvent(): TestInputTopic<String, GenericRecord> =
+        this.createInputTopic(
+            Topics.JOARK_EVENTS.name,
+            Topics.JOARK_EVENTS.keySerde.serializer(),
+            avroSerde.serializer()
+        )
+
+    private fun TopologyTestDriver.innløpetOutputTopic(): TestOutputTopic<String, Packet> =
+        this.createOutputTopic(
             configuration.kafka.dagpengerJournalpostTopic.name,
             configuration.kafka.dagpengerJournalpostTopic.keySerde.deserializer(),
             configuration.kafka.dagpengerJournalpostTopic.valueSerde.deserializer()
         )
-    }
 
-    private fun readOutputSøknadsdata(topologyTestDriver: TopologyTestDriver): ProducerRecord<String, String>? {
-        return topologyTestDriver.readOutput(
+    private fun TopologyTestDriver.søknadDataOutputTopic(): TestOutputTopic<String, String> =
+        this.createOutputTopic(
             configuration.kafka.søknadsdataTopic.name,
             configuration.kafka.søknadsdataTopic.keySerde.deserializer(),
             configuration.kafka.søknadsdataTopic.valueSerde.deserializer()
         )
-    }
 }
