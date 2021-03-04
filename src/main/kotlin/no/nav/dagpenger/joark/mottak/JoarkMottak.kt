@@ -89,7 +89,12 @@ class JoarkMottak(
             .filterNot { _, record -> ignorerJournalpost.contains(record[PacketKeys.JOURNALPOST_ID].toString()) }
             .peek { _, record ->
                 logger.info(
-                    "Received journalpost with journalpost id: ${record[PacketKeys.JOURNALPOST_ID]} and tema: ${record["temaNytt"]}, hendelsesType: ${record["hendelsesType"]}, mottakskanal, ${record["mottaksKanal"]} "
+                    """Received journalpost with journalpost id: 
+                        |${record[PacketKeys.JOURNALPOST_ID]} 
+                        |and tema: ${record["temaNytt"]}, 
+                        |hendelsesType: ${record["hendelsesType"]}, 
+                        |mottakskanal, ${record["mottaksKanal"]}, 
+                        |behandlingstema: ${record["behandlingstema"]}""".trimMargin()
                 )
             }
             .filter { _, journalpostHendelse ->
