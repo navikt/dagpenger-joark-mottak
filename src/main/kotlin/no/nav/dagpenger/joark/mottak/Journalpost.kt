@@ -14,7 +14,8 @@ data class Journalpost(
     val kanalnavn: String?,
     val journalforendeEnhet: String?,
     val relevanteDatoer: List<RelevantDato>,
-    val dokumenter: List<DokumentInfo>
+    val dokumenter: List<DokumentInfo>,
+    val behandlingstema: String? = null
 ) {
     val henvendelsestype: Henvendelsestype
         get() = HenvendelsesTypeMapper.getHenvendelsesType(this.dokumenter.first().brevkode)
