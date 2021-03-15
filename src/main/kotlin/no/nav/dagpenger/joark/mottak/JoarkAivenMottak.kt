@@ -4,30 +4,53 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.apache.avro.generic.GenericRecord
+import no.nav.dagpenger.plain.consumerConfig
+import no.nav.dagpenger.streams.KafkaCredential
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.serialization.StringDeserializer
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
-
-class JoarkAivenMottak(private val configuration: Configuration) : CoroutineScope {
-
-    private val consumer: KafkaConsumer<String, GenericRecord> = TODO()
-    private val aivenProducer: KafkaProducer<String, String> = TODO()
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + job
-    lateinit var job: Job
-
-    init {
-        consumer.subscribe(
+fun consumer(bootstrapServerUrl: String, credential: KafkaCredential): KafkaConsumer<String, String> {
+    return KafkaConsumer<String, String>(
+        consumerConfig(
+            groupId = "dagpenger-joark-mottak",
+            bootstrapServerUrl = bootstrapServerUrl,
+            credential = credential
+        ).also {
+            it[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
+            it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
+        }
+    ).also {
+        it.subscribe(
             listOf(
-                configuration.kafka.søknadsdataTopic.name,
-                configuration.kafka.dagpengerJournalpostTopic.name
+                "privat-dagpenger-soknadsdata-v1",
+                "privat-dagpenger-journalpost-mottatt-v1"
             )
         )
     }
+}
+class JoarkAivenMottak(
+    private val consumer: KafkaConsumer<String, String>,
+    private val producer: KafkaProducer<String, String>
+) : CoroutineScope {
+
+    /*private val consumer =  KafkaConsumer<String, String>(
+        consumerConfig(
+            groupId = "dagpenger-joark-mottak",
+            bootstrapServerUrl = configuration.kafka.brokers,
+            credential = configuration.kafka.credential()
+        ).also {
+            it[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
+            it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
+        })*/
+    // private val aivenProducer: KafkaProducer<String, String> = TODO()
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO + job
+    private val job: Job = Job()
 
     fun start() {
         launch {
@@ -45,10 +68,12 @@ class JoarkAivenMottak(private val configuration: Configuration) : CoroutineScop
 
             consumer.poll(Duration.ofMillis(500))
                 .forEach {
-                    when (it.topic()) {
-                        configuration.kafka.søknadsdataTopic.name -> aivenProducer.send(ProducerRecord("topic", "internvalue"))
-                        configuration.kafka.dagpengerJournalpostTopic.name -> aivenProducer.send(ProducerRecord("topic", "internvalue"))
-                    }
+                    // when (it.topic()) {
+                    // configuration.kafka.søknadsdataTopic.name -> aivenProducer.send(ProducerRecord("topic", "internvalue"))
+                    // configuration.kafka.dagpengerJournalpostTopic.name -> aivenProducer.send(ProducerRecord("topic", "internvalue"))
+                    // }
+                    println("nå sendes noe")
+                    producer.send(ProducerRecord("topic", it.value()))
                 }
         }
     }
