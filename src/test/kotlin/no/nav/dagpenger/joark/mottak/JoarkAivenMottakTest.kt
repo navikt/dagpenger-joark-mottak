@@ -1,63 +1,48 @@
 package no.nav.dagpenger.joark.mottak
 
+import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
-import no.nav.common.JAASCredential
-import no.nav.common.KafkaEnvironment
-import no.nav.dagpenger.plain.defaultProducerConfig
-import no.nav.dagpenger.plain.producerConfig
-import no.nav.dagpenger.streams.KafkaCredential
-import org.apache.kafka.clients.producer.KafkaProducer
-import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.MockConsumer
+import org.apache.kafka.clients.consumer.OffsetResetStrategy
+import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.StringSerializer
+import org.apache.kafka.clients.producer.RecordMetadata
+import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.Test
+import java.util.concurrent.Future
 
 class JoarkAivenMottakTest {
-    private object Kafka {
-        val username = "srvkafkaclient"
-        val password = "kafkaclient"
-        val instance by lazy {
-
-            KafkaEnvironment(
-                users = listOf(JAASCredential(username, password)),
-                autoStart = false,
-                withSchemaRegistry = true,
-                withSecurity = true,
-                topicInfos = listOf(
-                    KafkaEnvironment.TopicInfo("privat-dagpenger-journalpost-mottatt-v1"),
-                    KafkaEnvironment.TopicInfo("privat-dagpenger-soknadsdata-v1"),
-                )
-            ).also {
-                it.start()
-            }
-        }
-    }
-
     @Test
     fun `greier å lese topic`() {
-        val mokk = mockk<KafkaProducer<String, String>>()
+        val mockConsumer = MockConsumer<String, String>(OffsetResetStrategy.EARLIEST).also {
+            val topicPartition = TopicPartition("privat-dagpenger-journalpost-mottatt-v1", 1)
+            it.assign(listOf(topicPartition))
+            it.updateBeginningOffsets(
+                mapOf(
+                    topicPartition to 0L
+                )
+            )
+        }
+        val mockProducer = mockk<Producer<String, String>>()
+        val recordSlot = slot<ProducerRecord<String, String>>()
+
+        coEvery { mockProducer.send(capture(recordSlot)) } returns mockk<Future<RecordMetadata>>()
+
         JoarkAivenMottak(
-            consumer(
-                Kafka.instance.brokersURL,
-                KafkaCredential(Kafka.username, Kafka.password)
-            ),
-            mokk
+            mockConsumer,
+            mockProducer
         ).start()
-        val producer = KafkaProducer<String, String>(
-            producerConfig(
-                clientId = "test",
-                bootstrapServers = Kafka.instance.brokersURL,
-                credential = KafkaCredential(Kafka.username, Kafka.password),
-                properties = defaultProducerConfig.apply {
-                    put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
-                }
-            ).also {
-                it[ProducerConfig.ACKS_CONFIG] = "all"
-            }
-        )
-        producer.send(ProducerRecord("privat-dagpenger-journalpost-mottatt-v1", "enverdi"))
-        Thread.sleep(2000)
-        verify { mokk.send(any()) }
+
+        mockConsumer.addRecord(ConsumerRecord("privat-dagpenger-journalpost-mottatt-v1", 1, 0, "key", "enverdi"))
+        verify { mockProducer.send(any()) }
+        recordSlot.isCaptured shouldBe true
+        recordSlot.captured.let {
+            it.topic() shouldBe "topic"
+            it.value() shouldBe "enverdi"
+        }
     }
 }
