@@ -37,19 +37,9 @@ fun consumer(bootstrapServerUrl: String, credential: KafkaCredential): KafkaCons
 
 class JoarkAivenMottak(
     private val consumer: Consumer<String, String>,
-    private val producer: Producer<String, String>
+    private val producer: Producer<String, String>,
+    private val configuration: Configuration
 ) : CoroutineScope {
-    /*private val consumer =  KafkaConsumer<String, String>(
-        consumerConfig(
-            groupId = "dagpenger-joark-mottak",
-            bootstrapServerUrl = configuration.kafka.brokers,
-            credential = configuration.kafka.credential()
-        ).also {
-            it[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
-            it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
-        })*/
-    // private val aivenProducer: KafkaProducer<String, String> = TODO()
-
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
     private val job: Job = Job()
@@ -65,16 +55,23 @@ class JoarkAivenMottak(
     }
 
     private fun run() {
-
         while (job.isActive) {
-
             consumer.poll(Duration.ofMillis(500))
                 .forEach {
-                    // when (it.topic()) {
-                    // configuration.kafka.søknadsdataTopic.name -> aivenProducer.send(ProducerRecord("topic", "internvalue"))
-                    // configuration.kafka.dagpengerJournalpostTopic.name -> aivenProducer.send(ProducerRecord("topic", "internvalue"))
-                    // }
-                    producer.send(ProducerRecord("topic", it.value()))
+                    when (it.topic()) {
+                        configuration.kafka.søknadsdataTopic.name -> producer.send(
+                            ProducerRecord(
+                                "teamdagpenger.soknadsdata.v1",
+                                it.value()
+                            )
+                        )
+                        configuration.kafka.dagpengerJournalpostTopic.name -> producer.send(
+                            ProducerRecord(
+                                "teamdagpenger.journalforing.v1",
+                                it.value()
+                            )
+                        )
+                    }
                 }
         }
     }
