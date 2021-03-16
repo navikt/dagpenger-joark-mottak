@@ -18,7 +18,15 @@ data class Journalpost(
     val behandlingstema: String? = null
 ) {
     val henvendelsestype: Henvendelsestype
-        get() = HenvendelsesTypeMapper.getHenvendelsesType(this.dokumenter.first().brevkode)
+        get() {
+            val henvendelsestype = HenvendelsesTypeMapper.getHenvendelsesType(this.dokumenter.first().brevkode)
+            return when {
+                henvendelsestype == Henvendelsestype.KLAGE_ANKE && isLønnskompensasjonBehandlingstema() -> Henvendelsestype.KLAGE_ANKE_LONNSKOMPENSASJON
+                else -> henvendelsestype
+            }
+        }
+
+    private fun isLønnskompensasjonBehandlingstema() = behandlingstema == "ab0438"
 }
 
 internal fun Journalpost.registrertDato(): String? = this.relevanteDatoer.find { dato -> dato.datotype == Datotype.DATO_REGISTRERT }?.dato

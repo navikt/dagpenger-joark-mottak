@@ -1,6 +1,7 @@
 package no.nav.dagpenger.joark.mottak
 
 import com.fasterxml.jackson.core.type.TypeReference
+import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -140,6 +141,76 @@ class CreatePacketTest {
         )
 
         packet.getStringValue("behandlendeEnhet") shouldBe "4465"
+    }
+
+    @Test
+    fun `lønnskompenenasjonsklager skal til egen behandlendeenhet `() {
+        val personoppslag = mockk<PersonOppslag>()
+
+        every { personoppslag.hentPerson(any()) } returns Person(
+            navn = "Proffen",
+            aktoerId = "1111",
+            naturligIdent = "1234",
+            diskresjonskode = null,
+            norskTilknytning = false
+        )
+
+        val packetCreator = InnløpPacketCreator(personoppslag)
+        val packet = packetCreator.createPacket(
+            Pair(
+                dummyJournalpost(
+                    dokumenter = listOf(
+                        DokumentInfo(
+                            "whatever",
+                            brevkode = "NAV 90-00.08",
+                            dokumentInfoId = "asd"
+                        )
+                    ),
+                    behandlingstema = "ab0438"
+                ),
+                null
+            )
+        )
+
+        assertSoftly {
+            packet.getStringValue("behandlendeEnhet") shouldBe "4486"
+            packet.getStringValue("henvendelsestype") shouldBe "KLAGE_ANKE_LONNSKOMPENSASJON"
+        }
+    }
+
+    @Test
+    fun `lønnskompenenasjonsklager skal ikke overstyre diskresjonskode behandlendeenhet `() {
+        val personoppslag = mockk<PersonOppslag>()
+
+        every { personoppslag.hentPerson(any()) } returns Person(
+            navn = "Proffen",
+            aktoerId = "1111",
+            naturligIdent = "1234",
+            diskresjonskode = "STRENGT_FORTROLIG",
+            norskTilknytning = false
+        )
+
+        val packetCreator = InnløpPacketCreator(personoppslag)
+        val packet = packetCreator.createPacket(
+            Pair(
+                dummyJournalpost(
+                    dokumenter = listOf(
+                        DokumentInfo(
+                            "whatever",
+                            brevkode = "NAV 90-00.08",
+                            dokumentInfoId = "asd"
+                        )
+                    ),
+                    behandlingstema = "ab0438"
+                ),
+                null
+            )
+        )
+
+        assertSoftly {
+            packet.getStringValue("behandlendeEnhet") shouldBe "2103"
+            packet.getStringValue("henvendelsestype") shouldBe "KLAGE_ANKE_LONNSKOMPENSASJON"
+        }
     }
 
     @Test

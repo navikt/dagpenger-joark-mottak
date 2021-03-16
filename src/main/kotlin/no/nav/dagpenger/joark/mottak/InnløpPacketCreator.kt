@@ -52,7 +52,7 @@ class InnløpPacketCreator(
             PacketKeys.BEHANDLENDE_ENHET,
             behandlendeEnhetFrom(
                 person = person,
-                brevkode = journalpost.dokumenter.first().brevkode ?: "ukjent"
+                journalpost = journalpost
             )
         )
     }
@@ -70,10 +70,12 @@ class InnløpPacketCreator(
     private val UTLAND_BREVKODER =
         listOf("NAV 04-02.01", "NAVe 04-02.01", "NAV 04-02.03", "NAV 04-02.05", "NAVe 04-02.05")
 
-    private fun behandlendeEnhetFrom(person: Person?, brevkode: String): String {
+    private fun behandlendeEnhetFrom(person: Person?, journalpost: Journalpost): String {
+        val brevkode = journalpost.dokumenter.first().brevkode ?: "ukjent"
         return when {
             person?.diskresjonskode == "STRENGT_FORTROLIG_UTLAND" -> "2103"
             person?.diskresjonskode == "STRENGT_FORTROLIG" -> "2103"
+            journalpost.henvendelsestype == Henvendelsestype.KLAGE_ANKE_LONNSKOMPENSASJON -> "4486"
             brevkode in PERMITTERING_BREVKODER && person?.norskTilknytning == false -> "4465"
             brevkode in PERMITTERING_BREVKODER -> "4455"
             brevkode in UTLAND_BREVKODER -> "4470"

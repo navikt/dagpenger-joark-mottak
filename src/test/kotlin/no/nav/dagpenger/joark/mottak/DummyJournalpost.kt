@@ -10,7 +10,8 @@ fun dummyJournalpost(
     kanalnavn: String? = null,
     journalforendeEnhet: String? = null,
     relevanteDatoer: List<RelevantDato> = emptyList(),
-    dokumenter: List<DokumentInfo> = listOf(DokumentInfo("tittel", "infoId", "NAV 04-01.03"))
+    dokumenter: List<DokumentInfo> = listOf(DokumentInfo("tittel", "infoId", "NAV 04-01.03")),
+    behandlingstema: String? = null
 ) = Journalpost(
     journalstatus = journalstatus,
     journalpostId = journalpostId,
@@ -21,5 +22,6 @@ fun dummyJournalpost(
     kanalnavn = kanalnavn,
     journalforendeEnhet = journalforendeEnhet,
     relevanteDatoer = relevanteDatoer,
-    dokumenter = dokumenter
+    dokumenter = dokumenter,
+    behandlingstema = behandlingstema
 )
