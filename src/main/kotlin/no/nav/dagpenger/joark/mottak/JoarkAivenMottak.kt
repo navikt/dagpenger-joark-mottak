@@ -30,7 +30,7 @@ private val logger = KotlinLogging.logger {}
 fun consumer(bootstrapServerUrl: String, credential: KafkaCredential): KafkaConsumer<String, String> {
     return KafkaConsumer<String, String>(
         consumerConfig(
-            groupId = "dagpenger-joark-mottak",
+            groupId = "dagpenger-joark-mottak-aiven-replicator",
             bootstrapServerUrl = bootstrapServerUrl,
             credential = credential
         ).also {
