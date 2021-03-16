@@ -78,5 +78,6 @@ enum class Henvendelsestype {
     UTDANNING,
     ETABLERING,
     KLAGE_ANKE,
+    KLAGE_ANKE_LONNSKOMPENSASJON,
     ETTERSENDELSE
 }

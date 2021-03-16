@@ -89,9 +89,8 @@ class JoarkMottak(
             .filterNot { _, record -> ignorerJournalpost.contains(record[PacketKeys.JOURNALPOST_ID].toString()) }
             .peek { _, record ->
                 logger.info(
-                    """Received journalpost with journalpost id: 
-                        |${record[PacketKeys.JOURNALPOST_ID]} 
-                        |and tema: ${record["temaNytt"]}, 
+                    """Received journalpost with journalpost id: ${record[PacketKeys.JOURNALPOST_ID]} 
+                        |tema: ${record["temaNytt"]}, 
                         |hendelsesType: ${record["hendelsesType"]}, 
                         |mottakskanal, ${record["mottaksKanal"]}, 
                         |behandlingstema: ${record["behandlingstema"]}""".trimMargin()
@@ -176,8 +175,6 @@ class JoarkMottak(
         return properties
     }
 }
-
-class UnsupportedBehandlendeEnhetException(override val message: String) : RuntimeException(message)
 
 fun main() {
 
