@@ -3,7 +3,6 @@ package no.nav.dagpenger.joark.mottak
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import no.nav.dagpenger.plain.consumerConfig
@@ -11,11 +10,13 @@ import no.nav.dagpenger.streams.KafkaCredential
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.errors.WakeupException
 import org.apache.kafka.common.security.auth.SecurityProtocol
@@ -76,18 +77,20 @@ class JoarkAivenMottak(
         get() = Dispatchers.IO + job
     private val job: Job = Job()
 
+    init {
+        Runtime.getRuntime().addShutdownHook(Thread(::shutdownHook))
+    }
+
     fun start() {
+        logger.info("starting JoarkAivenMottak")
         launch {
             run()
         }
     }
 
-    suspend fun stop() {
+    fun stop() {
+        logger.info("stopping JoarkAivenMottak")
         consumer.wakeup()
-        producer.flush()
-        producer.close()
-        delay(3000)
-        job.cancel()
     }
 
     val aivenTopic = mapOf(
@@ -98,20 +101,60 @@ class JoarkAivenMottak(
     private fun run() {
         try {
             while (job.isActive) {
-                consumer.poll(Duration.ofMillis(500))
-                    .forEach {
-                        val aivenTopic = requireNotNull(aivenTopic[it.topic()])
-                        producer.send(ProducerRecord(aivenTopic, it.value()))
-                    }
-                consumer.commitSync()
+                onRecords(consumer.poll(Duration.ofMillis(500)))
             }
         } catch (e: WakeupException) {
             logger.info(e) { "Consumeren stenges" }
+            if (job.isActive) throw e
         } catch (e: Exception) {
-            logger.error(e) { "Noe feil skjedde" }
+            logger.error(e) { "Noe feil skjedde i consumeringen" }
             throw e
         } finally {
-            consumer.close()
+            closeResources()
         }
+    }
+
+    private fun onRecords(records: ConsumerRecords<String, String>) {
+        if (records.isEmpty) return // poll returns an empty collection in case of rebalancing
+        val currentPositions = records
+            .groupBy { TopicPartition(it.topic(), it.partition()) }
+            .mapValues { it.value.minOf { it.offset() } }
+            .toMutableMap()
+        try {
+            records.onEach { record ->
+                val aivenTopic = requireNotNull(aivenTopic[record.topic()])
+                producer.send(ProducerRecord(aivenTopic, record.value()))
+                currentPositions[TopicPartition(record.topic(), record.partition())] = record.offset() + 1
+            }
+        } catch (err: Exception) {
+            logger.info(
+                "due to an error during processing, positions are reset to each next message (after each record that was processed OK):" +
+                    currentPositions.map { "\tpartition=${it.key}, offset=${it.value}" }.joinToString(separator = "\n", prefix = "\n", postfix = "\n"),
+                err
+            )
+            currentPositions.forEach { (partition, offset) -> consumer.seek(partition, offset) }
+            throw err
+        } finally {
+            consumer.commitSync()
+        }
+    }
+
+    private fun closeResources() {
+        tryAndLog(producer::close)
+        tryAndLog(consumer::unsubscribe)
+        tryAndLog(consumer::close)
+    }
+
+    private fun tryAndLog(block: () -> Unit) {
+        try {
+            block()
+        } catch (err: Exception) {
+            logger.error(err.message, err)
+        }
+    }
+
+    private fun shutdownHook() {
+        logger.info("received shutdown signal, stopping app")
+        stop()
     }
 }

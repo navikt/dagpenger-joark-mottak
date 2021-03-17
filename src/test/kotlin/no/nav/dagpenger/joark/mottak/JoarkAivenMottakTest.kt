@@ -1,7 +1,10 @@
 package no.nav.dagpenger.joark.mottak
 
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -31,7 +34,6 @@ class JoarkAivenMottakTest {
         )
     }
     val recordSlots = mutableListOf<ProducerRecord<String, String>>()
-    val mockProducer = mockk<Producer<String, String>>()
 
     @BeforeEach
     fun reset() {
@@ -45,6 +47,7 @@ class JoarkAivenMottakTest {
 
     @Test
     fun `sender til riktig topic`() {
+        val mockProducer = mockk<Producer<String, String>>()
         coEvery { mockProducer.send(capture(recordSlots)) } returns mockk<Future<RecordMetadata>>()
 
         JoarkAivenMottak(
@@ -70,7 +73,9 @@ class JoarkAivenMottakTest {
 
     @Test
     fun `committer ikke når det skjer feil i konsumering`() {
-        coEvery { mockProducer.send(any()) } throws RuntimeException()
+        val mockProducer = mockk<Producer<String, String>>()
+        every { mockProducer.send(any()) } throws RuntimeException()
+        every { mockProducer.close() } just Runs
 
         JoarkAivenMottak(
             mockConsumer,
@@ -84,5 +89,9 @@ class JoarkAivenMottakTest {
         val offsetData = mockConsumer.committed(setOf(topicPartition1, topicPartition2))
         offsetData[topicPartition1]?.offset() shouldBe null
         offsetData[topicPartition2]?.offset() shouldBe null
+
+        verify { mockProducer.close() }
+
+        mockConsumer.closed() shouldBe true
     }
 }
