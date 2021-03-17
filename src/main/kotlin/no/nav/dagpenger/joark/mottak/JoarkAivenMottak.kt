@@ -123,7 +123,7 @@ class JoarkAivenMottak(
         try {
             records.onEach { record ->
                 val aivenTopic = requireNotNull(aivenTopic[record.topic()])
-                producer.send(ProducerRecord(aivenTopic, record.value()))
+                producer.send(ProducerRecord(aivenTopic, record.key(), record.value()))
                 currentPositions[TopicPartition(record.topic(), record.partition())] = record.offset() + 1
             }
         } catch (err: Exception) {

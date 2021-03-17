@@ -56,13 +56,15 @@ class JoarkAivenMottakTest {
             Configuration()
         ).start()
 
-        mockConsumer.addRecord(ConsumerRecord(journalpostMottattTopic, 1, 0, "key", "enverdi"))
-        mockConsumer.addRecord(ConsumerRecord(søknadsdataTopic, 1, 0, "key", "søknadsverdi"))
+        mockConsumer.addRecord(ConsumerRecord(journalpostMottattTopic, 1, 0, "jdpid", "enverdi"))
+        mockConsumer.addRecord(ConsumerRecord(søknadsdataTopic, 1, 0, "jdpid", "søknadsverdi"))
 
         verify { mockProducer.send(any()) }
         recordSlots.let {
             it.first().topic() shouldBe "teamdagpenger.journalforing.v1"
+            it.first().key() shouldBe "jdpid"
             it.first().value() shouldBe "enverdi"
+            it.first().key() shouldBe "jdpid"
             it.last().topic() shouldBe "teamdagpenger.soknadsdata.v1"
             it.last().value() shouldBe "søknadsverdi"
         }
