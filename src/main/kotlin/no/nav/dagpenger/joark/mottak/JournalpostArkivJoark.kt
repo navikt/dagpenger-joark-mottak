@@ -70,10 +70,14 @@ class JournalpostArkivJoark(
         )
     }
 
+    private val henvendelserMedData = listOf(
+        Henvendelsestype.NY_SØKNAD,
+        Henvendelsestype.GJENOPPTAK,
+        Henvendelsestype.ETTERSENDELSE
+    )
+
     override fun hentSøknadsdata(journalpost: Journalpost): Søknadsdata? {
-        return if (
-            (journalpost.henvendelsestype in listOf(Henvendelsestype.NY_SØKNAD, Henvendelsestype.GJENOPPTAK) && journalpost.kanal == "NAV_NO")
-        ) {
+        return if (journalpost.henvendelsestype in henvendelserMedData && journalpost.kanal == "NAV_NO") {
             _hentSøknadsdata(journalpost)
         } else {
             null
@@ -84,30 +88,30 @@ class JournalpostArkivJoark(
 internal data class JournalPostQuery(val journalpostId: String) : GraphqlQuery(
     query =
         """ 
-            query {
-                journalpost(journalpostId: "$journalpostId") {
-                    journalstatus
-                    journalpostId
-                    journalfoerendeEnhet
-                    datoOpprettet
-                    behandlingstema
-                    bruker {
-                      type
-                      id
-                    }
-                    kanal
-                    kanalnavn
-                    relevanteDatoer {
-                      dato
-                      datotype
-                    }
-                    dokumenter {
-                      tittel
-                      dokumentInfoId
-                      brevkode
-                    }
+        query {
+            journalpost(journalpostId: "$journalpostId") {
+                journalstatus
+                journalpostId
+                journalfoerendeEnhet
+                datoOpprettet
+                behandlingstema
+                bruker {
+                  type
+                  id
+                }
+                kanal
+                kanalnavn
+                relevanteDatoer {
+                  dato
+                  datotype
+                }
+                dokumenter {
+                  tittel
+                  dokumentInfoId
+                  brevkode
                 }
             }
+        }
         """.trimIndent(),
     variables = null
 )
