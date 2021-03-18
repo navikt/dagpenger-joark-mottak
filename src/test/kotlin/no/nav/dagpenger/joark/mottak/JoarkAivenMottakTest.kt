@@ -3,7 +3,6 @@ package no.nav.dagpenger.joark.mottak
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
@@ -48,7 +47,7 @@ class JoarkAivenMottakTest {
     }
 
     @Test
-    fun `sender til riktig topic`() {
+    fun `sender til riktig topic`() = runBlocking {
         val mockProducer = mockk<Producer<String, String>>()
         coEvery { mockProducer.send(capture(recordSlots)) } returns mockk<Future<RecordMetadata>>()
 
@@ -83,8 +82,8 @@ class JoarkAivenMottakTest {
     @Test
     fun `committer ikke når det skjer feil i konsumering`() = runBlocking {
         val mockProducer = mockk<Producer<String, String>>()
-        every { mockProducer.send(any()) } throws RuntimeException()
-        every { mockProducer.close() } just Runs
+        coEvery { mockProducer.send(any()) } throws RuntimeException()
+        coEvery { mockProducer.close() } just Runs
 
         val joarkAivenMottak = JoarkAivenMottak(
             mockConsumer,
@@ -102,7 +101,7 @@ class JoarkAivenMottakTest {
 
         repeat(5) {
             if (!mockConsumer.closed()) {
-                delay(1000)
+                delay(2000)
             }
         }
 
