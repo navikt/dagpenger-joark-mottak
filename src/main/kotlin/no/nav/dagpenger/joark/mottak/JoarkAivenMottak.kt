@@ -88,6 +88,10 @@ class JoarkAivenMottak(
         }
     }
 
+    fun isAlive(): Boolean {
+        return job.isActive
+    }
+
     fun stop() {
         logger.info("stopping JoarkAivenMottak")
         consumer.wakeup()
@@ -123,16 +127,15 @@ class JoarkAivenMottak(
         try {
             records.onEach { record ->
                 val aivenTopic = requireNotNull(aivenTopic[record.topic()])
-                if (record.topic() == "privat-dagpenger-soknadsdata-v1") {
-                    producer.send(ProducerRecord(aivenTopic, record.key(), record.value()))
-                    logger.info { "Migrerte soknadsdata: ${record.key()} til aiven topic" }
-                }
+                producer.send(ProducerRecord(aivenTopic, record.key(), record.value()))
+                logger.info { "Migrerte ${record.topic()} med nøkkel: ${record.key()} til aiven topic" }
                 currentPositions[TopicPartition(record.topic(), record.partition())] = record.offset() + 1
             }
         } catch (err: Exception) {
             logger.info(
                 "due to an error during processing, positions are reset to each next message (after each record that was processed OK):" +
-                    currentPositions.map { "\tpartition=${it.key}, offset=${it.value}" }.joinToString(separator = "\n", prefix = "\n", postfix = "\n"),
+                    currentPositions.map { "\tpartition=${it.key}, offset=${it.value}" }
+                        .joinToString(separator = "\n", prefix = "\n", postfix = "\n"),
                 err
             )
             currentPositions.forEach { (partition, offset) -> consumer.seek(partition, offset) }

@@ -9,7 +9,6 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.prometheus.client.CollectorRegistry
-import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.Topics
 import org.apache.avro.generic.GenericRecord
@@ -82,14 +81,14 @@ class JoarkMottakTopologyTest {
     }
 
     val packetCreator = InnløpPacketCreator(personOppslagMock)
-    val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator, FakeUnleash())
+    val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator)
 
     @Test
     fun `skal både produsere innløpbehov og søknadsdata`() {
         val journalpostId: Long = 123
 
         val joarkMottak =
-            JoarkMottak(configuration, journalpostarkiv, packetCreator, FakeUnleash().apply { this.enableAll() })
+            JoarkMottak(configuration, journalpostarkiv, packetCreator)
 
         every { journalpostarkiv.hentInngåendeJournalpost(journalpostId.toString()) } returns dummyJournalpost(
             journalstatus = Journalstatus.MOTTATT,
@@ -134,7 +133,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal prosessere innkommende journalposter med tema DAG og hendelses type MidlertidigJournalført `() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator)
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
@@ -195,7 +194,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal telle antall mottatte journalposter som kan behandles`() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator)
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
             val inputRecord = lagJoarkHendelse(journalpostId, "DAG", "MidlertidigJournalført")
@@ -213,7 +212,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal ikke prosessere journalposter med andre temaer en DAG`() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator)
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             topologyTestDriver.joarkInputEvent()
                 .also { it.pipeInput(lagJoarkHendelse(123, "ANNET", "MidlertidigJournalført")) }
@@ -223,7 +222,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal ikke prosessere hendelser fra kanalen EESSI`() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator)
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             topologyTestDriver.joarkInputEvent()
                 .also { it.pipeInput(lagJoarkHendelse(123, "DAG", "MidlertidigJournalført", "EESSI")) }
@@ -233,7 +232,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal ikke prosessere inkomne journalposter med tema DAG og hendelses type Ferdigstilt `() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator)
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
             topologyTestDriver.joarkInputEvent()
@@ -244,7 +243,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal legge på søknadsdata `() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator)
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             val journalpostId: Long = 123
@@ -263,7 +262,7 @@ class JoarkMottakTopologyTest {
 
     @Test
     fun `Skal skippe journalpost id `() {
-        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator, FakeUnleash())
+        val joarkMottak = JoarkMottak(configuration, DummyJournalpostArkiv(), packetCreator)
 
         TopologyTestDriver(joarkMottak.buildTopology(), streamProperties).use { topologyTestDriver ->
             topologyTestDriver.joarkInputEvent()

@@ -1,17 +1,11 @@
 package no.nav.dagpenger.joark.mottak
 
-import io.ktor.application.call
-import io.ktor.response.respondText
-import io.ktor.routing.get
-import io.ktor.routing.route
-import io.ktor.routing.routing
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
 import io.prometheus.client.Counter
 import mu.KotlinLogging
-import no.finn.unleash.Unleash
 import no.nav.dagpenger.joark.mottak.IgnoreJournalPost.ignorerJournalpost
+import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthCheck
+import no.nav.dagpenger.streams.HealthStatus
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.streamConfig
@@ -21,6 +15,7 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.Topology
 import java.util.Properties
+import kotlin.collections.set
 
 private val logger = KotlinLogging.logger {}
 const val DAGPENGER_NAMESPACE = "dagpenger"
@@ -68,10 +63,17 @@ class JoarkMottak(
     val config: Configuration,
     val journalpostArkiv: JournalpostArkiv,
     val innløpPacketCreator: InnløpPacketCreator,
-    val toggle: Unleash
+    val joarkAivenMottakHealthCheck: HealthCheck? = null,
 ) : Service() {
-    override val healthChecks: List<HealthCheck> =
-        listOf(journalpostArkiv as HealthCheck, innløpPacketCreator.personOppslag as HealthCheck)
+    override val healthChecks: List<HealthCheck> get() {
+        return if (joarkAivenMottakHealthCheck != null) {
+            listOf(
+                journalpostArkiv as HealthCheck,
+                innløpPacketCreator.personOppslag as HealthCheck,
+                joarkAivenMottakHealthCheck
+            )
+        } else listOf(journalpostArkiv as HealthCheck, innløpPacketCreator.personOppslag as HealthCheck)
+    }
 
     override val SERVICE_APP_ID =
         "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
@@ -134,6 +136,7 @@ class JoarkMottak(
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
         journalpostStream
+            .selectKey { _, (jp, _) -> jp.journalpostId }
             .filter { _, (_, søknadsdata) -> søknadsdata != null }
             .mapValues { _, (_, søknadsdata) -> søknadsdata!!.serialize() }
             .peek { key, _ -> logger.info { "Producing søknadsdata for $key " } }
@@ -184,25 +187,19 @@ class JoarkMottak(
 fun main() {
 
     val config = Configuration()
-    embeddedServer(Netty, config.application.httpPort) {
-        routing {
-            route("/isReady") {
-                get {
-                    call.respondText(text = "READY", contentType = io.ktor.http.ContentType.Text.Plain)
-                }
-            }
-            route("/isAlive") {
-                get {
-                    call.respondText(text = "READY", contentType = io.ktor.http.ContentType.Text.Plain)
-                }
-            }
+
+    val joarkAivenMottak = JoarkAivenMottak(consumer(config.kafka.brokers, config.kafka.credential()!!), createAivenProducer(System.getenv()), config)
+        .also { it.start() }
+
+    val joarkAivenMottakHealthCheck = object : HealthCheck {
+        override val name: String
+            get() = "JoarkAiven_replikerer"
+        override fun status(): HealthStatus {
+            return if (joarkAivenMottak.isAlive()) HealthStatus.UP else HealthStatus.DOWN
         }
-    }.also {
-        JoarkAivenMottak(consumer(config.kafka.brokers, config.kafka.credential()!!), createAivenProducer(System.getenv()), config).start()
-        it.start()
     }
 
-    /*val oidcClient = StsOidcClient(
+    val oidcClient = StsOidcClient(
         config.application.oidcStsUrl,
         config.kafka.user,
         config.kafka.password
@@ -220,8 +217,6 @@ fun main() {
 
     val packetCreator = InnløpPacketCreator(personOppslag)
 
-    val unleash = DefaultUnleash(config.application.unleashConfig)
-
-    val service = JoarkMottak(config, journalpostArkiv, packetCreator, unleash)
-    service.start()*/
+    val service = JoarkMottak(config, journalpostArkiv, packetCreator, joarkAivenMottakHealthCheck)
+    service.start()
 }

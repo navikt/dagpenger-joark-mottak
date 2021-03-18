@@ -6,7 +6,6 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.kotest.matchers.shouldBe
-import no.finn.unleash.FakeUnleash
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.getAvailablePort
@@ -78,8 +77,8 @@ class JoarkMottakComponentTest {
         val joarkMottak = JoarkMottak(
             configuration,
             DummyJournalpostArkiv(),
-            InnløpPacketCreator(PersonOppslag(configuration.application.personOppslagBaseUrl, stsOidcClient)),
-            FakeUnleash()
+            InnløpPacketCreator(PersonOppslag(configuration.application.personOppslagBaseUrl, stsOidcClient))
+
         )
 
         @BeforeAll

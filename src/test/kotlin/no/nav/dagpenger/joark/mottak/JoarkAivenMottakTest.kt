@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
@@ -51,28 +52,32 @@ class JoarkAivenMottakTest {
         val mockProducer = mockk<Producer<String, String>>()
         coEvery { mockProducer.send(capture(recordSlots)) } returns mockk<Future<RecordMetadata>>()
 
-        JoarkAivenMottak(
+        val joarkAivenMottak = JoarkAivenMottak(
             mockConsumer,
             mockProducer,
             Configuration()
-        ).start()
+        ).also {
+            it.start()
+        }
 
         mockConsumer.addRecord(ConsumerRecord(journalpostMottattTopic, 1, 0, "jdpid", "enverdi"))
         mockConsumer.addRecord(ConsumerRecord(søknadsdataTopic, 1, 0, "jdpid", "søknadsverdi"))
 
         verify { mockProducer.send(any()) }
         recordSlots.let {
-            /*it.first().topic() shouldBe "teamdagpenger.journalforing.v1"
+            it.first().topic() shouldBe "teamdagpenger.journalforing.v1"
             it.first().key() shouldBe "jdpid"
-            it.first().value() shouldBe "enverdi"*/
+            it.first().value() shouldBe "enverdi"
             it.last().key() shouldBe "jdpid"
             it.last().topic() shouldBe "teamdagpenger.soknadsdata.v1"
             it.last().value() shouldBe "søknadsverdi"
-            it.size shouldBe 1
+            it.size shouldBe 2
         }
         val offsetData = mockConsumer.committed(setOf(journalpostPartition, soknadsdataPartition))
         offsetData[journalpostPartition]?.offset() shouldBe 1L
         offsetData[soknadsdataPartition]?.offset() shouldBe 1L
+
+        joarkAivenMottak.isAlive() shouldBe true
     }
 
     @Test
@@ -81,12 +86,13 @@ class JoarkAivenMottakTest {
         every { mockProducer.send(any()) } throws RuntimeException()
         every { mockProducer.close() } just Runs
 
-        JoarkAivenMottak(
+        val joarkAivenMottak = JoarkAivenMottak(
             mockConsumer,
             mockProducer,
             Configuration()
-        ).start()
-
+        ).also {
+            it.start()
+        }
         mockConsumer.addRecord(ConsumerRecord(journalpostMottattTopic, 1, 0, "key", "enverdi"))
         mockConsumer.addRecord(ConsumerRecord(søknadsdataTopic, 1, 0, "key", "søknadsverdi"))
 
@@ -95,9 +101,10 @@ class JoarkAivenMottakTest {
         offsetData[soknadsdataPartition]?.offset() shouldBe null
 
         // timing issues
-        Thread.sleep(2000)
+        delay(2000)
 
         verify { mockProducer.close() }
         mockConsumer.closed() shouldBe true
+        joarkAivenMottak.isAlive() shouldBe false
     }
 }
