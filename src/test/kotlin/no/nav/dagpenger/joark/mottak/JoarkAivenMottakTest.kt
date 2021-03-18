@@ -100,11 +100,13 @@ class JoarkAivenMottakTest {
         offsetData[journalpostPartition]?.offset() shouldBe null
         offsetData[soknadsdataPartition]?.offset() shouldBe null
 
-        // timing issues
-        delay(2000)
+        repeat(5) {
+            if (!mockConsumer.closed()) {
+                delay(1000)
+            }
+        }
 
         verify { mockProducer.close() }
-        mockConsumer.closed() shouldBe true
         joarkAivenMottak.isAlive() shouldBe false
     }
 }

@@ -95,6 +95,7 @@ class JoarkAivenMottak(
     fun stop() {
         logger.info("stopping JoarkAivenMottak")
         consumer.wakeup()
+        job.cancel()
     }
 
     val aivenTopic = mapOf(
@@ -109,7 +110,7 @@ class JoarkAivenMottak(
             }
         } catch (e: WakeupException) {
             logger.info(e) { "Consumeren stenges" }
-            if (job.isActive) throw e
+            if (job.isActive) job.cancel()
         } catch (e: Exception) {
             logger.error(e) { "Noe feil skjedde i consumeringen" }
             throw e
