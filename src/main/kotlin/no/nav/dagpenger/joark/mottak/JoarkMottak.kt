@@ -1,11 +1,16 @@
 package no.nav.dagpenger.joark.mottak
 
+import io.ktor.application.call
+import io.ktor.response.respondText
+import io.ktor.routing.get
+import io.ktor.routing.route
+import io.ktor.routing.routing
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import io.prometheus.client.Counter
 import mu.KotlinLogging
-import no.finn.unleash.DefaultUnleash
 import no.finn.unleash.Unleash
 import no.nav.dagpenger.joark.mottak.IgnoreJournalPost.ignorerJournalpost
-import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.consumeGenericTopic
@@ -182,7 +187,25 @@ class UnsupportedBehandlendeEnhetException(override val message: String) : Runti
 fun main() {
 
     val config = Configuration()
-    val oidcClient = StsOidcClient(
+    embeddedServer(Netty, config.application.httpPort) {
+        routing {
+            route("/isReady") {
+                get {
+                    call.respondText(text = "READY", contentType = io.ktor.http.ContentType.Text.Plain)
+                }
+            }
+            route("/isAlive") {
+                get {
+                    call.respondText(text = "READY", contentType = io.ktor.http.ContentType.Text.Plain)
+                }
+            }
+        }
+    }.also {
+        JoarkAivenMottak(consumer(config.kafka.brokers, config.kafka.credential()!!), createAivenProducer(System.getenv()), config).start()
+        it.start()
+    }
+
+    /*val oidcClient = StsOidcClient(
         config.application.oidcStsUrl,
         config.kafka.user,
         config.kafka.password
@@ -203,5 +226,5 @@ fun main() {
     val unleash = DefaultUnleash(config.application.unleashConfig)
 
     val service = JoarkMottak(config, journalpostArkiv, packetCreator, unleash)
-    service.start()
+    service.start()*/
 }

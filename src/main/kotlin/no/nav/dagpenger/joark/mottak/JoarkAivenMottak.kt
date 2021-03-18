@@ -49,7 +49,7 @@ fun consumer(bootstrapServerUrl: String, credential: KafkaCredential): KafkaCons
     }
 }
 
-private fun createAivenProducer(env: Map<String, String>): KafkaProducer<String, String>? {
+fun createAivenProducer(env: Map<String, String>): KafkaProducer<String, String> {
     val properties = Properties().apply {
         put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, env.getValue("KAFKA_BROKERS"))
         put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name)
@@ -123,7 +123,10 @@ class JoarkAivenMottak(
         try {
             records.onEach { record ->
                 val aivenTopic = requireNotNull(aivenTopic[record.topic()])
-                producer.send(ProducerRecord(aivenTopic, record.key(), record.value()))
+                if (record.topic() == "privat-dagpenger-soknadsdata-v1") {
+                    producer.send(ProducerRecord(aivenTopic, record.key(), record.value()))
+                    logger.info { "Migrerte soknadsdata: ${record.key()} til aiven topic" }
+                }
                 currentPositions[TopicPartition(record.topic(), record.partition())] = record.offset() + 1
             }
         } catch (err: Exception) {

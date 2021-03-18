@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
@@ -21,15 +22,15 @@ import java.util.concurrent.Future
 class JoarkAivenMottakTest {
     val journalpostMottattTopic = "privat-dagpenger-journalpost-mottatt-v1"
     val søknadsdataTopic = "privat-dagpenger-soknadsdata-v1"
-    val topicPartition1 = TopicPartition(journalpostMottattTopic, 1)
-    val topicPartition2 = TopicPartition(søknadsdataTopic, 1)
+    val journalpostPartition = TopicPartition(journalpostMottattTopic, 1)
+    val soknadsdataPartition = TopicPartition(søknadsdataTopic, 1)
 
     val mockConsumer = MockConsumer<String, String>(OffsetResetStrategy.EARLIEST).also {
-        it.assign(listOf(topicPartition1, topicPartition2))
+        it.assign(listOf(journalpostPartition, soknadsdataPartition))
         it.updateBeginningOffsets(
             mapOf(
-                topicPartition1 to 0L,
-                topicPartition2 to 0L
+                journalpostPartition to 0L,
+                soknadsdataPartition to 0L
             )
         )
     }
@@ -39,8 +40,8 @@ class JoarkAivenMottakTest {
     fun reset() {
         mockConsumer.updateBeginningOffsets(
             mapOf(
-                topicPartition1 to 0L,
-                topicPartition2 to 0L
+                journalpostPartition to 0L,
+                soknadsdataPartition to 0L
             )
         )
     }
@@ -61,20 +62,21 @@ class JoarkAivenMottakTest {
 
         verify { mockProducer.send(any()) }
         recordSlots.let {
-            it.first().topic() shouldBe "teamdagpenger.journalforing.v1"
+            /*it.first().topic() shouldBe "teamdagpenger.journalforing.v1"
             it.first().key() shouldBe "jdpid"
-            it.first().value() shouldBe "enverdi"
-            it.first().key() shouldBe "jdpid"
+            it.first().value() shouldBe "enverdi"*/
+            it.last().key() shouldBe "jdpid"
             it.last().topic() shouldBe "teamdagpenger.soknadsdata.v1"
             it.last().value() shouldBe "søknadsverdi"
+            it.size shouldBe 1
         }
-        val offsetData = mockConsumer.committed(setOf(topicPartition1, topicPartition2))
-        offsetData[topicPartition1]?.offset() shouldBe 1L
-        offsetData[topicPartition2]?.offset() shouldBe 1L
+        val offsetData = mockConsumer.committed(setOf(journalpostPartition, soknadsdataPartition))
+        offsetData[journalpostPartition]?.offset() shouldBe 1L
+        offsetData[soknadsdataPartition]?.offset() shouldBe 1L
     }
 
     @Test
-    fun `committer ikke når det skjer feil i konsumering`() {
+    fun `committer ikke når det skjer feil i konsumering`() = runBlocking {
         val mockProducer = mockk<Producer<String, String>>()
         every { mockProducer.send(any()) } throws RuntimeException()
         every { mockProducer.close() } just Runs
@@ -88,12 +90,14 @@ class JoarkAivenMottakTest {
         mockConsumer.addRecord(ConsumerRecord(journalpostMottattTopic, 1, 0, "key", "enverdi"))
         mockConsumer.addRecord(ConsumerRecord(søknadsdataTopic, 1, 0, "key", "søknadsverdi"))
 
-        val offsetData = mockConsumer.committed(setOf(topicPartition1, topicPartition2))
-        offsetData[topicPartition1]?.offset() shouldBe null
-        offsetData[topicPartition2]?.offset() shouldBe null
+        val offsetData = mockConsumer.committed(setOf(journalpostPartition, soknadsdataPartition))
+        offsetData[journalpostPartition]?.offset() shouldBe null
+        offsetData[soknadsdataPartition]?.offset() shouldBe null
+
+        // timing issues
+        Thread.sleep(2000)
 
         verify { mockProducer.close() }
-
         mockConsumer.closed() shouldBe true
     }
 }
