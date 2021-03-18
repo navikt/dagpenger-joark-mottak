@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
@@ -47,9 +48,9 @@ class JoarkAivenMottakTest {
     }
 
     @Test
-    fun `sender til riktig topic`() = runBlocking {
+    fun `sender til riktig topic`() {
         val mockProducer = mockk<Producer<String, String>>()
-        coEvery { mockProducer.send(capture(recordSlots)) } returns mockk<Future<RecordMetadata>>()
+        every { mockProducer.send(capture(recordSlots)) } returns mockk<Future<RecordMetadata>>()
 
         val joarkAivenMottak = JoarkAivenMottak(
             mockConsumer,
@@ -63,15 +64,20 @@ class JoarkAivenMottakTest {
         mockConsumer.addRecord(ConsumerRecord(søknadsdataTopic, 1, 0, "jdpid", "søknadsverdi"))
 
         verify { mockProducer.send(any()) }
+
         recordSlots.let {
-            it.first().topic() shouldBe "teamdagpenger.journalforing.v1"
-            it.first().key() shouldBe "jdpid"
-            it.first().value() shouldBe "enverdi"
-            it.last().key() shouldBe "jdpid"
-            it.last().topic() shouldBe "teamdagpenger.soknadsdata.v1"
-            it.last().value() shouldBe "søknadsverdi"
             it.size shouldBe 2
+            it.find { it.topic() == "teamdagpenger.journalforing.v1" }?.also {
+                it!!.key() shouldBe "jdpid"
+                it.value() shouldBe "enverdi"
+            }
+
+            it.find { it.topic() == "teamdagpenger.soknadsdata.v1" }?.also {
+                it!!.key() shouldBe "jdpid"
+                it.value() shouldBe "søknadsverdi"
+            }
         }
+
         val offsetData = mockConsumer.committed(setOf(journalpostPartition, soknadsdataPartition))
         offsetData[journalpostPartition]?.offset() shouldBe 1L
         offsetData[soknadsdataPartition]?.offset() shouldBe 1L
