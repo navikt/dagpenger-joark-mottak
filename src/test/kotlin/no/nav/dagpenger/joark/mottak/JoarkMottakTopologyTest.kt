@@ -274,11 +274,4 @@ class JoarkMottakTopologyTest {
             configuration.kafka.dagpengerJournalpostTopic.keySerde.deserializer(),
             configuration.kafka.dagpengerJournalpostTopic.valueSerde.deserializer()
         )
-
-    private fun TopologyTestDriver.søknadDataOutputTopic(): TestOutputTopic<String, String> =
-        this.createOutputTopic(
-            configuration.kafka.søknadsdataTopic.name,
-            configuration.kafka.søknadsdataTopic.keySerde.deserializer(),
-            configuration.kafka.søknadsdataTopic.valueSerde.deserializer()
-        )
 }

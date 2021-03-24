@@ -98,12 +98,6 @@ data class Configuration(
             keySerde = Serdes.String(),
             valueSerde = Serdes.serdeFrom(PacketSerializer(), PacketDeserializer())
         ),
-        val søknadsdataTopic: Topic<String, String> = Topic(
-            "privat-dagpenger-soknadsdata-v1",
-            keySerde = Serdes.String(),
-            valueSerde = Serdes.String()
-        ),
-
         val deseralizationExceptionHandler: String? = config().getOrNull(Key("deserialization.exception.handler", stringType)),
         val brokers: String = config()[Key("kafka.bootstrap.servers", stringType)],
         val schemaRegisterUrl: String = config()[Key("kafka.schema.registry.url", stringType)],
