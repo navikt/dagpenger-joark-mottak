@@ -22,16 +22,13 @@ import java.util.concurrent.Future
 
 class JoarkAivenMottakTest {
     val journalpostMottattTopic = "privat-dagpenger-journalpost-mottatt-v1"
-    val søknadsdataTopic = "privat-dagpenger-soknadsdata-v1"
     val journalpostPartition = TopicPartition(journalpostMottattTopic, 1)
-    val soknadsdataPartition = TopicPartition(søknadsdataTopic, 1)
 
     val mockConsumer = MockConsumer<String, String>(OffsetResetStrategy.EARLIEST).also {
-        it.assign(listOf(journalpostPartition, soknadsdataPartition))
+        it.assign(listOf(journalpostPartition))
         it.updateBeginningOffsets(
             mapOf(
                 journalpostPartition to 0L,
-                soknadsdataPartition to 0L
             )
         )
     }
@@ -42,7 +39,6 @@ class JoarkAivenMottakTest {
         mockConsumer.updateBeginningOffsets(
             mapOf(
                 journalpostPartition to 0L,
-                soknadsdataPartition to 0L
             )
         )
     }
@@ -55,32 +51,24 @@ class JoarkAivenMottakTest {
         val joarkAivenMottak = JoarkAivenMottak(
             mockConsumer,
             mockProducer,
-            Configuration()
         ).also {
             it.start()
         }
 
         mockConsumer.addRecord(ConsumerRecord(journalpostMottattTopic, 1, 0, "jdpid", "enverdi"))
-        mockConsumer.addRecord(ConsumerRecord(søknadsdataTopic, 1, 0, "jdpid", "søknadsverdi"))
 
         verify { mockProducer.send(any()) }
 
         recordSlots.let {
-            it.size shouldBe 2
+            it.size shouldBe 1
             it.find { it.topic() == "teamdagpenger.journalforing.v1" }?.also {
                 it!!.key() shouldBe "jdpid"
                 it.value() shouldBe "enverdi"
             }
-
-            it.find { it.topic() == "teamdagpenger.soknadsdata.v1" }?.also {
-                it!!.key() shouldBe "jdpid"
-                it.value() shouldBe "søknadsverdi"
-            }
         }
 
-        val offsetData = mockConsumer.committed(setOf(journalpostPartition, soknadsdataPartition))
+        val offsetData = mockConsumer.committed(setOf(journalpostPartition))
         offsetData[journalpostPartition]?.offset() shouldBe 1L
-        offsetData[soknadsdataPartition]?.offset() shouldBe 1L
 
         joarkAivenMottak.isAlive() shouldBe true
     }
@@ -94,16 +82,12 @@ class JoarkAivenMottakTest {
         val joarkAivenMottak = JoarkAivenMottak(
             mockConsumer,
             mockProducer,
-            Configuration()
         ).also {
             it.start()
         }
-        mockConsumer.addRecord(ConsumerRecord(journalpostMottattTopic, 1, 0, "key", "enverdi"))
-        mockConsumer.addRecord(ConsumerRecord(søknadsdataTopic, 1, 0, "key", "søknadsverdi"))
 
-        val offsetData = mockConsumer.committed(setOf(journalpostPartition, soknadsdataPartition))
+        val offsetData = mockConsumer.committed(setOf(journalpostPartition))
         offsetData[journalpostPartition]?.offset() shouldBe null
-        offsetData[soknadsdataPartition]?.offset() shouldBe null
 
         repeat(5) {
             if (!mockConsumer.closed()) {
