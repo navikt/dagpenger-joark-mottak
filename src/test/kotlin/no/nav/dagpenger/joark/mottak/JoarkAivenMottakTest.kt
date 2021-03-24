@@ -1,7 +1,9 @@
 package no.nav.dagpenger.joark.mottak
 
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.delay
@@ -76,7 +78,7 @@ class JoarkAivenMottakTest {
     fun `committer ikke når det skjer feil i konsumering`() = runBlocking {
         val mockProducer = mockk<Producer<String, String>>()
         every { mockProducer.send(any()) } throws RuntimeException()
-        /*every { mockProducer.close() } just Runs*/
+        every { mockProducer.close() } just Runs
 
         val joarkAivenMottak = JoarkAivenMottak(
             mockConsumer,
@@ -85,15 +87,10 @@ class JoarkAivenMottakTest {
             it.start()
         }
 
-        val offsetData = mockConsumer.committed(setOf(journalpostPartition))
-        offsetData[journalpostPartition]?.offset() shouldBe null
+        mockConsumer.addRecord(ConsumerRecord(journalpostMottattTopic, 1, 0, "jdpid", "enverdi"))
 
-        repeat(5) {
-            if (!mockConsumer.closed()) {
-                delay(2000)
-            }
-        }
-
+        delay(500)
+        mockConsumer.closed() shouldBe true
         verify { mockProducer.close() }
         joarkAivenMottak.isAlive() shouldBe false
     }
