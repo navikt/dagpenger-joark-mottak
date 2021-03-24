@@ -1,10 +1,7 @@
 package no.nav.dagpenger.joark.mottak
 
 import io.kotest.matchers.shouldBe
-import io.mockk.Runs
-import io.mockk.coEvery
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.delay
@@ -44,7 +41,7 @@ class JoarkAivenMottakTest {
     }
 
     @Test
-    fun `sender til riktig topic`() {
+    fun `videresender journalpost fra onprem til aiventopic`() {
         val mockProducer = mockk<Producer<String, String>>()
         every { mockProducer.send(capture(recordSlots)) } returns mockk<Future<RecordMetadata>>()
 
@@ -57,12 +54,14 @@ class JoarkAivenMottakTest {
 
         mockConsumer.addRecord(ConsumerRecord(journalpostMottattTopic, 1, 0, "jdpid", "enverdi"))
 
+        Thread.sleep(500)
+
         verify { mockProducer.send(any()) }
 
         recordSlots.let {
             it.size shouldBe 1
             it.find { it.topic() == "teamdagpenger.journalforing.v1" }?.also {
-                it!!.key() shouldBe "jdpid"
+                it.key() shouldBe "jdpid"
                 it.value() shouldBe "enverdi"
             }
         }
@@ -76,8 +75,8 @@ class JoarkAivenMottakTest {
     @Test
     fun `committer ikke når det skjer feil i konsumering`() = runBlocking {
         val mockProducer = mockk<Producer<String, String>>()
-        coEvery { mockProducer.send(any()) } throws RuntimeException()
-        coEvery { mockProducer.close() } just Runs
+        every { mockProducer.send(any()) } throws RuntimeException()
+        /*every { mockProducer.close() } just Runs*/
 
         val joarkAivenMottak = JoarkAivenMottak(
             mockConsumer,

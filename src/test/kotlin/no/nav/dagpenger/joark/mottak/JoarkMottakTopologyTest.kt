@@ -5,7 +5,6 @@ import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde
 import io.kotest.assertions.withClue
 import io.kotest.matchers.doubles.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.prometheus.client.CollectorRegistry
@@ -84,7 +83,7 @@ class JoarkMottakTopologyTest {
     val joarkMottak = JoarkMottak(configuration, journalpostarkiv, packetCreator)
 
     @Test
-    fun `skal både produsere innløpbehov og søknadsdata`() {
+    fun `skal produsere innløpbehov`() {
         val journalpostId: Long = 123
 
         val joarkMottak =
@@ -102,15 +101,6 @@ class JoarkMottakTopologyTest {
 
             withClue("Publiserte innløpsbehov:") {
                 assertFalse { topologyTestDriver.innløpetOutputTopic().isEmpty }
-            }
-            withClue("Publiserte søknadsdata:") {
-                val utSøknadsdata = topologyTestDriver.søknadDataOutputTopic().readValue()
-                utSøknadsdata shouldNotBe null
-                utSøknadsdata shouldBe """{"søknadsId":"id","journalpostId":"123","journalRegistrertDato":"2020-06-19"}"""
-
-                withClue("Feil format på søknadsdata") {
-                    utSøknadsdata shouldBe søknadsdata.serialize()
-                }
             }
         }
     }
