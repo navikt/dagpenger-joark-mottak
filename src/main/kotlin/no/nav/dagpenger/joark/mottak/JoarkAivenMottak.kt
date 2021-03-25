@@ -42,7 +42,6 @@ fun consumer(bootstrapServerUrl: String, credential: KafkaCredential): KafkaCons
     ).also {
         it.subscribe(
             listOf(
-                "privat-dagpenger-soknadsdata-v1",
                 "privat-dagpenger-journalpost-mottatt-v1"
             )
         )
@@ -70,8 +69,7 @@ fun createAivenProducer(env: Map<String, String>): KafkaProducer<String, String>
 
 class JoarkAivenMottak(
     private val consumer: Consumer<String, String>,
-    private val producer: Producer<String, String>,
-    private val configuration: Configuration
+    private val producer: Producer<String, String>
 ) : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
@@ -98,10 +96,7 @@ class JoarkAivenMottak(
         job.cancel()
     }
 
-    val aivenTopic = mapOf(
-        configuration.kafka.søknadsdataTopic.name to "teamdagpenger.soknadsdata.v1",
-        configuration.kafka.dagpengerJournalpostTopic.name to "teamdagpenger.journalforing.v1"
-    )
+    val aivenTopic = "teamdagpenger.journalforing.v1"
 
     private fun run() {
         try {
@@ -127,7 +122,6 @@ class JoarkAivenMottak(
             .toMutableMap()
         try {
             records.onEach { record ->
-                val aivenTopic = requireNotNull(aivenTopic[record.topic()])
                 producer.send(ProducerRecord(aivenTopic, record.key(), record.value()))
                 logger.info { "Migrerte ${record.topic()} med nøkkel: ${record.key()} til aiven topic" }
                 currentPositions[TopicPartition(record.topic(), record.partition())] = record.offset() + 1

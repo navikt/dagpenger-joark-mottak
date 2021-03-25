@@ -135,13 +135,6 @@ class JoarkMottak(
             }
             .toTopic(config.kafka.dagpengerJournalpostTopic)
 
-        journalpostStream
-            .selectKey { _, (jp, _) -> jp.journalpostId }
-            .filter { _, (_, søknadsdata) -> søknadsdata != null }
-            .mapValues { _, (_, søknadsdata) -> søknadsdata!!.serialize() }
-            .peek { key, _ -> logger.info { "Producing søknadsdata for $key " } }
-            .toTopic(config.kafka.søknadsdataTopic)
-
         return builder.build()
     }
 
@@ -188,7 +181,7 @@ fun main() {
 
     val config = Configuration()
 
-    val joarkAivenMottak = JoarkAivenMottak(consumer(config.kafka.brokers, config.kafka.credential()!!), createAivenProducer(System.getenv()), config)
+    val joarkAivenMottak = JoarkAivenMottak(consumer(config.kafka.brokers, config.kafka.credential()!!), createAivenProducer(System.getenv()))
         .also { it.start() }
 
     val joarkAivenMottakHealthCheck = object : HealthCheck {
