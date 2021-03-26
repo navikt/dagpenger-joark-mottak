@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import no.nav.dagpenger.events.Packet
 
 private val logger = KotlinLogging.logger {}
+private val sikkerlogg = KotlinLogging.logger("tjenestekall")
 
 class InnløpPacketCreator(
     val personOppslag: PersonOppslag
@@ -39,6 +40,7 @@ class InnløpPacketCreator(
                 }
             } catch (e: PersonOppslagException) {
                 logger.error { "Kunne ikke slå opp personen. Feilen fra PDL var ${e.message}" }
+                sikkerlogg.error(e) { "Kunne ikke slå opp personen. Feilen fra PDL var ${e.message}" }
                 leggPåBehandlendeEnhet(journalpost = journalpost)
             }
         } else {
