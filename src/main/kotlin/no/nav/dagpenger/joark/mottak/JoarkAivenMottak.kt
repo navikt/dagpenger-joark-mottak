@@ -88,7 +88,16 @@ class JoarkAivenMottak(
     }
 
     fun isAlive(): Boolean {
-        return job.isActive
+        return job.isActive && producerIsAlive()
+    }
+
+    private fun producerIsAlive(): Boolean {
+        return try {
+            producer.partitionsFor(aivenTopic)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun stop() {
