@@ -24,6 +24,7 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import java.time.Duration
 import java.util.Properties
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 
 private val logger = KotlinLogging.logger {}
@@ -60,7 +61,7 @@ fun createAivenProducer(env: Map<String, String>): KafkaProducer<String, String>
         put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, env.getValue("KAFKA_KEYSTORE_PATH"))
         put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, env.getValue("KAFKA_CREDSTORE_PASSWORD"))
 
-        put(ProducerConfig.ACKS_CONFIG, "1")
+        put(ProducerConfig.ACKS_CONFIG, "all")
         put(ProducerConfig.LINGER_MS_CONFIG, "0")
         put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "1")
     }
@@ -104,8 +105,7 @@ class JoarkAivenMottak(
                 onRecords(consumer.poll(Duration.ofMillis(500)))
             }
         } catch (e: WakeupException) {
-            logger.info(e) { "Consumeren stenges" }
-            if (job.isActive) job.cancel()
+            if (job.isActive) throw e
         } catch (e: Exception) {
             logger.error(e) { "Noe feil skjedde i consumeringen" }
             throw e
@@ -118,11 +118,11 @@ class JoarkAivenMottak(
         if (records.isEmpty) return // poll returns an empty collection in case of rebalancing
         val currentPositions = records
             .groupBy { TopicPartition(it.topic(), it.partition()) }
-            .mapValues { it.value.minOf { it.offset() } }
+            .mapValues { partition -> partition.value.minOf { it.offset() } }
             .toMutableMap()
         try {
             records.onEach { record ->
-                producer.send(ProducerRecord(aivenTopic, record.key(), record.value()))
+                producer.send(ProducerRecord(aivenTopic, record.key(), record.value())).get(500, TimeUnit.MILLISECONDS)
                 logger.info { "Migrerte ${record.topic()} med nøkkel: ${record.key()} til aiven topic" }
                 currentPositions[TopicPartition(record.topic(), record.partition())] = record.offset() + 1
             }
