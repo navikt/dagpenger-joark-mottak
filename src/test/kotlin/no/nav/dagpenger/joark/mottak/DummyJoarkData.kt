@@ -34,7 +34,7 @@ fun lagJoarkHendelse(journalpostId: Long, tema: String, hendelsesType: String, m
     return GenericData.Record(joarkjournalfoeringhendelserAvroSchema).apply {
         put("journalpostId", journalpostId)
         put("hendelsesId", journalpostId.toString())
-        put("versjon", journalpostId)
+        put("versjon", journalpostId.toInt())
         put("hendelsesType", hendelsesType)
         put("journalpostStatus", "journalpostStatus")
         put("temaGammelt", tema)

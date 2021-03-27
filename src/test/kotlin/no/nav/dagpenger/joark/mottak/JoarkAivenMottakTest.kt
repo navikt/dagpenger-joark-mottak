@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import no.nav.dagpenger.streams.HealthStatus
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
@@ -58,7 +59,7 @@ class JoarkAivenMottakTest {
         val offsetData = mockConsumer.committed(setOf(journalpostPartition))
         offsetData[journalpostPartition]?.offset() shouldBe 1L
 
-        joarkAivenMottak.isAlive() shouldBe true
+        joarkAivenMottak.status() shouldBe HealthStatus.UP
     }
 
     @Test
@@ -81,6 +82,6 @@ class JoarkAivenMottakTest {
 
         mockConsumer.closed() shouldBe true
         mockProducer.closed() shouldBe true
-        joarkAivenMottak.isAlive() shouldBe false
+        joarkAivenMottak.status() shouldBe HealthStatus.DOWN
     }
 }

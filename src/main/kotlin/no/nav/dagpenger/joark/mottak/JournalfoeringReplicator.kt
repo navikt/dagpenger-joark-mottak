@@ -1,5 +1,8 @@
 package no.nav.dagpenger.joark.mottak
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
+import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -9,6 +12,7 @@ import no.nav.dagpenger.plain.consumerConfig
 import no.nav.dagpenger.streams.HealthCheck
 import no.nav.dagpenger.streams.HealthStatus
 import no.nav.dagpenger.streams.KafkaCredential
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -31,27 +35,34 @@ import kotlin.coroutines.CoroutineContext
 
 private val logger = KotlinLogging.logger {}
 
-fun consumer(bootstrapServerUrl: String, credential: KafkaCredential): KafkaConsumer<String, String> {
-    return KafkaConsumer<String, String>(
+internal const val JOURNALFOERING_REPLICATOR_GROUPID = "dagpenger-journalfoering-aiven-replicator"
+internal const val AIVEN_JOURNALFOERING_TOPIC_NAME = "teamdagpenger.mottak.v1"
+
+internal fun joarkConsumer(
+    bootstrapServerUrl: String,
+    credential: KafkaCredential,
+    schemaUrl: String,
+    topicName: String
+): KafkaConsumer<String, GenericRecord> {
+    return KafkaConsumer<String, GenericRecord>(
         consumerConfig(
-            groupId = "dagpenger-joark-mottak-aiven-replicator",
+            groupId = JOURNALFOERING_REPLICATOR_GROUPID,
             bootstrapServerUrl = bootstrapServerUrl,
-            credential = credential
-        ).also {
-            it[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
-            it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
-            it[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "false"
-        }
-    ).also {
-        it.subscribe(
-            listOf(
-                "privat-dagpenger-journalpost-mottatt-v1"
-            )
+            credential = credential,
+            Properties().also {
+                it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
+                it[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
+                it[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = KafkaAvroDeserializer::class.java
+                it[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "false"
+                it[AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = schemaUrl
+            }
         )
+    ).also {
+        it.subscribe(listOf(topicName))
     }
 }
 
-fun createAivenProducer(env: Map<String, String>): KafkaProducer<String, String> {
+internal fun aivenProducer(env: Map<String, String>): KafkaProducer<String, String> {
     val properties = Properties().apply {
         put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, env.getValue("KAFKA_BROKERS"))
         put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name)
@@ -70,8 +81,8 @@ fun createAivenProducer(env: Map<String, String>): KafkaProducer<String, String>
     return KafkaProducer(properties, StringSerializer(), StringSerializer())
 }
 
-class JoarkAivenMottak(
-    private val consumer: Consumer<String, String>,
+internal class JournalfoeringReplicator(
+    private val consumer: Consumer<String, GenericRecord>,
     private val producer: Producer<String, String>
 ) : CoroutineScope, HealthCheck {
     override val coroutineContext: CoroutineContext
@@ -83,35 +94,38 @@ class JoarkAivenMottak(
     }
 
     override fun status(): HealthStatus {
-        return when (job.isActive && producerIsAlive()) {
-            true -> HealthStatus.UP
+        return when (
+            job.isActive && isAlive { consumer.listTopics(Duration.ofMillis(500)) } && isAlive {
+                producer.partitionsFor(
+                    AIVEN_JOURNALFOERING_TOPIC_NAME
+                )
+            }
+        ) {
             false -> HealthStatus.DOWN
+            true -> HealthStatus.UP
         }
     }
 
     fun start() {
-        logger.info("starting JoarkAivenMottak")
+        logger.info("starting JournalfoeringReplicator")
         launch {
             run()
         }
     }
 
-    private fun producerIsAlive(): Boolean {
-        return try {
-            producer.partitionsFor(aivenTopic)
-            true
-        } catch (e: Exception) {
+    private fun isAlive(check: () -> Any): Boolean = runCatching(check).fold(
+        { true },
+        {
+            logger.error("Alive sjekk feilet", it)
             false
         }
-    }
+    )
 
     fun stop() {
-        logger.info("stopping JoarkAivenMottak")
+        logger.info("stopping JournalfoeringReplicator")
         consumer.wakeup()
         job.cancel()
     }
-
-    val aivenTopic = "teamdagpenger.journalforing.v1"
 
     private fun run() {
         try {
@@ -128,7 +142,7 @@ class JoarkAivenMottak(
         }
     }
 
-    private fun onRecords(records: ConsumerRecords<String, String>) {
+    private fun onRecords(records: ConsumerRecords<String, GenericRecord>) {
         if (records.isEmpty) return // poll returns an empty collection in case of rebalancing
         val currentPositions = records
             .groupBy { TopicPartition(it.topic(), it.partition()) }
@@ -136,8 +150,16 @@ class JoarkAivenMottak(
             .toMutableMap()
         try {
             records.onEach { record ->
-                producer.send(ProducerRecord(aivenTopic, record.key(), record.value())).get(500, TimeUnit.MILLISECONDS)
-                logger.info { "Migrerte ${record.topic()} med nøkkel: ${record.key()} til aiven topic" }
+                if (record.value().isTemaDagpenger()) {
+                    producer.send(
+                        ProducerRecord(
+                            AIVEN_JOURNALFOERING_TOPIC_NAME,
+                            record.key(),
+                            record.value().toJson()
+                        )
+                    ).get(500, TimeUnit.MILLISECONDS)
+                    logger.info { "Migrerte ${record.topic()} med nøkkel: ${record.key()} til aiven topic" }
+                }
                 currentPositions[TopicPartition(record.topic(), record.partition())] = record.offset() + 1
             }
         } catch (err: Exception) {
@@ -173,3 +195,33 @@ class JoarkAivenMottak(
         stop()
     }
 }
+
+private fun GenericRecord.isTemaDagpenger(): Boolean = "DAG" == this.get("temaNytt").toString()
+
+private data class JournalfoeringHendelse(
+    val hendelsesId: String,
+    val versjon: Int,
+    val hendelsesType: String,
+    val journalpostId: Long,
+    val journalpostStatus: String,
+    val temaGammelt: String,
+    val temaNytt: String,
+    val mottaksKanal: String,
+    val kanalReferanseId: String,
+    val behandlingstema: String,
+)
+
+private fun GenericRecord.toJson() = jacksonObjectMapper().writeValueAsString(
+    JournalfoeringHendelse(
+        hendelsesId = get("hendelsesId").toString(),
+        versjon = get("versjon") as Int,
+        hendelsesType = get("hendelsesType").toString(),
+        journalpostId = get("journalpostId") as Long,
+        journalpostStatus = get("journalpostStatus").toString(),
+        temaGammelt = get("temaGammelt").toString(),
+        temaNytt = get("temaNytt").toString(),
+        mottaksKanal = get("mottaksKanal").toString(),
+        kanalReferanseId = get("kanalReferanseId").toString(),
+        behandlingstema = get("behandlingstema").toString()
+    )
+)

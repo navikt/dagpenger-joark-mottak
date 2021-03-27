@@ -98,13 +98,18 @@ data class Configuration(
             keySerde = Serdes.String(),
             valueSerde = Serdes.serdeFrom(PacketSerializer(), PacketDeserializer())
         ),
-        val deseralizationExceptionHandler: String? = config().getOrNull(Key("deserialization.exception.handler", stringType)),
+        val deseralizationExceptionHandler: String? = config().getOrNull(
+            Key(
+                "deserialization.exception.handler",
+                stringType
+            )
+        ),
         val brokers: String = config()[Key("kafka.bootstrap.servers", stringType)],
         val schemaRegisterUrl: String = config()[Key("kafka.schema.registry.url", stringType)],
         val user: String = config()[Key("srvdagpenger.joark.mottak.username", stringType)],
         val password: String = config()[Key("srvdagpenger.joark.mottak.password", stringType)]
     ) {
-        fun credential(): KafkaCredential? {
+        fun credential(): KafkaCredential {
             return KafkaCredential(user, password)
         }
     }
@@ -124,7 +129,8 @@ data class Configuration(
 }
 
 object IgnoreJournalPost {
-    val ignorerJournalpost: Set<String> = config().getOrNull(Key("ignore.journalpost", stringType))?.split(",")?.map { it.trim() }?.toSet() ?: emptySet()
+    val ignorerJournalpost: Set<String> =
+        config().getOrNull(Key("ignore.journalpost", stringType))?.split(",")?.map { it.trim() }?.toSet() ?: emptySet()
 }
 
 fun getHostname(): String {

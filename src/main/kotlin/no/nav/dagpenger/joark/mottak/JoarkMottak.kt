@@ -5,7 +5,6 @@ import mu.KotlinLogging
 import no.nav.dagpenger.joark.mottak.IgnoreJournalPost.ignorerJournalpost
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.HealthCheck
-import no.nav.dagpenger.streams.HealthStatus
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.consumeGenericTopic
 import no.nav.dagpenger.streams.streamConfig
@@ -63,17 +62,8 @@ class JoarkMottak(
     val config: Configuration,
     val journalpostArkiv: JournalpostArkiv,
     val innløpPacketCreator: InnløpPacketCreator,
-    val joarkAivenMottakHealthCheck: HealthCheck? = null,
+    override val healthChecks: List<HealthCheck> = listOf(),
 ) : Service() {
-    override val healthChecks: List<HealthCheck> get() {
-        return if (joarkAivenMottakHealthCheck != null) {
-            listOf(
-                journalpostArkiv as HealthCheck,
-                innløpPacketCreator.personOppslag as HealthCheck,
-                joarkAivenMottakHealthCheck
-            )
-        } else listOf(journalpostArkiv as HealthCheck, innløpPacketCreator.personOppslag as HealthCheck)
-    }
 
     override val SERVICE_APP_ID =
         "dagpenger-joark-mottak" // NB: also used as group.id for the consumer group - do not change!
@@ -181,16 +171,20 @@ fun main() {
 
     val config = Configuration()
 
-    val joarkAivenMottak = JoarkAivenMottak(consumer(config.kafka.brokers, config.kafka.credential()!!), createAivenProducer(System.getenv()))
-        .also { it.start() }
+    val joarkAivenMottak = JoarkAivenMottak(
+        consumer(config.kafka.brokers, config.kafka.credential()),
+        createAivenProducer(System.getenv())
+    ).also { it.start() }
 
-    val joarkAivenMottakHealthCheck = object : HealthCheck {
-        override val name: String
-            get() = "JoarkAiven_replikerer"
-        override fun status(): HealthStatus {
-            return if (joarkAivenMottak.isAlive()) HealthStatus.UP else HealthStatus.DOWN
-        }
-    }
+    val journalfoeringReplicator = JournalfoeringReplicator(
+        joarkConsumer(
+            config.kafka.brokers,
+            config.kafka.credential(),
+            config.kafka.schemaRegisterUrl,
+            config.kafka.joarkTopic.name
+        ),
+        aivenProducer(System.getenv())
+    ).also { it.start() }
 
     val oidcClient = StsOidcClient(
         config.application.oidcStsUrl,
@@ -210,6 +204,16 @@ fun main() {
 
     val packetCreator = InnløpPacketCreator(personOppslag)
 
-    val service = JoarkMottak(config, journalpostArkiv, packetCreator, joarkAivenMottakHealthCheck)
-    service.start()
+    JoarkMottak(
+        config,
+        journalpostArkiv,
+        packetCreator,
+        listOf(
+            journalpostArkiv as HealthCheck,
+            personOppslag as HealthCheck,
+            joarkAivenMottak as HealthCheck,
+            journalfoeringReplicator as HealthCheck
+        )
+
+    ).also { it.start() }
 }
