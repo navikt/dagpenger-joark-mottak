@@ -55,6 +55,7 @@ internal fun joarkConsumer(
                 it[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = KafkaAvroDeserializer::class.java
                 it[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "false"
                 it[AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = schemaUrl
+                it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = 100
             }
         )
     ).also {
