@@ -44,6 +44,8 @@ internal fun joarkConsumer(
     schemaUrl: String,
     topicName: String
 ): KafkaConsumer<String, GenericRecord> {
+    val maxPollRecords = 50
+    val maxPollIntervalMs = Duration.ofSeconds(60 + maxPollRecords * 2.toLong()).toMillis()
     return KafkaConsumer<String, GenericRecord>(
         consumerConfig(
             groupId = JOURNALFOERING_REPLICATOR_GROUPID,
@@ -55,7 +57,8 @@ internal fun joarkConsumer(
                 it[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = KafkaAvroDeserializer::class.java
                 it[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "false"
                 it[AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = schemaUrl
-                it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = 100
+                it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = maxPollRecords
+                it[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = maxPollIntervalMs
             }
         )
     ).also {
@@ -127,7 +130,7 @@ internal class JournalfoeringReplicator(
     private fun run() {
         try {
             while (job.isActive) {
-                onRecords(consumer.poll(Duration.ofMillis(500)))
+                onRecords(consumer.poll(Duration.ofSeconds(1)))
             }
         } catch (e: WakeupException) {
             if (job.isActive) throw e
