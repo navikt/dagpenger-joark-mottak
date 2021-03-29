@@ -95,11 +95,7 @@ internal class JournalfoeringReplicator(
 
     override fun status(): HealthStatus {
         return when (
-            job.isActive && isAlive { consumer.listTopics(Duration.ofMillis(500)) } && isAlive {
-                producer.partitionsFor(
-                    AIVEN_JOURNALFOERING_TOPIC_NAME
-                )
-            }
+            job.isActive && isAlive { producer.partitionsFor(AIVEN_JOURNALFOERING_TOPIC_NAME) }
         ) {
             false -> HealthStatus.DOWN
             true -> HealthStatus.UP
