@@ -222,6 +222,6 @@ private fun GenericRecord.toJson() = jacksonObjectMapper().writeValueAsString(
         temaNytt = get("temaNytt").toString(),
         mottaksKanal = get("mottaksKanal").toString(),
         kanalReferanseId = get("kanalReferanseId").toString(),
-        behandlingstema = get("behandlingstema").toString()
+        behandlingstema = get("behandlingstema")?.toString() ?: ""
     )
 )
