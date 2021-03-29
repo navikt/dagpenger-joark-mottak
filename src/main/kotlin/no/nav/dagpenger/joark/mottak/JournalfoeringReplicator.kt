@@ -58,7 +58,7 @@ internal fun joarkConsumer(
                 it[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "false"
                 it[AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = schemaUrl
                 it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = maxPollRecords
-                it[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = maxPollIntervalMs
+                it[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = "$maxPollIntervalMs"
             }
         )
     ).also {
