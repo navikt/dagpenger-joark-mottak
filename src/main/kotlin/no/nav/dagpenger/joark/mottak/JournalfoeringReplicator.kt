@@ -154,7 +154,7 @@ internal class JournalfoeringReplicator(
                             record.value().toJson()
                         )
                     ).get(500, TimeUnit.MILLISECONDS)
-                    logger.info { "Migrerte ${record.topic()} med nøkkel: ${record.key()} til aiven topic" }
+                    logger.info { "Migrerte ${record.topic()} med nøkkel: ${record.value().journalPostId()} til aiven topic" }
                 }
                 currentPositions[TopicPartition(record.topic(), record.partition())] = record.offset() + 1
             }
