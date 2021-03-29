@@ -35,7 +35,7 @@ import kotlin.coroutines.CoroutineContext
 
 private val logger = KotlinLogging.logger {}
 
-internal const val JOURNALFOERING_REPLICATOR_GROUPID = "dagpenger-journalfoering-aiven-replicator"
+internal const val JOURNALFOERING_REPLICATOR_GROUPID = "dagpenger-journalfoering-aiven-replicator-v1"
 internal const val AIVEN_JOURNALFOERING_TOPIC_NAME = "teamdagpenger.mottak.v1"
 
 internal fun joarkConsumer(
@@ -150,7 +150,7 @@ internal class JournalfoeringReplicator(
                     producer.send(
                         ProducerRecord(
                             AIVEN_JOURNALFOERING_TOPIC_NAME,
-                            record.key(),
+                            record.value().journalPostId(),
                             record.value().toJson()
                         )
                     ).get(500, TimeUnit.MILLISECONDS)
@@ -193,6 +193,7 @@ internal class JournalfoeringReplicator(
 }
 
 private fun GenericRecord.isTemaDagpenger(): Boolean = "DAG" == this.get("temaNytt").toString()
+private fun GenericRecord.journalPostId() = this.get("journalpostId").toString()
 
 private data class JournalfoeringHendelse(
     val hendelsesId: String,
