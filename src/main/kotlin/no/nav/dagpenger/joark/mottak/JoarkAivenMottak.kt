@@ -38,9 +38,13 @@ fun consumer(bootstrapServerUrl: String, credential: KafkaCredential): KafkaCons
             bootstrapServerUrl = bootstrapServerUrl,
             credential = credential
         ).also {
+            val maxPollRecords = 200
+            val maxPollIntervalMs = Duration.ofSeconds(60 + maxPollRecords * 2.toLong()).toMillis()
             it[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
             it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
             it[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "false"
+            it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = maxPollRecords
+            it[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = "$maxPollIntervalMs"
         }
     ).also {
         it.subscribe(
@@ -116,7 +120,7 @@ class JoarkAivenMottak(
     private fun run() {
         try {
             while (job.isActive) {
-                onRecords(consumer.poll(Duration.ofMillis(500)))
+                onRecords(consumer.poll(Duration.ofSeconds(1)))
             }
         } catch (e: WakeupException) {
             if (job.isActive) throw e
