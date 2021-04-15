@@ -53,7 +53,7 @@ private val devProperties = ConfigurationMap(
         "unleash.url" to "https://unleash.nais.io/api/",
         "kafka.processing.guarantee" to StreamsConfig.AT_LEAST_ONCE,
         "deserialization.exception.handler" to LogAndContinueExceptionHandler::class.java.name,
-        "ignore.journalpost" to "493332645,493356201",
+        "ignore.journalpost" to "493332645,493356201,493356214",
     )
 )
 private val prodProperties = ConfigurationMap(
