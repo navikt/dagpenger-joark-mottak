@@ -5,13 +5,19 @@ import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.jackson.responseObject
 import com.github.kittinunf.result.Result
+import mu.KotlinLogging
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.streams.HealthStatus
 
 class JournalpostArkivJoark(
     private val joarkBaseUrl: String,
     private val oidcClient: OidcClient,
+    private val profile: Profile
 ) : JournalpostArkiv {
+
+    private companion object {
+        val logger = KotlinLogging.logger { }
+    }
 
     override fun status(): HealthStatus {
         val (_, _, result) = with("${joarkBaseUrl}isAlive".httpGet()) {
@@ -61,6 +67,10 @@ class JournalpostArkivJoark(
                 )
             },
             { error ->
+                if (profile == Profile.DEV) {
+                    logger.error { "Feil ved uthenting av søknadsdata for $journalpostId" }
+                    return emptySøknadsdata
+                }
                 throw JournalpostArkivException(
                     response.statusCode,
                     "Feil ved henting av søknadsdata for journalpost med id: $journalpostId. Melding fra response ${response.responseMessage}",

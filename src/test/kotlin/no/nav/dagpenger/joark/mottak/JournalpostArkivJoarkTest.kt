@@ -65,7 +65,7 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
         joarkClient.hentSøknadsdata(
             dummyJournalpost(
                 journalpostId = journalpostId,
@@ -92,7 +92,7 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
         val journalPost = joarkClient.hentInngåendeJournalpost("1")
 
         journalPost.tittel shouldBe "MASKERT_FELT"
@@ -115,7 +115,7 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
         val result = runCatching { joarkClient.hentInngåendeJournalpost("2") }
 
         result.isFailure shouldBe true
@@ -134,7 +134,7 @@ class JournalpostArkivJoarkTest {
                 )
         )
 
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
 
         val result = runCatching { joarkClient.hentInngåendeJournalpost("-1") }
         result.isFailure shouldBe true
@@ -150,7 +150,7 @@ class JournalpostArkivJoarkTest {
                     ok()
                 )
         )
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
         joarkClient.status() shouldBe HealthStatus.UP
         verify(getRequestedFor(urlEqualTo("/isAlive")))
     }
@@ -163,7 +163,7 @@ class JournalpostArkivJoarkTest {
                     serverError()
                 )
         )
-        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient())
+        val joarkClient = JournalpostArkivJoark(server.url(""), DummyOidcClient(), Profile.PROD)
         joarkClient.status() shouldBe HealthStatus.DOWN
         verify(getRequestedFor(urlEqualTo("/isAlive")))
     }
