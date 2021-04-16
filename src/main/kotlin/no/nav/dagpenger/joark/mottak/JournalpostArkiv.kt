@@ -18,10 +18,13 @@ data class Søknadsdata(
         false -> merge(mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato), data)
     }
 
-    fun toMap(): Map<String, Any?> {
-        return jacksonJsonAdapter.readValue(data, object : TypeReference<Map<String, Any?>>() {})
-            .toMap() + mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato)
-    }
+    fun toMap(): Map<String, Any?> =
+        when (this == emptySøknadsdata) {
+            true -> emptyMap()
+            false ->
+                jacksonJsonAdapter.readValue(data, object : TypeReference<Map<String, Any?>>() {})
+                    .toMap() + mapOf("journalpostId" to journalpostId, "journalRegistrertDato" to registrertDato)
+        }
 }
 
 val emptySøknadsdata = Søknadsdata("", "", null)
