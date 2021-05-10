@@ -52,15 +52,11 @@ dependencies {
     implementation(Dagpenger.Streams)
     implementation(Dagpenger.Events)
 
-    implementation(Dagpenger.Biblioteker.stsKlient)
-
     implementation(Prometheus.common)
     implementation(Prometheus.log4j2)
 
     implementation(Konfig.konfig)
 
-    implementation(Fuel.fuel)
-    implementation(Fuel.library("jackson"))
     implementation(Jackson.core)
     implementation(Jackson.kotlin)
 
@@ -76,17 +72,11 @@ dependencies {
 
     implementation(Ktor.serverNetty)
 
-    implementation("no.finn.unleash:unleash-client-java:3.2.9")
-
     testImplementation(kotlin("test"))
     testImplementation(Junit5.api)
     testImplementation(KoTest.runner)
     testImplementation(KoTest.assertions)
     testRuntimeOnly(Junit5.engine)
-    testImplementation(Wiremock.standalone)
-    testImplementation(KafkaEmbedded.env)
-    testImplementation(Kafka.streamTestUtils)
-    testImplementation(Mockk.mockk)
 }
 
 spotless {
