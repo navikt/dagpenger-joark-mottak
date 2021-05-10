@@ -30,7 +30,7 @@ private val devProperties = ConfigurationMap(
         "kafka.aapen.dok.journalfoering.topic" to "aapen-dok-journalfoering-v1-q1",
         "application.profile" to Profile.DEV.toString(),
         "application.httpPort" to "8080",
-        "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.preprod.local"
+        "kafka.schema.registry.url" to "http://kafka-schema-registry.nais-q.adeo.no"
     )
 )
 private val prodProperties = ConfigurationMap(
