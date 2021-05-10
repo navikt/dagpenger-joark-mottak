@@ -1,10 +1,10 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: {{app}}
-  namespace: {{namespace}}
+  name: dp-joark-mottak
+  namespace: teamdagpenger
   labels:
-    team: {{team}}
+    team: teamdagpenger
 spec:
   image: {{ image }}
   port: 8080
@@ -21,14 +21,14 @@ spec:
   resources:
     limits:
       cpu: 500m
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      cpu: 200m
-      memory: 256Mi
+      cpu: 300m
+      memory: 512Mi
   webproxy: true
+  envFrom:
+    - secret: serviceuser-srvdagpenger-joark-mottak
   kafka:
-    pool: nav-dev
+    pool: {{ kafka-pool }}
   secureLogs:
-    enabled: true
-  vault:
     enabled: true
