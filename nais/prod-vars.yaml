@@ -1,2 +1,2 @@
-kafka-pool: nav-dev
+kafka-pool: nav-prod
 alerts_slack_channel: team-dagpenger-alert
