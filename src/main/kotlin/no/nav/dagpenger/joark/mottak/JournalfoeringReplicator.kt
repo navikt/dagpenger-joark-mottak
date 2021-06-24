@@ -1,7 +1,7 @@
 package no.nav.dagpenger.joark.mottak
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +56,7 @@ internal fun joarkConsumer(
                 it[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
                 it[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = KafkaAvroDeserializer::class.java
                 it[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "false"
-                it[AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = schemaUrl
+                it[AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = schemaUrl
                 it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = maxPollRecords
                 it[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = "$maxPollIntervalMs"
             }
