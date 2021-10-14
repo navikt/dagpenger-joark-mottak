@@ -22,6 +22,7 @@ private val localProperties = ConfigurationMap(
         "kafka.schema.registry.url" to "http://localhost:8081",
         "srvdagpenger.joark.mottak.username" to "user",
         "srvdagpenger.joark.mottak.password" to "password",
+        "AAPEN_DOK_JOURNALFORING_TOPIC" to "teamdokumenthandtering.aapen-dok-journalfoering-q1",
     )
 )
 private val devProperties = ConfigurationMap(
@@ -39,7 +40,8 @@ private val prodProperties = ConfigurationMap(
         "kafka.aapen.dok.journalfoering.topic" to "aapen-dok-journalfoering-v1-p",
         "application.profile" to Profile.PROD.toString(),
         "application.httpPort" to "8080",
-        "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.adeo.no"
+        "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.adeo.no",
+        "AAPEN_DOK_JOURNALFORING_TOPIC" to "teamdokumenthandtering.aapen-dok-journalfoering",
     )
 )
 
@@ -72,6 +74,7 @@ data class Configuration(
                 stringType
             )
         ),
+        val journalføringTopic: String = config()[Key("AAPEN_DOK_JOURNALFORING_TOPIC", stringType)],
         val brokers: String = config()[Key("kafka.bootstrap.servers", stringType)],
         val schemaRegisterUrl: String = config()[Key("kafka.schema.registry.url", stringType)],
         val user: String = config()[Key("srvdagpenger.joark.mottak.username", stringType)],
@@ -91,3 +94,5 @@ data class Configuration(
 enum class Profile {
     LOCAL, DEV, PROD
 }
+
+internal const val JOURNALFOERING_REPLICATOR_GROUPID = "dagpenger-journalfoering-aiven-replicator-v1"

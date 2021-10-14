@@ -10,7 +10,7 @@ plugins {
 
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
 }
 
@@ -28,7 +28,7 @@ repositories {
 
 application {
     applicationName = "dagpenger-joark-mottak"
-    mainClassName = "no.nav.dagpenger.joark.mottak.JoarkMottakKt"
+    mainClass.set("no.nav.dagpenger.joark.mottak.JoarkMottakKt")
 }
 
 java {
