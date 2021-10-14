@@ -22,7 +22,7 @@ private val localProperties = ConfigurationMap(
         "kafka.schema.registry.url" to "http://localhost:8081",
         "srvdagpenger.joark.mottak.username" to "user",
         "srvdagpenger.joark.mottak.password" to "password",
-        "AAPEN_DOK_JOURNALFORING_TOPIC" to "teamdokumenthandtering.aapen-dok-journalfoering-q1",
+        "kafka.aapen.dok.journalfoering.topic.aiven" to "teamdokumenthandtering.aapen-dok-journalfoering-q1",
     )
 )
 private val devProperties = ConfigurationMap(
@@ -31,7 +31,8 @@ private val devProperties = ConfigurationMap(
         "kafka.aapen.dok.journalfoering.topic" to "aapen-dok-journalfoering-v1-q1",
         "application.profile" to Profile.DEV.toString(),
         "application.httpPort" to "8080",
-        "kafka.schema.registry.url" to "https://kafka-schema-registry.nais-q.adeo.no"
+        "kafka.schema.registry.url" to "https://kafka-schema-registry.nais-q.adeo.no",
+        "kafka.aapen.dok.journalfoering.topic.aiven" to "teamdokumenthandtering.aapen-dok-journalfoering-q1"
     )
 )
 private val prodProperties = ConfigurationMap(
@@ -41,7 +42,7 @@ private val prodProperties = ConfigurationMap(
         "application.profile" to Profile.PROD.toString(),
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "https://kafka-schema-registry.nais.adeo.no",
-        "AAPEN_DOK_JOURNALFORING_TOPIC" to "teamdokumenthandtering.aapen-dok-journalfoering",
+        "kafka.aapen.dok.journalfoering.topic.aiven" to "teamdokumenthandtering.aapen-dok-journalfoering",
     )
 )
 
@@ -74,7 +75,7 @@ data class Configuration(
                 stringType
             )
         ),
-        val journalføringTopic: String = config()[Key("AAPEN_DOK_JOURNALFORING_TOPIC", stringType)],
+        val journalføringTopic: String = config()[Key("kafka.aapen.dok.journalfoering.topic.aiven", stringType)],
         val brokers: String = config()[Key("kafka.bootstrap.servers", stringType)],
         val schemaRegisterUrl: String = config()[Key("kafka.schema.registry.url", stringType)],
         val user: String = config()[Key("srvdagpenger.joark.mottak.username", stringType)],
