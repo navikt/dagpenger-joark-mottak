@@ -35,13 +35,13 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> { kotlinOptions.jvmTarget = "11" }
 
 configurations {
     all {
         resolutionStrategy {
-            force("com.fasterxml.jackson.core:jackson-databind:2.10.0")
-            force("com.fasterxml.jackson.core:jackson-core:2.10.0")
+            force("com.fasterxml.jackson.core:jackson-databind:2.15.0")
+            force("com.fasterxml.jackson.core:jackson-core:2.15.0")
         }
     }
 }
@@ -69,7 +69,8 @@ dependencies {
     implementation(Kafka.streams)
     implementation(Kafka.Confluent.avroStreamSerdes)
 
-    implementation(Ktor.serverNetty)
+    implementation(Ktor2.Server.library("netty"))
+    implementation(Ktor2.Server.library("default-headers"))
 
     testImplementation(kotlin("test"))
     testImplementation(Junit5.api)
