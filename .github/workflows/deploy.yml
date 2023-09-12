@@ -1,6 +1,9 @@
 name: Build and deploy
 
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - 'dependabot/**'
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/dagpenger-joark-mottak:${{ github.sha }}
