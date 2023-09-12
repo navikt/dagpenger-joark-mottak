@@ -8,7 +8,6 @@ plugins {
     id("com.diffplug.spotless")
 }
 
-
 repositories {
     mavenCentral()
     maven("https://www.jitpack.io")
@@ -19,7 +18,6 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     testImplementation(kotlin("test"))
-
 }
 kotlin {
     jvmToolchain(17)
@@ -34,7 +32,6 @@ tasks.test {
         events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
     }
 }
-
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     kotlin {
@@ -53,7 +50,3 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 tasks.withType<KotlinCompile>().configureEach {
     dependsOn("spotlessApply")
 }
-
-
-
-
