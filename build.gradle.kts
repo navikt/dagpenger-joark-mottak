@@ -40,7 +40,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> { kotlinOptions.
 configurations {
     all {
         resolutionStrategy {
-            force("com.fasterxml.jackson.core:jackson-databind:2.15.0")
+            force("com.fasterxml.jackson.core:jackson-databind:2.15.2")
             force("com.fasterxml.jackson.core:jackson-core:2.15.0")
         }
     }
