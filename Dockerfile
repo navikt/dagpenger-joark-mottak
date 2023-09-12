@@ -1,3 +1,3 @@
-FROM ghcr.io/navikt/baseimages/temurin:11
+FROM ghcr.io/navikt/baseimages/temurin:17
 
 COPY build/libs/*-all.jar app.jar
