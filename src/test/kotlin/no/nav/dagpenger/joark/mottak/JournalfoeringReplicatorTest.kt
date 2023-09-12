@@ -1,5 +1,6 @@
 package no.nav.dagpenger.joark.mottak
 
+import io.kotest.assertions.timing.eventually
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -14,17 +15,18 @@ import org.apache.kafka.common.errors.TopicAuthorizationException
 import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.seconds
 
 internal class JournalfoeringReplicatorTest {
     private val journalfoeringTopic = "kafka.aapen.dok.journalfoering.topic"
-    val journalfoeringPartition = TopicPartition(journalfoeringTopic, 0)
+    private val journalfoeringPartition = TopicPartition(journalfoeringTopic, 0)
 
-    val mockConsumer = MockConsumer<String, GenericRecord>(OffsetResetStrategy.EARLIEST).also {
+    private val mockConsumer = MockConsumer<String, GenericRecord>(OffsetResetStrategy.EARLIEST).also {
         it.assign(listOf(journalfoeringPartition))
         it.updateBeginningOffsets(
             mapOf(
                 journalfoeringPartition to 0L,
-            )
+            ),
         )
     }
 
@@ -33,13 +35,12 @@ internal class JournalfoeringReplicatorTest {
         mockConsumer.updateBeginningOffsets(
             mapOf(
                 journalfoeringPartition to 0L,
-            )
+            ),
         )
     }
 
     @Test
     fun `videresender journalpost med tema DAG fra onprem til aiventopic`() = runBlocking {
-
         val mockProducer = MockProducer(true, StringSerializer(), StringSerializer())
 
         val journalfoeringReplicator = JournalfoeringReplicator(
@@ -50,13 +51,13 @@ internal class JournalfoeringReplicatorTest {
         }
 
         mockConsumer.addRecord(
-            ConsumerRecord(journalfoeringTopic, 0, 0L, "jpid", lagJoarkHendelse(1L, "DAG", "sadba"))
+            ConsumerRecord(journalfoeringTopic, 0, 0L, "jpid", lagJoarkHendelse(1L, "DAG", "sadba")),
         )
         mockConsumer.addRecord(
-            ConsumerRecord(journalfoeringTopic, 0, 1L, "jpid", lagJoarkHendelse(2L, "IKKEDAG", "sadba"))
+            ConsumerRecord(journalfoeringTopic, 0, 1L, "jpid", lagJoarkHendelse(2L, "IKKEDAG", "sadba")),
         )
         mockConsumer.addRecord(
-            ConsumerRecord(journalfoeringTopic, 0, 2L, "jpid", lagJoarkHendelse(3L, "IKKEDAG", "sadba"))
+            ConsumerRecord(journalfoeringTopic, 0, 2L, "jpid", lagJoarkHendelse(3L, "IKKEDAG", "sadba")),
         )
 
         delay(500)
@@ -76,26 +77,26 @@ internal class JournalfoeringReplicatorTest {
     }
 
     @Test
-    fun `committer ikke når det skjer feil i konsumering`() = runBlocking {
-
+    fun `Simuler feil ved skriving, og verifiser at vi ikke committer offset i consumer`() = runBlocking {
         val mockProducer = MockProducer(false, StringSerializer(), StringSerializer())
+        // Simuler feil ved skriving
+        mockProducer.sendException = TopicAuthorizationException("Simulert feil")
 
-        val journalfoeringReplicator = JournalfoeringReplicator(
-            mockConsumer,
-            mockProducer,
-        ).also {
+        val journalfoeringReplicator = JournalfoeringReplicator(mockConsumer, mockProducer).also {
             it.start()
         }
 
         mockConsumer.addRecord(
-            ConsumerRecord(journalfoeringTopic, 0, 0L, "jpid", lagJoarkHendelse(1L, "DAG", "sadba"))
+            ConsumerRecord(journalfoeringTopic, 0, 0L, "jpid", lagJoarkHendelse(1L, "DAG", "sadba")),
         )
 
-        delay(500)
-        mockProducer.errorNext(TopicAuthorizationException("Simulere feil")) shouldBe true
-        delay(500)
+        eventually(1.seconds) {
+            mockConsumer.closed() shouldBe true
+        }
 
-        mockConsumer.closed() shouldBe true
+        // Sjekk at vi ikke har produsert noe
+        mockProducer.history().isEmpty() shouldBe true
+
         mockProducer.closed() shouldBe true
         journalfoeringReplicator.status() shouldBe HealthStatus.DOWN
     }
