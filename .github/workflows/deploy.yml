@@ -13,7 +13,7 @@ jobs:
     name: Build and publish Docker image
     runs-on: ubuntu-latest
     permissions:
-      package: write
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
