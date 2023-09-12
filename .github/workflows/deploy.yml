@@ -62,7 +62,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          VAR: image=${{ needs.build.outputs.image }}
+          VAR: image=${{ needs.docker-build-push.outputs.image }}
           RESOURCE: nais/nais.yaml
           VARS: nais/dev-vars.yaml
           PRINT_PAYLOAD: true
@@ -79,7 +79,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          VAR: image=${{ needs.build.outputs.image }}
+          VAR: image=${{ needs.docker-build-push.outputs.image }}
           RESOURCE: nais/nais.yaml
           VARS: nais/prod-vars.yaml
           PRINT_PAYLOAD: true
