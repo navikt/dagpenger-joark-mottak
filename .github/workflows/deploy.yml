@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch NAIS yaml
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: nais-yaml
           path: nais
@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch NAIS yaml
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: nais-yaml
           path: nais
