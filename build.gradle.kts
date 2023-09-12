@@ -1,11 +1,6 @@
-import com.diffplug.spotless.LineEnding
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
-
 plugins {
+    id("common")
     application
-    kotlin("jvm") version Kotlin.version
-    id(Spotless.spotless) version Spotless.version
     id(Shadow.shadow) version Shadow.version
 }
 
@@ -13,10 +8,6 @@ buildscript {
     repositories {
         mavenCentral()
     }
-}
-
-apply {
-    plugin(Spotless.spotless)
 }
 
 repositories {
@@ -75,31 +66,6 @@ dependencies {
     testImplementation(KoTest.runner)
     testImplementation(KoTest.assertions)
     testRuntimeOnly(Junit5.engine)
-}
-
-spotless {
-    kotlin {
-        ktlint(Ktlint.version)
-    }
-    kotlinGradle {
-        target("*.gradle.kts", "buildSrc/**/*.kt*")
-        ktlint(Ktlint.version)
-    }
-
-    // Workaround for <https://github.com/diffplug/spotless/issues/1644>
-    // using idea found at
-    // <https://github.com/diffplug/spotless/issues/1527#issuecomment-1409142798>.
-    lineEndings = LineEnding.PLATFORM_NATIVE // o
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-    testLogging {
-        showExceptions = true
-        showStackTraces = true
-        exceptionFormat = TestExceptionFormat.FULL
-        events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
-    }
 }
 
 tasks.named("shadowJar") {

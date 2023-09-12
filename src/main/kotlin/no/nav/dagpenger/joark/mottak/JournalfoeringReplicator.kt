@@ -25,7 +25,7 @@ internal const val AIVEN_JOURNALFOERING_TOPIC_NAME = "teamdagpenger.mottak.v1"
 
 internal class JournalfoeringReplicator(
     private val consumer: Consumer<String, GenericRecord>,
-    private val producer: Producer<String, String>
+    private val producer: Producer<String, String>,
 ) : CoroutineScope, HealthCheck {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
@@ -56,7 +56,7 @@ internal class JournalfoeringReplicator(
         {
             logger.error("Alive sjekk feilet", it)
             false
-        }
+        },
     )
 
     fun stop() {
@@ -93,8 +93,8 @@ internal class JournalfoeringReplicator(
                         ProducerRecord(
                             AIVEN_JOURNALFOERING_TOPIC_NAME,
                             record.value().journalPostId(),
-                            record.value().toJson()
-                        )
+                            record.value().toJson(),
+                        ),
                     ).get(500, TimeUnit.MILLISECONDS)
                     logger.info { "Migrerte ${record.topic()} med nøkkel: ${record.value().journalPostId()} til aiven topic" }
                 }
@@ -105,7 +105,7 @@ internal class JournalfoeringReplicator(
                 "due to an error during processing, positions are reset to each next message (after each record that was processed OK):" +
                     currentPositions.map { "\tpartition=${it.key}, offset=${it.value}" }
                         .joinToString(separator = "\n", prefix = "\n", postfix = "\n"),
-                err
+                err,
             )
             currentPositions.forEach { (partition, offset) -> consumer.seek(partition, offset) }
             throw err
@@ -161,6 +161,6 @@ private fun GenericRecord.toJson() = jacksonObjectMapper().writeValueAsString(
         temaNytt = get("temaNytt").toString(),
         mottaksKanal = get("mottaksKanal").toString(),
         kanalReferanseId = get("kanalReferanseId").toString(),
-        behandlingstema = get("behandlingstema")?.toString() ?: ""
-    )
+        behandlingstema = get("behandlingstema")?.toString() ?: "",
+    ),
 )

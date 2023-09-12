@@ -14,21 +14,21 @@ private val localProperties = ConfigurationMap(
         "application.httpPort" to "8080",
         "kafka.schema.registry.url" to "http://localhost:8081",
         "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering-q1",
-    )
+    ),
 )
 private val devProperties = ConfigurationMap(
     mapOf(
         "application.profile" to Profile.DEV.toString(),
         "application.httpPort" to "8080",
-        "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering-q1"
-    )
+        "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering-q1",
+    ),
 )
 private val prodProperties = ConfigurationMap(
     mapOf(
         "application.profile" to Profile.PROD.toString(),
         "application.httpPort" to "8080",
         "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering",
-    )
+    ),
 )
 
 private fun config() = when (System.getenv("NAIS_CLUSTER_NAME") ?: System.getProperty("NAIS_CLUSTER_NAME")) {
@@ -41,7 +41,7 @@ private fun config() = when (System.getenv("NAIS_CLUSTER_NAME") ?: System.getPro
 
 data class Configuration(
     val kafka: Kafka = Kafka(),
-    val application: Application = Application()
+    val application: Application = Application(),
 ) {
     data class Kafka(
         val journalføringTopic: String = config()[Key("kafka.aapen.dok.journalfoering.topic", stringType)],

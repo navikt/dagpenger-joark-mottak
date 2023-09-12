@@ -3,8 +3,6 @@ package no.nav.dagpenger.joark.mottak
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
-import no.nav.dagpenger.plain.consumerConfig
-import no.nav.dagpenger.streams.KafkaCredential
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -19,37 +17,10 @@ import java.time.Duration
 import java.util.Properties
 
 object KafkaConfig {
-    internal fun joarkConsumer(
-        bootstrapServerUrl: String,
-        credential: KafkaCredential,
-        schemaUrl: String,
-        topicName: String
-    ): KafkaConsumer<String, GenericRecord> {
-        val maxPollRecords = 50
-        val maxPollIntervalMs = Duration.ofSeconds(60 + maxPollRecords * 2.toLong()).toMillis()
-        return KafkaConsumer<String, GenericRecord>(
-            consumerConfig(
-                groupId = JOURNALFOERING_REPLICATOR_GROUPID,
-                bootstrapServerUrl = bootstrapServerUrl,
-                credential = credential,
-                Properties().also {
-                    it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
-                    it[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
-                    it[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = KafkaAvroDeserializer::class.java
-                    it[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "false"
-                    it[AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = schemaUrl
-                    it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = maxPollRecords
-                    it[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = "$maxPollIntervalMs"
-                }
-            )
-        ).also {
-            it.subscribe(listOf(topicName))
-        }
-    }
 
     internal fun joarkAivenConsumer(
         topicName: String,
-        env: Map<String, String>
+        env: Map<String, String>,
     ): KafkaConsumer<String, GenericRecord> {
         val maxPollRecords = 50
         val maxPollIntervalMs = Duration.ofSeconds(60 + maxPollRecords * 2.toLong()).toMillis()
@@ -65,7 +36,7 @@ object KafkaConfig {
                 it[SchemaRegistryClientConfig.USER_INFO_CONFIG] = env.getValue("KAFKA_SCHEMA_REGISTRY_USER") + ":" + env.getValue("KAFKA_SCHEMA_REGISTRY_PASSWORD")
                 it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = maxPollRecords
                 it[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = "$maxPollIntervalMs"
-            }
+            },
         ).also {
             it.subscribe(listOf(topicName))
         }
