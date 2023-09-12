@@ -24,7 +24,7 @@ fun main() {
         routing {
             healthRoutes(listOf(aivenJournalfoeringReplicator))
         }
-    }.start()
+    }.start(wait = true)
 
     Runtime.getRuntime().addShutdownHook(
         Thread {
