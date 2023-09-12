@@ -21,8 +21,7 @@ apply {
 repositories {
     mavenCentral()
     maven("https://packages.confluent.io/maven/")
-    maven("https://jitpack.io")
-    maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
 
 application {
@@ -39,16 +38,15 @@ java {
 configurations {
     all {
         resolutionStrategy {
-            force("com.fasterxml.jackson.core:jackson-databind:2.15.0")
-            force("com.fasterxml.jackson.core:jackson-core:2.15.0")
+            force("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+            force("com.fasterxml.jackson.core:jackson-core:2.15.2")
         }
     }
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation(Dagpenger.Streams)
-    implementation(Dagpenger.Events)
+    implementation("com.github.navikt:dagpenger-streams:20230831.f3d785")
 
     implementation(Prometheus.common)
     implementation(Prometheus.log4j2)
