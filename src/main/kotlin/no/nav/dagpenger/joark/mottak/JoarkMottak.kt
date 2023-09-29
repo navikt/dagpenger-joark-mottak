@@ -11,20 +11,22 @@ import no.nav.dagpenger.streams.healthRoutes
 
 fun main() {
     val config = Configuration()
-    val aivenJournalfoeringReplicator = JournalfoeringReplicator(
-        joarkAivenConsumer(
-            config.kafka.journalføringTopic,
-            System.getenv(),
-        ),
-        aivenProducer(System.getenv()),
-    ).also { it.start() }
+    val aivenJournalfoeringReplicator =
+        JournalfoeringReplicator(
+            joarkAivenConsumer(
+                config.kafka.journalføringTopic,
+                System.getenv(),
+            ),
+            aivenProducer(System.getenv()),
+        ).also { it.start() }
 
-    val server = embeddedServer(Netty, config.application.httpPort) {
-        install(DefaultHeaders)
-        routing {
-            healthRoutes(listOf(aivenJournalfoeringReplicator))
-        }
-    }.start(wait = true)
+    val server =
+        embeddedServer(Netty, config.application.httpPort) {
+            install(DefaultHeaders)
+            routing {
+                healthRoutes(listOf(aivenJournalfoeringReplicator))
+            }
+        }.start(wait = true)
 
     Runtime.getRuntime().addShutdownHook(
         Thread {

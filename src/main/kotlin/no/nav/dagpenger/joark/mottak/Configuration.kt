@@ -8,36 +8,40 @@ import com.natpryce.konfig.intType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
 
-private val localProperties = ConfigurationMap(
-    mapOf(
-        "application.profile" to Profile.LOCAL.toString(),
-        "application.httpPort" to "8080",
-        "kafka.schema.registry.url" to "http://localhost:8081",
-        "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering-q1",
-    ),
-)
-private val devProperties = ConfigurationMap(
-    mapOf(
-        "application.profile" to Profile.DEV.toString(),
-        "application.httpPort" to "8080",
-        "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering-q1",
-    ),
-)
-private val prodProperties = ConfigurationMap(
-    mapOf(
-        "application.profile" to Profile.PROD.toString(),
-        "application.httpPort" to "8080",
-        "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering",
-    ),
-)
+private val localProperties =
+    ConfigurationMap(
+        mapOf(
+            "application.profile" to Profile.LOCAL.toString(),
+            "application.httpPort" to "8080",
+            "kafka.schema.registry.url" to "http://localhost:8081",
+            "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering-q1",
+        ),
+    )
+private val devProperties =
+    ConfigurationMap(
+        mapOf(
+            "application.profile" to Profile.DEV.toString(),
+            "application.httpPort" to "8080",
+            "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering-q1",
+        ),
+    )
+private val prodProperties =
+    ConfigurationMap(
+        mapOf(
+            "application.profile" to Profile.PROD.toString(),
+            "application.httpPort" to "8080",
+            "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering",
+        ),
+    )
 
-private fun config() = when (System.getenv("NAIS_CLUSTER_NAME") ?: System.getProperty("NAIS_CLUSTER_NAME")) {
-    "dev-gcp" -> systemProperties() overriding EnvironmentVariables overriding devProperties
-    "prod-gcp" -> systemProperties() overriding EnvironmentVariables overriding prodProperties
-    else -> {
-        systemProperties() overriding EnvironmentVariables overriding localProperties
+private fun config() =
+    when (System.getenv("NAIS_CLUSTER_NAME") ?: System.getProperty("NAIS_CLUSTER_NAME")) {
+        "dev-gcp" -> systemProperties() overriding EnvironmentVariables overriding devProperties
+        "prod-gcp" -> systemProperties() overriding EnvironmentVariables overriding prodProperties
+        else -> {
+            systemProperties() overriding EnvironmentVariables overriding localProperties
+        }
     }
-}
 
 data class Configuration(
     val kafka: Kafka = Kafka(),
@@ -54,7 +58,9 @@ data class Configuration(
 }
 
 enum class Profile {
-    LOCAL, DEV, PROD
+    LOCAL,
+    DEV,
+    PROD,
 }
 
 internal const val JOURNALFOERING_REPLICATOR_GROUPID = "dagpenger-journalfoering-aiven-replicator-v1"

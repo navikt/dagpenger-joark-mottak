@@ -8,29 +8,34 @@ private val joarkjournalfoeringhendelserSchema =
     // language=json
     """
 
-            {
-              "namespace" : "no.nav.joarkjournalfoeringhendelser",
-              "type" : "record",
-              "name" : "JournalfoeringHendelseRecord",
-              "fields" : [
-                {"name": "hendelsesId", "type": "string"},
-                {"name": "versjon", "type": "int"},
-                {"name": "hendelsesType", "type": "string"},
-                {"name": "journalpostId", "type": "long"},
-                {"name": "journalpostStatus", "type": "string"},
-                {"name": "temaGammelt", "type": "string"},
-                {"name": "temaNytt", "type": "string"},
-                {"name": "mottaksKanal", "type": "string"},
-                {"name": "kanalReferanseId", "type": "string"},
-                {"name": "behandlingstema", "type": "string", "default": ""}
-              ]
-            }
+    {
+      "namespace" : "no.nav.joarkjournalfoeringhendelser",
+      "type" : "record",
+      "name" : "JournalfoeringHendelseRecord",
+      "fields" : [
+        {"name": "hendelsesId", "type": "string"},
+        {"name": "versjon", "type": "int"},
+        {"name": "hendelsesType", "type": "string"},
+        {"name": "journalpostId", "type": "long"},
+        {"name": "journalpostStatus", "type": "string"},
+        {"name": "temaGammelt", "type": "string"},
+        {"name": "temaNytt", "type": "string"},
+        {"name": "mottaksKanal", "type": "string"},
+        {"name": "kanalReferanseId", "type": "string"},
+        {"name": "behandlingstema", "type": "string", "default": ""}
+      ]
+    }
 
     """.trimIndent()
 
 val joarkjournalfoeringhendelserAvroSchema = Schema.Parser().parse(joarkjournalfoeringhendelserSchema)
 
-fun lagJoarkHendelse(journalpostId: Long, tema: String, hendelsesType: String, mottakskanal: String = "mottakskanal"): GenericData.Record {
+fun lagJoarkHendelse(
+    journalpostId: Long,
+    tema: String,
+    hendelsesType: String,
+    mottakskanal: String = "mottakskanal",
+): GenericData.Record {
     return GenericData.Record(joarkjournalfoeringhendelserAvroSchema).apply {
         put("journalpostId", journalpostId)
         put("hendelsesId", journalpostId.toString())

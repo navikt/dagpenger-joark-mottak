@@ -51,13 +51,14 @@ internal class JournalfoeringReplicator(
         }
     }
 
-    private fun isAlive(check: () -> Any): Boolean = runCatching(check).fold(
-        { true },
-        {
-            logger.error("Alive sjekk feilet", it)
-            false
-        },
-    )
+    private fun isAlive(check: () -> Any): Boolean =
+        runCatching(check).fold(
+            { true },
+            {
+                logger.error("Alive sjekk feilet", it)
+                false
+            },
+        )
 
     fun stop() {
         logger.info("stopping JournalfoeringReplicator")
@@ -82,10 +83,11 @@ internal class JournalfoeringReplicator(
 
     private fun onRecords(records: ConsumerRecords<String, GenericRecord>) {
         if (records.isEmpty) return // poll returns an empty collection in case of rebalancing
-        val currentPositions = records
-            .groupBy { TopicPartition(it.topic(), it.partition()) }
-            .mapValues { partition -> partition.value.minOf { it.offset() } }
-            .toMutableMap()
+        val currentPositions =
+            records
+                .groupBy { TopicPartition(it.topic(), it.partition()) }
+                .mapValues { partition -> partition.value.minOf { it.offset() } }
+                .toMutableMap()
         try {
             records.onEach { record ->
                 if (record.value().isTemaDagpenger()) {
@@ -135,6 +137,7 @@ internal class JournalfoeringReplicator(
 }
 
 private fun GenericRecord.isTemaDagpenger(): Boolean = "DAG" == this.get("temaNytt").toString()
+
 private fun GenericRecord.journalPostId() = this.get("journalpostId").toString()
 
 private data class JournalfoeringHendelse(
@@ -150,17 +153,18 @@ private data class JournalfoeringHendelse(
     val behandlingstema: String,
 )
 
-private fun GenericRecord.toJson() = jacksonObjectMapper().writeValueAsString(
-    JournalfoeringHendelse(
-        hendelsesId = get("hendelsesId").toString(),
-        versjon = get("versjon") as Int,
-        hendelsesType = get("hendelsesType").toString(),
-        journalpostId = get("journalpostId") as Long,
-        journalpostStatus = get("journalpostStatus").toString(),
-        temaGammelt = get("temaGammelt").toString(),
-        temaNytt = get("temaNytt").toString(),
-        mottaksKanal = get("mottaksKanal").toString(),
-        kanalReferanseId = get("kanalReferanseId").toString(),
-        behandlingstema = get("behandlingstema")?.toString() ?: "",
-    ),
-)
+private fun GenericRecord.toJson() =
+    jacksonObjectMapper().writeValueAsString(
+        JournalfoeringHendelse(
+            hendelsesId = get("hendelsesId").toString(),
+            versjon = get("versjon") as Int,
+            hendelsesType = get("hendelsesType").toString(),
+            journalpostId = get("journalpostId") as Long,
+            journalpostStatus = get("journalpostStatus").toString(),
+            temaGammelt = get("temaGammelt").toString(),
+            temaNytt = get("temaNytt").toString(),
+            mottaksKanal = get("mottaksKanal").toString(),
+            kanalReferanseId = get("kanalReferanseId").toString(),
+            behandlingstema = get("behandlingstema")?.toString() ?: "",
+        ),
+    )
