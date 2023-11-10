@@ -1,7 +1,7 @@
 plugins {
     id("common")
     application
-    id(Shadow.shadow) version Shadow.version
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 buildscript {
