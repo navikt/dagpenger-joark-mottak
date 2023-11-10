@@ -36,36 +36,37 @@ configurations {
     }
 }
 
+val log4j2Versjon = "2.20.0"
+val kafkaVersjon = "3.6.0"
+
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.github.navikt:dagpenger-streams:20230831.f3d785")
 
-    implementation(Prometheus.common)
-    implementation(Prometheus.log4j2)
+    implementation("io.prometheus:simpleclient_common:0.16.0")
+    implementation("io.prometheus:simpleclient_log4j2:0.16.0")
 
-    implementation(Konfig.konfig)
+    implementation(libs.konfig)
 
-    implementation(Jackson.core)
-    implementation(Jackson.kotlin)
+    implementation(libs.jackson.core)
+    implementation(libs.jackson.kotlin)
 
-    implementation(Log4j2.api)
-    implementation(Log4j2.core)
-    implementation(Log4j2.slf4j)
-    implementation(Log4j2.library("layout-template-json"))
-    implementation(Kotlin.Logging.kotlinLogging)
+    implementation("org.apache.logging.log4j:log4j-api:$log4j2Versjon")
+    implementation("org.apache.logging.log4j:log4j-core:$log4j2Versjon")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4j2Versjon")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:$log4j2Versjon")
 
-    implementation(Kafka.clients)
-    implementation(Kafka.streams)
-    implementation(Kafka.Confluent.avroStreamSerdes)
+    implementation(libs.kotlin.logging)
 
-    implementation(Ktor2.Server.library("netty"))
-    implementation(Ktor2.Server.library("default-headers"))
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersjon")
+    implementation("org.apache.kafka:kafka-streams:$kafkaVersjon")
+    implementation("io.confluent:kafka-streams-avro-serde:7.3.0")
+
+    implementation("io.ktor:ktor-server-netty:${libs.versions.ktor.get()}")
+    implementation("io.ktor:ktor-server-default-headers:${libs.versions.ktor.get()}")
 
     testImplementation(kotlin("test"))
-    testImplementation(Junit5.api)
-    testImplementation(KoTest.runner)
-    testImplementation(KoTest.assertions)
-    testRuntimeOnly(Junit5.engine)
+    testImplementation(libs.kotest.assertions.core)
 }
 
 tasks.named("shadowJar") {
