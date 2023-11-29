@@ -30,14 +30,14 @@ java {
 configurations {
     all {
         resolutionStrategy {
-            force("com.fasterxml.jackson.core:jackson-databind:2.15.3")
+            force("com.fasterxml.jackson.core:jackson-databind:2.16.0")
             force("com.fasterxml.jackson.core:jackson-core:2.16.0")
         }
     }
 }
 
-val log4j2Versjon = "2.20.0"
-val kafkaVersjon = "3.6.0"
+val log4j2Versjon = "2.22.0"
+val kafkaVersjon = "7.5.2-ce"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -60,7 +60,7 @@ dependencies {
 
     implementation("org.apache.kafka:kafka-clients:$kafkaVersjon")
     implementation("org.apache.kafka:kafka-streams:$kafkaVersjon")
-    implementation("io.confluent:kafka-streams-avro-serde:7.3.0")
+    implementation("io.confluent:kafka-streams-avro-serde:7.5.2")
 
     implementation("io.ktor:ktor-server-netty:${libs.versions.ktor.get()}")
     implementation("io.ktor:ktor-server-default-headers:${libs.versions.ktor.get()}")
