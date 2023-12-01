@@ -20,11 +20,10 @@ spec:
     max: 1
   resources:
     limits:
-      cpu: 500m
-      memory: 1024Mi
-    requests:
-      cpu: 300m
       memory: 512Mi
+    requests:
+      cpu: 30m
+      memory: 256Mi
   webproxy: true
   envFrom:
     - secret: serviceuser-srvdagpenger-joark-mottak
