@@ -35,7 +35,7 @@ jobs:
 
       - name: docker-build-push
         uses: nais/docker-build-push@v0
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         id: docker-build-push
         with:
           byosbom: dependency-graph-reports/build_and_deploy-build.json
@@ -52,7 +52,7 @@ jobs:
   deploy-dev:
     name: Deploy to dev
     needs: [build]
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     environment: dev-gcp
     runs-on: ubuntu-latest
     steps:
@@ -69,7 +69,7 @@ jobs:
   deploy-prod:
     name: Deploy to Production
     needs: [build]
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     environment: prod-gcp
     runs-on: ubuntu-latest
     steps:
