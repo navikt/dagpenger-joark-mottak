@@ -37,7 +37,7 @@ configurations {
 }
 
 val log4j2Versjon = "2.22.0"
-val kafkaVersjon = "7.5.2-ce"
+val kafkaVersjon = "7.5.3-ce"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
