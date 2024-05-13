@@ -42,7 +42,7 @@ internal class JournalfoeringReplicatorTest {
 
     @Test
     @Suppress("ktlint:standard:max-line-length")
-    fun `videresender journalpost med tema DAG fra onprem til aiventopic`() =
+    fun `videresender journalpost med tema DAG fra onprem til aiventopic`() {
         runBlocking {
             val mockProducer = MockProducer(true, StringSerializer(), StringSerializer())
 
@@ -79,9 +79,10 @@ internal class JournalfoeringReplicatorTest {
             offsetData[journalfoeringPartition]?.offset() shouldBe 3L
             journalfoeringReplicator.status() shouldBe HealthStatus.UP
         }
+    }
 
     @Test
-    fun `Simuler feil ved skriving, og verifiser at vi ikke committer offset i consumer`() =
+    fun `Simuler feil ved skriving, og verifiser at vi ikke committer offset i consumer`() {
         runBlocking {
             val mockProducer = MockProducer(false, StringSerializer(), StringSerializer())
             // Simuler feil ved skriving
@@ -104,6 +105,8 @@ internal class JournalfoeringReplicatorTest {
             mockProducer.history().isEmpty() shouldBe true
 
             mockProducer.closed() shouldBe true
+            delay(5)
             journalfoeringReplicator.status() shouldBe HealthStatus.DOWN
         }
+    }
 }
