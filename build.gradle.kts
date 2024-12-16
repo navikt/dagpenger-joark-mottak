@@ -36,7 +36,7 @@ configurations {
     }
 }
 
-val log4j2Versjon = "2.24.2"
+val log4j2Versjon = "2.24.3"
 val kafkaVersjon = "7.8.0-ce"
 
 dependencies {
