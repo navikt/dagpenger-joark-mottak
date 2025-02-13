@@ -62,7 +62,7 @@ dependencies {
     implementation("org.apache.kafka:kafka-streams:$kafkaVersjon")
     implementation("io.confluent:kafka-streams-avro-serde:7.8.1")
 
-    implementation("io.ktor:ktor-server-netty:${libs.versions.ktor.get()}")
+    implementation("io.ktor:ktor-server-cio:${libs.versions.ktor.get()}")
     implementation("io.ktor:ktor-server-default-headers:${libs.versions.ktor.get()}")
 
     testImplementation(kotlin("test"))

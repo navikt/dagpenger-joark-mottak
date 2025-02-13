@@ -1,8 +1,8 @@
 package no.nav.dagpenger.joark.mottak
 
 import io.ktor.server.application.install
+import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.routing.routing
 import no.nav.dagpenger.joark.mottak.KafkaConfig.aivenProducer
@@ -21,7 +21,7 @@ fun main() {
         ).also { it.start() }
 
     val server =
-        embeddedServer(Netty, config.application.httpPort) {
+        embeddedServer(CIO, config.application.httpPort) {
             install(DefaultHeaders)
             routing {
                 healthRoutes(listOf(aivenJournalfoeringReplicator))
