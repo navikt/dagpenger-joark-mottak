@@ -6,8 +6,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
-import no.nav.dagpenger.streams.HealthCheck
-import no.nav.dagpenger.streams.HealthStatus
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -26,7 +24,7 @@ internal const val AIVEN_JOURNALFOERING_TOPIC_NAME = "teamdagpenger.mottak.v1"
 internal class JournalfoeringReplicator(
     private val consumer: Consumer<String, GenericRecord>,
     private val producer: Producer<String, String>,
-) : CoroutineScope, HealthCheck {
+) : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
     private val job: Job = Job()
@@ -35,14 +33,7 @@ internal class JournalfoeringReplicator(
         Runtime.getRuntime().addShutdownHook(Thread(::shutdownHook))
     }
 
-    override fun status(): HealthStatus {
-        return when (
-            job.isActive && isAlive { producer.partitionsFor(AIVEN_JOURNALFOERING_TOPIC_NAME) }
-        ) {
-            false -> HealthStatus.DOWN
-            true -> HealthStatus.UP
-        }
-    }
+    fun status(): Boolean = job.isActive && isAlive { producer.partitionsFor(AIVEN_JOURNALFOERING_TOPIC_NAME) }
 
     fun start() {
         logger.info("starting JournalfoeringReplicator")

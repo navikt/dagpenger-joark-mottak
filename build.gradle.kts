@@ -41,7 +41,6 @@ val kafkaVersjon = "7.8.1-ce"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.github.navikt:dagpenger-streams:20230831.f3d785")
 
     implementation("io.prometheus:simpleclient_common:0.16.0")
     implementation("io.prometheus:simpleclient_log4j2:0.16.0")

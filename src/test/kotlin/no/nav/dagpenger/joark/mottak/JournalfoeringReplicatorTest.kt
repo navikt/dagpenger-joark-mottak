@@ -4,7 +4,6 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import no.nav.dagpenger.streams.HealthStatus
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
@@ -77,7 +76,7 @@ internal class JournalfoeringReplicatorTest {
 
             val offsetData = mockConsumer.committed(setOf(journalfoeringPartition))
             offsetData[journalfoeringPartition]?.offset() shouldBe 3L
-            journalfoeringReplicator.status() shouldBe HealthStatus.UP
+            journalfoeringReplicator.status() shouldBe true
         }
     }
 
@@ -106,7 +105,7 @@ internal class JournalfoeringReplicatorTest {
 
             mockProducer.closed() shouldBe true
             delay(5)
-            journalfoeringReplicator.status() shouldBe HealthStatus.DOWN
+            journalfoeringReplicator.status() shouldBe false
         }
     }
 }
