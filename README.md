@@ -1,6 +1,8 @@
 # Dagpenger-joark-mottak
 
-Tar i mot tynne kafka meldinger fra Joark og produserer tykke kafka meldinger for videre behandling.
+Oversetter meldinger fra `teamdokumenthandtering.aapen-dok-journalfoering`, oversetter fra Avro til json og produserer json på teamdagpenger.rapid.v1 topic. 
+
+
 
 # Komme i gang
 
