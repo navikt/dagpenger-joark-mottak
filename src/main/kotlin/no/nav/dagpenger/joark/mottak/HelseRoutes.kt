@@ -28,7 +28,7 @@ internal fun Application.helse(journalfoeringReplicator: JournalfoeringReplicato
 
         route("/isAlive") {
             get {
-                if (journalfoeringReplicator.status()) {
+                if (journalfoeringReplicator.isAlive()) {
                     call.respondText("ALIVE", ContentType.Text.Plain)
                 } else {
                     log.warn("Health check failed")

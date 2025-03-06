@@ -33,7 +33,7 @@ internal class JournalfoeringReplicator(
         Runtime.getRuntime().addShutdownHook(Thread(::shutdownHook))
     }
 
-    fun status(): Boolean = job.isActive && isAlive { producer.partitionsFor(AIVEN_JOURNALFOERING_TOPIC_NAME) }
+    fun isAlive(): Boolean = job.isActive && isAlive { producer.partitionsFor(AIVEN_JOURNALFOERING_TOPIC_NAME) }
 
     fun start() {
         logger.info("starting JournalfoeringReplicator")

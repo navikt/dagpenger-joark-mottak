@@ -76,7 +76,7 @@ internal class JournalfoeringReplicatorTest {
 
             val offsetData = mockConsumer.committed(setOf(journalfoeringPartition))
             offsetData[journalfoeringPartition]?.offset() shouldBe 3L
-            journalfoeringReplicator.status() shouldBe true
+            journalfoeringReplicator.isAlive() shouldBe true
         }
     }
 
@@ -105,7 +105,7 @@ internal class JournalfoeringReplicatorTest {
 
             mockProducer.closed() shouldBe true
             delay(5)
-            journalfoeringReplicator.status() shouldBe false
+            journalfoeringReplicator.isAlive() shouldBe false
         }
     }
 }
