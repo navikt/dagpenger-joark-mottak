@@ -31,7 +31,6 @@ internal fun Application.helse(journalfoeringReplicator: JournalfoeringReplicato
                 if (journalfoeringReplicator.status()) {
                     call.respondText("ALIVE", ContentType.Text.Plain)
                 } else {
-                    call.respondText("ALIVE", ContentType.Text.Plain)
                     log.warn("Health check failed")
                     call.respondText("ERROR", ContentType.Text.Plain, HttpStatusCode.ServiceUnavailable)
                 }
