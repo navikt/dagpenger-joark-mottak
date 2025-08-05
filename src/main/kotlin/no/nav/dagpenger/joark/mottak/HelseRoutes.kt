@@ -16,7 +16,10 @@ internal fun Application.helse(journalfoeringReplicator: JournalfoeringReplicato
     routing {
         route("/metrics") {
             get {
-                val names = call.request.queryParameters.getAll("name")?.toSet() ?: kotlin.collections.emptySet()
+                val names =
+                    call.request.queryParameters
+                        .getAll("name")
+                        ?.toSet() ?: kotlin.collections.emptySet()
                 call.respondTextWriter(
                     ContentType.parse(TextFormat.CONTENT_TYPE_004),
                     HttpStatusCode.OK,

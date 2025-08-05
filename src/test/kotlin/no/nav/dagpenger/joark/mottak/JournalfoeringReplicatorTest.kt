@@ -71,7 +71,8 @@ internal class JournalfoeringReplicatorTest {
                 it.topic() shouldBe AIVEN_JOURNALFOERING_TOPIC_NAME
                 it.key() shouldBe "1"
                 //language=JSON
-                it.value() shouldBe """{"hendelsesId":"1","versjon":1,"hendelsesType":"sadba","journalpostId":1,"journalpostStatus":"journalpostStatus","temaGammelt":"DAG","temaNytt":"DAG","mottaksKanal":"mottakskanal","kanalReferanseId":"kanalReferanseId","behandlingstema":"DAG"}"""
+                it.value() shouldBe
+                    """{"hendelsesId":"1","versjon":1,"hendelsesType":"sadba","journalpostId":1,"journalpostStatus":"journalpostStatus","temaGammelt":"DAG","temaNytt":"DAG","mottaksKanal":"mottakskanal","kanalReferanseId":"kanalReferanseId","behandlingstema":"DAG"}"""
             }
 
             val offsetData = mockConsumer.committed(setOf(journalfoeringPartition))

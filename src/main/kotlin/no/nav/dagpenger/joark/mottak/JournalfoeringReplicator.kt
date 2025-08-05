@@ -82,13 +82,14 @@ internal class JournalfoeringReplicator(
         try {
             records.onEach { record ->
                 if (record.value().isTemaDagpenger()) {
-                    producer.send(
-                        ProducerRecord(
-                            AIVEN_JOURNALFOERING_TOPIC_NAME,
-                            record.value().journalPostId(),
-                            record.value().toJson(),
-                        ),
-                    ).get(500, TimeUnit.MILLISECONDS)
+                    producer
+                        .send(
+                            ProducerRecord(
+                                AIVEN_JOURNALFOERING_TOPIC_NAME,
+                                record.value().journalPostId(),
+                                record.value().toJson(),
+                            ),
+                        ).get(500, TimeUnit.MILLISECONDS)
                     logger.info { "Migrerte ${record.topic()} med nøkkel: ${record.value().journalPostId()} til aiven topic" }
                 }
                 currentPositions[TopicPartition(record.topic(), record.partition())] = record.offset() + 1
@@ -96,7 +97,8 @@ internal class JournalfoeringReplicator(
         } catch (err: Exception) {
             logger.info(
                 "due to an error during processing, positions are reset to each next message (after each record that was processed OK):" +
-                    currentPositions.map { "\tpartition=${it.key}, offset=${it.value}" }
+                    currentPositions
+                        .map { "\tpartition=${it.key}, offset=${it.value}" }
                         .joinToString(separator = "\n", prefix = "\n", postfix = "\n"),
                 err,
             )

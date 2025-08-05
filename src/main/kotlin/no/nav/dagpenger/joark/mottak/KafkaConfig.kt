@@ -52,8 +52,8 @@ object KafkaConfig {
         return KafkaProducer(properties, StringSerializer(), StringSerializer())
     }
 
-    private fun aivenConfig(env: Map<String, String>): Properties {
-        return Properties().apply {
+    private fun aivenConfig(env: Map<String, String>): Properties =
+        Properties().apply {
             put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, env.getValue("KAFKA_BROKERS"))
             put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name)
             put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "")
@@ -64,5 +64,4 @@ object KafkaConfig {
             put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, env.getValue("KAFKA_KEYSTORE_PATH"))
             put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, env.getValue("KAFKA_CREDSTORE_PASSWORD"))
         }
-    }
 }
