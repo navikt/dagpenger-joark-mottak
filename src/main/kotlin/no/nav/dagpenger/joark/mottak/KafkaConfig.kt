@@ -3,6 +3,7 @@ package no.nav.dagpenger.joark.mottak
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
+import mu.KotlinLogging
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -15,6 +16,8 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import java.time.Duration
 import java.util.Properties
+
+private val logger = KotlinLogging.logger {}
 
 object KafkaConfig {
     internal fun joarkAivenConsumer(
@@ -38,6 +41,7 @@ object KafkaConfig {
                 it[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = "$maxPollIntervalMs"
             },
         ).also {
+            logger.info { "Subscribing to topics: $topicNames" }
             it.subscribe(topicNames)
         }
     }
