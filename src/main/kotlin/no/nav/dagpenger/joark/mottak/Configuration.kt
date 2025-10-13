@@ -15,8 +15,8 @@ private val localProperties =
             "application.httpPort" to "8080",
             "kafka.schema.registry.url" to "http://localhost:8081",
             "kafka.aapen.dok.journalfoering.topic" to
-                    "teamdokumenthandtering.aapen-dok-journalfoering-q1," +
-                    "teamdokumenthandtering.aapen-dok-journalfoering"
+                "teamdokumenthandtering.aapen-dok-journalfoering-q1," +
+                "teamdokumenthandtering.aapen-dok-journalfoering",
         ),
     )
 private val devProperties =
