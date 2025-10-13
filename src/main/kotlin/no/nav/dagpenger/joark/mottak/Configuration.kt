@@ -23,8 +23,7 @@ private val devProperties =
             "application.profile" to Profile.DEV.toString(),
             "application.httpPort" to "8080",
             "kafka.aapen.dok.journalfoering.topic" to
-                "teamdokumenthandtering.aapen-dok-journalfoering-q1," +
-                "teamdokumenthandtering.aapen-dok-journalfoering",
+                "teamdokumenthandtering.aapen-dok-journalfoering-q1"
         ),
     )
 private val prodProperties =
