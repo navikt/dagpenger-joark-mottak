@@ -14,9 +14,7 @@ private val localProperties =
             "application.profile" to Profile.LOCAL.toString(),
             "application.httpPort" to "8080",
             "kafka.schema.registry.url" to "http://localhost:8081",
-            "kafka.aapen.dok.journalfoering.topic" to
-                "teamdokumenthandtering.aapen-dok-journalfoering-q1," +
-                "teamdokumenthandtering.aapen-dok-journalfoering",
+            "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering-q1",
         ),
     )
 private val devProperties =
@@ -24,7 +22,9 @@ private val devProperties =
         mapOf(
             "application.profile" to Profile.DEV.toString(),
             "application.httpPort" to "8080",
-            "kafka.aapen.dok.journalfoering.topic" to "teamdokumenthandtering.aapen-dok-journalfoering-q1",
+            "kafka.aapen.dok.journalfoering.topic" to
+                "teamdokumenthandtering.aapen-dok-journalfoering-q1," +
+                "teamdokumenthandtering.aapen-dok-journalfoering",
         ),
     )
 private val prodProperties =
