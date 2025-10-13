@@ -13,7 +13,7 @@ fun main() {
     val aivenJournalfoeringReplicator =
         JournalfoeringReplicator(
             joarkAivenConsumer(
-                config.kafka.journalføringTopic,
+                config.kafka.journalføringTopics,
                 System.getenv(),
             ),
             aivenProducer(System.getenv()),

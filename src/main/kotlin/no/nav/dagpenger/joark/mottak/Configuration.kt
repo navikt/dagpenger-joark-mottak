@@ -48,7 +48,13 @@ data class Configuration(
     val application: Application = Application(),
 ) {
     data class Kafka(
-        val journalføringTopic: String = config()[Key("kafka.aapen.dok.journalfoering.topic", stringType)],
+        val journalføringTopics: Set<String> =
+            config()[
+                Key(
+                    "kafka.aapen.dok.journalfoering.topic",
+                    stringType,
+                ),
+            ].split(",").toSet(),
     )
 
     data class Application(

@@ -18,7 +18,7 @@ import java.util.Properties
 
 object KafkaConfig {
     internal fun joarkAivenConsumer(
-        topicName: String,
+        topicNames: Set<String>,
         env: Map<String, String>,
     ): KafkaConsumer<String, GenericRecord> {
         val maxPollRecords = 50
@@ -38,7 +38,7 @@ object KafkaConfig {
                 it[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = "$maxPollIntervalMs"
             },
         ).also {
-            it.subscribe(listOf(topicName))
+            it.subscribe(topicNames)
         }
     }
 
