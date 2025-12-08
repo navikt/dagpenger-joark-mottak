@@ -1,11 +1,11 @@
 package no.nav.dagpenger.joark.mottak
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -36,7 +36,7 @@ internal class JournalfoeringReplicator(
     fun isAlive(): Boolean = job.isActive && isAlive { producer.partitionsFor(AIVEN_JOURNALFOERING_TOPIC_NAME) }
 
     fun start() {
-        logger.info("starting JournalfoeringReplicator")
+        logger.info { "starting JournalfoeringReplicator" }
         launch {
             run()
         }
@@ -46,13 +46,13 @@ internal class JournalfoeringReplicator(
         runCatching(check).fold(
             { true },
             {
-                logger.error("Alive sjekk feilet", it)
+                logger.error(it) { "Alive sjekk feilet" }
                 false
             },
         )
 
     fun stop() {
-        logger.info("stopping JournalfoeringReplicator")
+        logger.info { "stopping JournalfoeringReplicator" }
         consumer.wakeup()
         job.cancel()
     }
@@ -90,18 +90,21 @@ internal class JournalfoeringReplicator(
                                 record.value().toJson(),
                             ),
                         ).get(500, TimeUnit.MILLISECONDS)
-                    logger.info { "Migrerte ${record.topic()} med nøkkel: ${record.value().journalPostId()} til aiven topic" }
+                    logger.info {
+                        "Migrerte ${record.topic()} med nøkkel: ${
+                            record.value().journalPostId()
+                        } til aiven topic"
+                    }
                 }
                 currentPositions[TopicPartition(record.topic(), record.partition())] = record.offset() + 1
             }
         } catch (err: Exception) {
-            logger.info(
+            logger.info(err) {
                 "due to an error during processing, positions are reset to each next message (after each record that was processed OK):" +
                     currentPositions
                         .map { "\tpartition=${it.key}, offset=${it.value}" }
-                        .joinToString(separator = "\n", prefix = "\n", postfix = "\n"),
-                err,
-            )
+                        .joinToString(separator = "\n", prefix = "\n", postfix = "\n")
+            }
             currentPositions.forEach { (partition, offset) -> consumer.seek(partition, offset) }
             throw err
         } finally {
@@ -119,12 +122,12 @@ internal class JournalfoeringReplicator(
         try {
             block()
         } catch (err: Exception) {
-            logger.error(err.message, err)
+            logger.error(err) { err.message }
         }
     }
 
     private fun shutdownHook() {
-        logger.info("received shutdown signal, stopping app")
+        logger.info { "received shutdown signal, stopping app" }
         stop()
     }
 }
