@@ -36,7 +36,6 @@ configurations {
     }
 }
 
-val log4j2Versjon = "2.25.2"
 val kafkaVersjon = "8.1.1-ce"
 
 dependencies {
@@ -50,19 +49,19 @@ dependencies {
     implementation(libs.jackson.core)
     implementation(libs.jackson.kotlin)
 
-    implementation("org.apache.logging.log4j:log4j-api:$log4j2Versjon")
-    implementation("org.apache.logging.log4j:log4j-core:$log4j2Versjon")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4j2Versjon")
-    implementation("org.apache.logging.log4j:log4j-layout-template-json:$log4j2Versjon")
-
-    implementation(libs.kotlin.logging)
-
     implementation("org.apache.kafka:kafka-clients:$kafkaVersjon")
     implementation("org.apache.kafka:kafka-streams:$kafkaVersjon")
     implementation("io.confluent:kafka-streams-avro-serde:8.1.1")
 
     implementation("io.ktor:ktor-server-cio:${libs.versions.ktor.get()}")
     implementation("io.ktor:ktor-server-default-headers:${libs.versions.ktor.get()}")
+
+    implementation(libs.kotlin.logging)
+    runtimeOnly(libs.logback.core)
+    runtimeOnly(libs.logback.classic)
+    runtimeOnly("net.logstash.logback:logstash-logback-encoder:9.0") {
+        exclude("com.fasterxml.jackson.core")
+    }
 
     testImplementation(kotlin("test"))
     testImplementation(libs.kotest.assertions.core)
