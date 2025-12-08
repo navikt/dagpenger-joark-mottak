@@ -35,8 +35,8 @@ fun lagJoarkHendelse(
     tema: String,
     hendelsesType: String,
     mottakskanal: String = "mottakskanal",
-): GenericData.Record {
-    return GenericData.Record(joarkjournalfoeringhendelserAvroSchema).apply {
+): GenericData.Record =
+    GenericData.Record(joarkjournalfoeringhendelserAvroSchema).apply {
         put("journalpostId", journalpostId)
         put("hendelsesId", journalpostId.toString())
         put("versjon", journalpostId.toInt())
@@ -48,4 +48,3 @@ fun lagJoarkHendelse(
         put("kanalReferanseId", "kanalReferanseId")
         put("behandlingstema", tema)
     }
-}
