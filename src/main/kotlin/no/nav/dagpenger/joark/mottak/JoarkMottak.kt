@@ -8,9 +8,9 @@ import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.routing.routing
 import no.nav.dagpenger.joark.mottak.KafkaConfig.aivenProducer
 import no.nav.dagpenger.joark.mottak.KafkaConfig.joarkAivenConsumer
-import kotlin.math.log
 
 private val logger = KotlinLogging.logger {}
+
 fun main() {
     val config = Configuration()
 
