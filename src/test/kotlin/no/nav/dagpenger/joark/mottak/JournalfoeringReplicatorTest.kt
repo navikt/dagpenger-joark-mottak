@@ -7,7 +7,6 @@ import kotlinx.coroutines.runBlocking
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
-import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.apache.kafka.clients.producer.MockProducer
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.errors.TopicAuthorizationException
@@ -21,7 +20,7 @@ internal class JournalfoeringReplicatorTest {
     private val journalfoeringPartition = TopicPartition(journalfoeringTopic, 0)
 
     private val mockConsumer =
-        MockConsumer<String, GenericRecord>(OffsetResetStrategy.EARLIEST).also {
+        MockConsumer<String, GenericRecord>("earliest").also {
             it.assign(listOf(journalfoeringPartition))
             it.updateBeginningOffsets(
                 mapOf(
@@ -43,7 +42,13 @@ internal class JournalfoeringReplicatorTest {
     @Suppress("ktlint:standard:max-line-length")
     fun `videresender journalpost med tema DAG fra onprem til aiventopic`() {
         runBlocking {
-            val mockProducer = MockProducer(true, StringSerializer(), StringSerializer())
+            val mockProducer =
+                MockProducer(
+                    true,
+                    null,
+                    StringSerializer(),
+                    StringSerializer(),
+                )
 
             val journalfoeringReplicator =
                 JournalfoeringReplicator(
@@ -75,16 +80,24 @@ internal class JournalfoeringReplicatorTest {
                     """{"hendelsesId":"1","versjon":1,"hendelsesType":"sadba","journalpostId":1,"journalpostStatus":"journalpostStatus","temaGammelt":"DAG","temaNytt":"DAG","mottaksKanal":"mottakskanal","kanalReferanseId":"kanalReferanseId","behandlingstema":"DAG"}"""
             }
 
-            val offsetData = mockConsumer.committed(setOf(journalfoeringPartition))
-            offsetData[journalfoeringPartition]?.offset() shouldBe 3L
-            journalfoeringReplicator.isAlive() shouldBe true
+            eventually(duration = 5.seconds) {
+                val offsetData = mockConsumer.committed(setOf(journalfoeringPartition))
+                offsetData[journalfoeringPartition]?.offset() shouldBe 3L
+                journalfoeringReplicator.isAlive() shouldBe true
+            }
         }
     }
 
     @Test
     fun `Simuler feil ved skriving, og verifiser at vi ikke committer offset i consumer`() {
         runBlocking {
-            val mockProducer = MockProducer(false, StringSerializer(), StringSerializer())
+            val mockProducer =
+                MockProducer(
+                    true,
+                    null,
+                    StringSerializer(),
+                    StringSerializer(),
+                )
             // Simuler feil ved skriving
             mockProducer.sendException = TopicAuthorizationException("Simulert feil")
 
