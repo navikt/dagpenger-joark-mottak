@@ -29,8 +29,6 @@ spec:
     - secret: serviceuser-srvdagpenger-joark-mottak
   kafka:
     pool: "{{ kafka-pool }}"
-  secureLogs:
-    enabled: true
   observability:
     logging:
       destinations:
