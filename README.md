@@ -1,6 +1,6 @@
 # Dagpenger-joark-mottak
 
-Oversetter meldinger fra `teamdokumenthandtering.aapen-dok-journalfoering`, oversetter fra Avro til json og produserer json på `teamdagpenger.rapid.v1` topic. 
+Oversetter meldinger fra `teamdokumenthandtering.aapen-dok-journalfoering`, oversetter fra Avro til json og produserer json på `teamdagpenger.mottak.v1` topic. 
 
 
 
