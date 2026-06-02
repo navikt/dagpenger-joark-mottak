@@ -89,7 +89,7 @@ internal class JournalfoeringReplicator(
                                 record.value().journalPostId(),
                                 record.value().toJson(),
                             ),
-                        ).get(500, TimeUnit.MILLISECONDS)
+                        ).get(5, TimeUnit.SECONDS)
                     logger.info {
                         "Migrerte ${record.topic()} med nøkkel: ${
                             record.value().journalPostId()
