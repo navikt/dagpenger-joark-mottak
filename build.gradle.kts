@@ -30,8 +30,8 @@ java {
 configurations {
     all {
         resolutionStrategy {
-            force("com.fasterxml.jackson.core:jackson-databind:2.21.3")
-            force("com.fasterxml.jackson.core:jackson-core:2.21.3")
+            force("com.fasterxml.jackson.core:jackson-databind:2.21.4")
+            force("com.fasterxml.jackson.core:jackson-core:2.21.4")
         }
     }
 }
