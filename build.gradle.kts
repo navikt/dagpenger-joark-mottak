@@ -31,7 +31,7 @@ configurations {
     all {
         resolutionStrategy {
             force("com.fasterxml.jackson.core:jackson-databind:2.22.2")
-            force("com.fasterxml.jackson.core:jackson-core:2.22.1")
+            force("com.fasterxml.jackson.core:jackson-core:2.22.2")
         }
     }
 }
