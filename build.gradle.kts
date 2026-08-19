@@ -36,7 +36,7 @@ configurations {
     }
 }
 
-val kafkaVersjon = "8.1.1-ce"
+val kafkaVersjon = "8.3.1-ce"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
