@@ -27,15 +27,6 @@ java {
     }
 }
 
-configurations {
-    all {
-        resolutionStrategy {
-            force("com.fasterxml.jackson.core:jackson-databind:2.22.2")
-            force("com.fasterxml.jackson.core:jackson-core:2.22.2")
-        }
-    }
-}
-
 val kafkaVersjon = "8.3.1-ce"
 
 dependencies {
@@ -46,7 +37,7 @@ dependencies {
 
     implementation(libs.konfig)
 
-    implementation(libs.jackson.core)
+    implementation(libs.jackson.databind)
     implementation(libs.jackson.kotlin)
 
     implementation("org.apache.kafka:kafka-clients:$kafkaVersjon")

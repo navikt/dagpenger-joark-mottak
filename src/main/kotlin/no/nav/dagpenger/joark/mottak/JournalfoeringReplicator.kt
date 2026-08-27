@@ -1,6 +1,5 @@
 package no.nav.dagpenger.joark.mottak
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +12,7 @@ import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.errors.WakeupException
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
@@ -149,8 +149,10 @@ private data class JournalfoeringHendelse(
     val behandlingstema: String,
 )
 
+private val objectMapper = jacksonMapperBuilder().build()
+
 private fun GenericRecord.toJson() =
-    jacksonObjectMapper().writeValueAsString(
+    objectMapper.writeValueAsString(
         JournalfoeringHendelse(
             hendelsesId = get("hendelsesId").toString(),
             versjon = get("versjon") as Int,
